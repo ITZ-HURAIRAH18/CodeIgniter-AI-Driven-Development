@@ -192,8 +192,8 @@ onMounted(async () => {
   const [transRes, branchRes] = await Promise.all([
     api.get('/transfers'), api.get('/branches')
   ])
-  transfers.value = transRes.data || []
-  branches.value  = branchRes.data || []
+  transfers.value = transRes || []
+  branches.value  = branchRes || []
   loading.value   = false
 })
 
@@ -202,7 +202,7 @@ async function onFromBranchChange() {
   sourceInventory.value = []
   if (!tform.from_branch_id) return
   const res = await api.get(`/inventory?branch_id=${tform.from_branch_id}`)
-  sourceInventory.value = (res.data || []).filter(i => i.quantity > 0)
+  sourceInventory.value = (res || []).filter(i => i.quantity > 0)
 }
 
 function addTransferItem() {
@@ -227,7 +227,7 @@ async function submitTransfer() {
     await api.post('/transfers', tform)
     modalSuccess.value = 'Transfer request created!'
     const res = await api.get('/transfers')
-    transfers.value = res.data || []
+    transfers.value = res || []
     Object.assign(tform, { from_branch_id:'', to_branch_id:'', notes:'', items:[] })
     setTimeout(() => { showModal.value = false; modalSuccess.value = '' }, 1500)
   } catch (e) {
@@ -239,7 +239,7 @@ async function changeStatus(id, action) {
   try {
     await api.post(`/transfers/${id}/${action}`)
     const res = await api.get('/transfers')
-    transfers.value = res.data || []
+    transfers.value = res || []
   } catch (e) { alert(e?.message || 'Action failed.') }
 }
 

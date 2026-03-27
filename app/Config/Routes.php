@@ -14,17 +14,15 @@ $routes->get('/', function() {
 });
 
 // ============================================================
-// CORS Preflight Handler — Global OPTIONS for all API routes
-// ============================================================
-$routes->options('api/v1/(:any)', 'Api\V1\TestController::corsPreFlight', ['filter' => 'cors']);
-
-// ============================================================
 // API v1 Routes — Multi-Branch Inventory & Order System
 // All routes under /api/v1/
 // Filters: cors (all), auth:jwt (protected), role (per-group)
 // ============================================================
 
 $routes->group('api/v1', ['filter' => 'cors'], function ($routes) {
+
+    // ── CORS Preflight Handler — OPTIONS for all API routes ────────────
+    $routes->options('(.*)', 'Api\V1\TestController::corsPreFlight');
 
     // ── Test/Debug endpoints ────────────────────────────────────────
     $routes->get('test/health', 'Api\V1\TestController::health');
@@ -41,6 +39,9 @@ $routes->group('api/v1', ['filter' => 'cors'], function ($routes) {
         // Auth
         $routes->post('auth/logout', 'Api\V1\AuthController::logout');
         $routes->get('auth/me',      'Api\V1\AuthController::me');
+
+        // Users — read: all (for dropdowns/selects)
+        $routes->get('users', 'Api\V1\UserController::index');
 
         // Branches — read: all roles; write: admin only
         $routes->get('branches',        'Api\V1\BranchController::index');
@@ -83,11 +84,15 @@ $routes->group('api/v1', ['filter' => 'cors'], function ($routes) {
             $routes->post('(:num)/complete', 'Api\V1\TransferController::complete/$1');
         });
 
-        // Orders — all authenticated users can create; managers+ can list all
+        // Orders — read: all users; write: branch_manager + sales_user only (NOT admin)
         $routes->get('orders',        'Api\V1\OrderController::index');
         $routes->get('orders/(:num)', 'Api\V1\OrderController::show/$1');
-        $routes->post('orders',       'Api\V1\OrderController::create');
-        $routes->post('orders/(:num)/cancel', 'Api\V1\OrderController::cancel/$1');
+
+        // Order creation restricted: Manager + Sales User only (NOT Admin)
+        $routes->group('orders', ['filter' => 'role:branch_manager,sales_user'], function ($routes) {
+            $routes->post('',                    'Api\V1\OrderController::create');
+            $routes->post('(:num)/cancel',       'Api\V1\OrderController::cancel/$1');
+        });
     });
 });
 

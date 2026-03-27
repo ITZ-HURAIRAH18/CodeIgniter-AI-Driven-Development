@@ -81,7 +81,14 @@ class TestController extends BaseApiController
      */
     public function corsPreFlight(): \CodeIgniter\HTTP\ResponseInterface
     {
+        $origin = $this->request->getHeaderLine('Origin') ?: '*';
+        
         return response()
+            ->setHeader('Access-Control-Allow-Origin',  $origin)
+            ->setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+            ->setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+            ->setHeader('Access-Control-Allow-Credentials', 'true')
+            ->setHeader('Access-Control-Max-Age', '86400')
             ->setStatusCode(204);
     }
 }

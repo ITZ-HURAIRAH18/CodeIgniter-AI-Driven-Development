@@ -141,7 +141,7 @@ const filteredProducts = computed(() => {
 
 onMounted(async () => {
   const res = await api.get('/products')
-  products.value = res.data || []
+  products.value = res || []
   loading.value  = false
 })
 
@@ -165,7 +165,7 @@ async function saveProduct() {
       await api.post('/products', form)
     }
     const res = await api.get('/products')
-    products.value = res.data || []
+    products.value = res || []
     showModal.value = false
   } catch (e) {
     modalError.value = e?.message || 'Save failed.'

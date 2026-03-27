@@ -124,9 +124,9 @@ onMounted(async () => {
       api.get('/branches'),
     ])
 
-    const orders   = ordersRes.data   || []
-    const products = productsRes.data || []
-    const branches = branchesRes.data || []
+    const orders   = ordersRes   || []
+    const products = productsRes || []
+    const branches = branchesRes || []
 
     recentOrders.value = orders.slice(0, 5)
     loadingOrders.value = false
@@ -135,7 +135,7 @@ onMounted(async () => {
     const branchId = auth.userBranchId || (branches[0]?.id)
     if (branchId) {
       const invRes = await api.get(`/inventory?branch_id=${branchId}`)
-      const inventory = invRes.data || []
+      const inventory = invRes || []
       lowStockItems.value = inventory.filter(i => i.quantity <= i.reorder_level && i.quantity >= 0)
       statCards.value[3].value = lowStockItems.value.length
     }

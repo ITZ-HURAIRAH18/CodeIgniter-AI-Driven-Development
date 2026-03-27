@@ -78,7 +78,7 @@ const filteredOrders = computed(() => {
 
 onMounted(async () => {
   const res = await api.get('/orders')
-  orders.value  = res.data || []
+  orders.value  = res || []
   loading.value = false
 })
 

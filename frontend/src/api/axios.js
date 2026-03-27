@@ -18,22 +18,41 @@ api.interceptors.request.use((config) => {
 
 // Response interceptor — handle 401 (refresh or logout)
 api.interceptors.response.use(
-  (response) => response.data.data,  // Extract the actual data from the envelope
+  (response) => {
+    // Backend wraps all responses: { success, message, data: {...} }
+    // Extract the inner 'data' property
+    return response.data?.data || response.data
+  },
   async (error) => {
     const originalRequest = error.config
     const auth = useAuthStore()
 
-    if (error.response?.status === 401 && !originalRequest._retry && auth.refreshToken) {
-      originalRequest._retry = true
-      try {
-        await auth.refreshAccessToken()
-        originalRequest.headers.Authorization = `Bearer ${auth.accessToken}`
-        return api(originalRequest)
-      } catch {
+    // Only attempt refresh if: 401 error + not already retried + have refresh token
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (!auth.refreshToken) {
+        console.error('❌ 401 Error: No refresh token available. User must re-login.')
         auth.logout()
         window.location.href = '/login'
+        return Promise.reject(error.response?.data || error)
+      }
+
+      originalRequest._retry = true
+      try {
+        console.log('🔄 Attempting token refresh...')
+        await auth.refreshAccessToken()
+        
+        // Update the failed request with new token
+        originalRequest.headers.Authorization = `Bearer ${auth.accessToken}`
+        console.log('✅ Token refreshed. Retrying request...')
+        return api(originalRequest)
+      } catch (refreshError) {
+        console.error('❌ Token refresh failed:', refreshError)
+        auth.logout()
+        window.location.href = '/login'
+        return Promise.reject(refreshError)
       }
     }
+
     return Promise.reject(error.response?.data || error)
   }
 )

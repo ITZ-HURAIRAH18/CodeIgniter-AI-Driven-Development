@@ -205,7 +205,7 @@ const grandTotal = computed(() => (parseFloat(subtotal.value) + parseFloat(taxTo
 onMounted(async () => {
   if (auth.isAdmin) {
     const res = await api.get('/branches')
-    branches.value = res.data || []
+    branches.value = res || []
   } else {
     await loadInventory()
   }
@@ -221,7 +221,7 @@ async function loadInventory() {
   const branchId = effectiveBranchId.value
   if (!branchId) return
   const res = await api.get(`/inventory?branch_id=${branchId}`)
-  inventory.value = res.data || []
+  inventory.value = res || []
 }
 
 function onProductSelect() {
@@ -298,7 +298,7 @@ async function placeOrder() {
     }
 
     const res = await api.post('/orders', payload)
-    alertMsg.value  = `Order ${res.data?.order_number || ''} placed successfully!`
+    alertMsg.value  = `Order ${res?.order_number || ''} placed successfully!`
     alertType.value = 'success'
 
     setTimeout(() => router.push('/orders'), 1500)

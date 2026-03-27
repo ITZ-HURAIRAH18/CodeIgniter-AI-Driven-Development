@@ -99,7 +99,7 @@ const filteredInventory = computed(() => {
 onMounted(async () => {
   if (auth.isAdmin) {
     const res = await api.get('/branches')
-    branches.value = res.data || []
+    branches.value = res || []
     if (branches.value.length) selectedBranchId.value = branches.value[0].id
   }
   await loadInventory()
@@ -111,7 +111,7 @@ async function loadInventory() {
     const branchId = selectedBranchId.value || auth.userBranchId
     if (!branchId) { loading.value = false; return }
     const res = await api.get(`/inventory?branch_id=${branchId}`)
-    inventory.value = res.data || []
+    inventory.value = res || []
   } finally {
     loading.value = false
   }

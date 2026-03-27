@@ -54,6 +54,13 @@
             <input v-model="form.phone" class="form-control" placeholder="+1-000-000" />
           </div>
           <div class="form-group">
+            <label class="form-label">Manager</label>
+            <select v-model="form.manager_id" class="form-control">
+              <option :value="null">— Unassigned —</option>
+              <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label class="form-label">Status</label>
             <select v-model="form.is_active" class="form-control">
               <option :value="1">Active</option>
@@ -78,23 +85,28 @@ import { ref, reactive, onMounted } from 'vue'
 import api from '@/api/axios'
 
 const branches   = ref([])
+const users      = ref([])
 const loading    = ref(true)
 const showModal  = ref(false)
 const editing    = ref(null)
 const saving     = ref(false)
 const modalError = ref('')
 
-const form = reactive({ name: '', address: '', phone: '', is_active: 1 })
+const form = reactive({ name: '', address: '', phone: '', manager_id: null, is_active: 1 })
 
 onMounted(async () => {
-  const res = await api.get('/branches')
-  branches.value = res.data || []
-  loading.value  = false
+  const brRes = await api.get('/branches')
+  branches.value = brRes || []
+  
+  const usRes = await api.get('/users')
+  users.value = usRes || []
+  
+  loading.value = false
 })
 
 function openCreate() {
   editing.value = null; modalError.value = ''
-  Object.assign(form, { name:'', address:'', phone:'', is_active:1 })
+  Object.assign(form, { name:'', address:'', phone:'', manager_id: null, is_active:1 })
   showModal.value = true
 }
 function openEdit(b) {
@@ -109,7 +121,7 @@ async function save() {
     if (editing.value) await api.put(`/branches/${editing.value}`, form)
     else await api.post('/branches', form)
     const res = await api.get('/branches')
-    branches.value = res.data || []
+    branches.value = res || []
     showModal.value = false
   } catch (e) {
     modalError.value = e?.message || 'Save failed.'

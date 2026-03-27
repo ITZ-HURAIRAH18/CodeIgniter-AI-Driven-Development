@@ -21,7 +21,7 @@ class AuthService
 
     public function __construct()
     {
-        // Try multiple ways to get JWT_SECRET
+        // Try multiple ways to get JWT_SECRET (order is important)
         $this->secret = $_ENV['JWT_SECRET'] 
                      ?? $_SERVER['JWT_SECRET']
                      ?? getenv('JWT_SECRET');
@@ -30,9 +30,13 @@ class AuthService
         $this->refreshTtl = (int) ($_ENV['JWT_REFRESH_TTL'] ?? $_SERVER['JWT_REFRESH_TTL'] ?? getenv('JWT_REFRESH_TTL') ?? 604800);
 
         if (empty($this->secret)) {
-            // Log warning but don't throw - use default for development only
-            log_message('warning', 'JWT_SECRET not set in environment, using default (unsafe for production)');
+            // IMPORTANT: Use the same default as fallback
             $this->secret = 'your-super-secret-jwt-key-change-this-in-production-min32chars';
+            log_message('warning', 'JWT_SECRET not loaded from environment, using hardcoded default. ' .
+                                   'Ensure .env file exists and CI_ENVIRONMENT=development is set.');
+        } else {
+            log_message('debug', 'JWT_SECRET loaded from environment. TTLs: access=' . $this->accessTtl . 
+                                 's, refresh=' . $this->refreshTtl . 's');
         }
     }
 
@@ -57,11 +61,11 @@ class AuthService
             'refresh_token' => $this->issueToken($user, 'refresh', $this->refreshTtl),
             'expires_in'    => $this->accessTtl,
             'user'          => [
-                'id'        => $user->id,
+                'id'        => (int) $user->id,
                 'name'      => $user->name,
                 'email'     => $user->email,
-                'role'      => $user->role_id,
-                'branch_id' => $user->branch_id,
+                'role'      => (int) $user->role_id,
+                'branch_id' => $user->branch_id ? (int) $user->branch_id : null,
             ],
         ];
     }
@@ -100,21 +104,30 @@ class AuthService
      */
     public function refresh(string $refreshToken): array
     {
+        if (empty($refreshToken)) {
+            log_message('error', 'Refresh attempted with empty refresh token');
+            throw new \RuntimeException('Refresh token is empty.');
+        }
+
         try {
             $payload = JWT::decode($refreshToken, new Key($this->secret, $this->algo));
         } catch (\Exception $e) {
-            throw new \RuntimeException('Refresh token invalid.');
+            log_message('error', 'JWT decode failed during refresh: ' . $e->getMessage());
+            throw new \RuntimeException('Refresh token invalid: ' . $e->getMessage());
         }
 
         if (($payload->type ?? '') !== 'refresh') {
+            log_message('error', 'Token type mismatch during refresh. Expected "refresh", got "' . ($payload->type ?? 'null') . '"');
             throw new \RuntimeException('Not a refresh token.');
         }
 
         $user = model(UserModel::class)->find($payload->sub);
         if (!$user || !$user->is_active) {
+            log_message('error', 'User not found or inactive during refresh. User ID: ' . ($payload->sub ?? 'null'));
             throw new \RuntimeException('User not found or inactive.');
         }
 
+        log_message('debug', 'Token refreshed successfully for user: ' . $user->id);
         return [
             'access_token' => $this->issueToken((object) $user, 'access', $this->accessTtl),
             'expires_in'   => $this->accessTtl,
