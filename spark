@@ -1,0 +1,48 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ *---------------------------------------------------------------
+ * CHECK SERVER API
+ *---------------------------------------------------------------
+ */
+
+if (str_starts_with(PHP_SAPI, 'cgi')) {
+    exit("The cli tool is not supported when running php-cgi. It needs php-cli to function!\n\n");
+}
+
+$minPhpVersion = '8.1';
+if (version_compare(PHP_VERSION, $minPhpVersion, '<')) {
+    $message = sprintf(
+        'Your PHP version must be %s or higher to run CodeIgniter. Current version: %s',
+        $minPhpVersion,
+        PHP_VERSION,
+    );
+
+    exit($message);
+}
+
+// We want errors to be shown when using it from the CLI.
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
+// Path to the front controller
+define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR);
+
+// Ensure the current directory is pointing to the front controller's directory
+if (!is_dir(FCPATH)) {
+    mkdir(FCPATH, 0777, true);
+}
+chdir(FCPATH);
+
+// LOAD OUR PATHS CONFIG FILE
+// This assumes 'app/Config/Paths.php' is loaded from composer or present
+require __DIR__ . '/vendor/codeigniter4/framework/app/Config/Paths.php';
+
+$paths = new \Config\Paths();
+// Manually correct system/app directories because we are using composer framework install
+$paths->systemDirectory = __DIR__ . '/vendor/codeigniter4/framework/system';
+$paths->appDirectory = __DIR__ . '/app';
+
+require $paths->systemDirectory . '/Boot.php';
+exit(\CodeIgniter\Boot::bootSpark($paths));

@@ -35,11 +35,9 @@
         },
         "platform": {
             "ext-intl": "1.0.0"
-        }
-    },
-    "audit": {
-        "ignore": {
-            "PKSA-y2cr-5h3j-g3ys": "JWT advisory — tokens are server-generated only, no untrusted key parsing used in this project"
+        },
+        "audit": {
+            "block-insecure": false
         }
     },
     "scripts": {

@@ -15,7 +15,7 @@ app.indexPage = ''
 database.default.hostname = localhost
 database.default.database = CodeIgniter
 database.default.username = root
-database.default.password =student123
+database.default.password = student123
 database.default.DBDriver = MySQLi
 database.default.port = 3306
 
