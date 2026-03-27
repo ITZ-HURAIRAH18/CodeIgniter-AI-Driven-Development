@@ -63,20 +63,22 @@ $routes->group('api/v1', ['filter' => 'cors'], function ($routes) {
             $routes->delete('(:num)', 'Api\V1\ProductController::delete/$1');
         });
 
-        // Inventory — read/write: admin + branch_manager
+        // Inventory — read: all; write: admin + branch_manager
+        $routes->get('inventory',              'Api\V1\InventoryController::index');
+        $routes->get('inventory/branch/(:num)', 'Api\V1\InventoryController::branch/$1');
+        $routes->get('inventory/logs',         'Api\V1\InventoryController::logs');
+
         $routes->group('inventory', ['filter' => 'role:admin,branch_manager'], function ($routes) {
-            $routes->get('',        'Api\V1\InventoryController::index');
-            $routes->get('branch/(:num)', 'Api\V1\InventoryController::branch/$1');
-            $routes->get('logs',    'Api\V1\InventoryController::logs');
             $routes->post('add',    'Api\V1\InventoryController::add');
             $routes->post('adjust', 'Api\V1\InventoryController::adjust');
         });
 
-        // Stock Transfers — read/write: admin + branch_manager
+        // Stock Transfers
+        $routes->get('transfers',        'Api\V1\TransferController::index');
+        $routes->get('transfers/(:num)', 'Api\V1\TransferController::show/$1');
+        $routes->post('transfers',       'Api\V1\TransferController::create');
+
         $routes->group('transfers', ['filter' => 'role:admin,branch_manager'], function ($routes) {
-            $routes->get('',                 'Api\V1\TransferController::index');
-            $routes->get('(:num)',           'Api\V1\TransferController::show/$1');
-            $routes->post('',                'Api\V1\TransferController::create');
             $routes->post('(:num)/approve',  'Api\V1\TransferController::approve/$1');
             $routes->post('(:num)/reject',   'Api\V1\TransferController::reject/$1');
             $routes->post('(:num)/complete', 'Api\V1\TransferController::complete/$1');
