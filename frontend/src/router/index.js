@@ -10,7 +10,7 @@ const routes = [
   },
   {
     path: '/',
-    component: () => import('@/components/layout/AppLayout.vue'),
+    component: () => import('@/components/layout/AppLayoutPro.vue'),
     meta: { requiresAuth: true },
     children: [
       {
@@ -37,7 +37,7 @@ const routes = [
       {
         path: 'inventory',
         name: 'Inventory',
-        component: () => import('@/views/Inventory/InventoryView.vue'),
+        component: () => import('@/views/Inventory/InventoryViewPro.vue'),
         meta: { roles: [1, 2, 3] },
       },
       {

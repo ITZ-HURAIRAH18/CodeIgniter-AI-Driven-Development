@@ -1,7 +1,7 @@
 <template>
   <span
     :class="[
-      'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium',
+      'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold',
       'transition-colors duration-150',
       variantClasses
     ]"
@@ -21,8 +21,8 @@ import { computed } from 'vue'
 const props = defineProps({
   variant: {
     type: String,
-    default: 'default',
-    validator: (value) => ['default', 'success', 'warning', 'error', 'info'].includes(value)
+    default: 'neutral',
+    validator: (value) => ['neutral', 'success', 'warning', 'error', 'info', 'pink', 'teal', 'purple', 'blue'].includes(value)
   },
   label: {
     type: String,
@@ -36,11 +36,15 @@ const props = defineProps({
 
 const variantClasses = computed(() => {
   const variants = {
-    'default': 'bg-slate-100 text-slate-700',
-    'success': 'bg-green-50 text-green-700',
-    'warning': 'bg-orange-50 text-orange-700',
-    'error': 'bg-red-50 text-red-700',
-    'info': 'bg-cyan-50 text-cyan-700'
+    'neutral': 'bg-gray-100 text-gray-700',
+    'success': 'bg-status-success/15 text-status-success',
+    'warning': 'bg-status-warning/15 text-status-warning',
+    'error': 'bg-status-error/15 text-status-error',
+    'info': 'bg-status-info/15 text-status-info',
+    'pink': 'bg-accent-pink-100 text-accent-pink-700',
+    'teal': 'bg-accent-teal-100 text-accent-teal-700',
+    'purple': 'bg-accent-purple-100 text-accent-purple-700',
+    'blue': 'bg-accent-blue-100 text-accent-blue-700',
   }
   return variants[props.variant]
 })

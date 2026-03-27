@@ -7,29 +7,79 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Production SaaS Colors
-        'brand': {
-          50: '#fdf4f5',   // Page background
-          100: '#fae8eb',
-          500: '#e11d48',  // Primary accent
-          600: '#b91c1c',  // Hover state
+        // Soft pastel palette for low-strain, modern look
+        'surface': {
+          'light': '#fafbfc',    // Main page background
+          'base': '#f8f9fa',     // Card backgrounds
+          'elevated': '#ffffff', // Modal/overlay backgrounds
         },
-        // Semantic grays (neutral, professional)
+        // Soft pastel accent colors
+        'accent': {
+          'pink': {
+            50: '#fdf6f8',
+            100: '#fce7f0',
+            200: '#f8c5e0',
+            300: '#f5a8d8',
+            400: '#ef7fcc',
+            500: '#e75ab8',   // Primary soft pink
+            600: '#d63fa9',
+            700: '#b8278f',
+          },
+          'teal': {
+            50: '#f0faf9',
+            100: '#d6f5f1',
+            200: '#aae8e0',
+            300: '#7dd9cc',
+            400: '#5bc9bc',
+            500: '#31a8a2',   // Soft teal
+            600: '#2a9a96',
+            700: '#1f7a78',
+          },
+          'purple': {
+            50: '#f7f3fc',
+            100: '#ede5f9',
+            200: '#d9c8f0',
+            300: '#c5abb0',
+            400: '#a882d4',
+            500: '#9059ae',   // Soft purple
+            600: '#7e4b9f',
+            700: '#62387e',
+          },
+          'blue': {
+            50: '#f0f6fb',
+            100: '#d6ebf5',
+            200: '#a8d8eb',
+            300: '#7ac4e1',
+            400: '#5ab5d9',
+            500: '#3b9bc9',   // Soft blue
+            600: '#2d83b3',
+            700: '#1f6196',
+          },
+        },
+        // Semantic grays (professional, neutral)
         'gray': {
-          50: '#f9fafb',
+          50: '#fafbfc',
           100: '#f3f4f6',
-          200: '#e5e7eb',
+          150: '#e9ecf1',
+          200: '#e1e5eb',
           300: '#d1d5db',
           400: '#9ca3af',
           500: '#6b7280',
           600: '#4b5563',   // Body text
           700: '#374151',
           800: '#1f2937',
-          900: '#111827',    // Headings
+          900: '#111827',   // Headings
+        },
+        // Status colors (rounded, softer)
+        'status': {
+          'success': '#10b981',    // Green
+          'warning': '#f59e0b',    // Amber
+          'error': '#ef4444',      // Red
+          'info': '#3b82f6',       // Blue
         },
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Inter', 'Poppins', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
       },
       fontSize: {
         // Professional typography scale

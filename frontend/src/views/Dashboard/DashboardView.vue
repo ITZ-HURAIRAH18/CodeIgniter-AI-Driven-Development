@@ -1,92 +1,114 @@
 <template>
-  <div class="dashboard">
-    <!-- Page header -->
-    <div class="page-header">
+  <div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-start justify-between">
       <div>
-        <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">Welcome back, {{ auth.user?.name }} — {{ roleLabel }}</p>
+        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p class="text-sm text-gray-600 mt-1">Welcome back, {{ auth.user?.name }} — {{ roleLabel }}</p>
       </div>
-      <router-link to="/orders/create" class="btn btn-primary">
-        + New Order
+      <router-link to="/orders/create">
+        <BaseButton variant="primary" label="+ Create Order" />
       </router-link>
     </div>
 
-    <!-- Stats row -->
-    <div class="stats-grid">
-      <div class="stat-card" :class="card.color" v-for="card in statCards" :key="card.label">
-        <div class="stat-icon">{{ card.icon }}</div>
-        <div class="stat-content">
-          <div class="stat-value">{{ card.value }}</div>
-          <div class="stat-label">{{ card.label }}</div>
-          <div class="stat-sub">{{ card.sub }}</div>
+    <!-- KPI Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div
+        v-for="stat in statCards"
+        :key="stat.label"
+        class="bg-surface-elevated border border-gray-200 rounded-xl p-6 shadow-xs hover:shadow-sm transition-shadow duration-200"
+        :style="{ borderTopWidth: '3px', borderTopColor: stat.color }"
+      >
+        <div class="flex items-start justify-between">
+          <div class="space-y-2 flex-1">
+            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">{{ stat.label }}</p>
+            <p class="text-3xl font-bold text-gray-900">{{ stat.value }}</p>
+            <p class="text-xs text-gray-500">{{ stat.sub }}</p>
+          </div>
+          <div :class="['w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0']" :style="{ backgroundColor: stat.bgColor }">
+            <component :is="getIconComponent(stat.icon)" :style="{ color: stat.color, width: '24px', height: '24px' }" />
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Two column layout -->
-    <div class="dashboard-grid">
-      <!-- Recent Orders -->
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Recent Orders</span>
-          <router-link to="/orders" class="btn btn-secondary btn-sm">View All</router-link>
-        </div>
-        <div v-if="loadingOrders" class="loading-state">
-          <span class="spinner"></span> Loading orders...
-        </div>
-        <div v-else class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Order #</th>
-                <th>Branch</th>
-                <th>Total</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="order in recentOrders" :key="order.id">
-                <td class="font-mono">{{ order.order_number }}</td>
-                <td>{{ order.branch_name }}</td>
-                <td class="font-mono">${{ Number(order.grand_total).toFixed(2) }}</td>
-                <td><span :class="statusBadge(order.status)">{{ order.status }}</span></td>
-              </tr>
-              <tr v-if="recentOrders.length === 0">
-                <td colspan="4" class="empty-state">No orders yet</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <!-- Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Recent Orders (2/3 width) -->
+      <div class="lg:col-span-2">
+        <BaseCard title="Recent Orders" subtitle="Your latest 5 orders">
+          <div v-if="loadingOrders" class="flex items-center justify-center h-48">
+            <div class="text-center">
+              <div class="inline-flex items-center">
+                <div class="w-4 h-4 border-2 border-accent-pink-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+              <p class="text-sm text-gray-500 mt-2">Loading orders...</p>
+            </div>
+          </div>
+          <BaseTable
+            v-else
+            :columns="orderColumns"
+            :data="recentOrders"
+            noPadding
+          >
+            <template #cell-order_number="{ value }">
+              <span class="font-mono text-sm text-gray-900">{{ value }}</span>
+            </template>
+            <template #cell-grand_total="{ value }">
+              <span class="font-semibold text-gray-900">${{ Number(value).toFixed(2) }}</span>
+            </template>
+            <template #cell-status="{ value }">
+              <Badge :label="value" :variant="getStatusBadgeVariant(value)" size="sm" />
+            </template>
+          </BaseTable>
+          <template #footer>
+            <div class="flex justify-end">
+              <router-link to="/orders">
+                <BaseButton variant="ghost" label="View all orders →" size="sm" />
+              </router-link>
+            </div>
+          </template>
+        </BaseCard>
       </div>
 
-      <!-- Low Stock Alert -->
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">⚠ Low Stock Alerts</span>
-          <router-link to="/inventory" class="btn btn-secondary btn-sm">Manage</router-link>
-        </div>
-        <div v-if="loadingInventory" class="loading-state">
-          <span class="spinner"></span>
-        </div>
-        <div v-else>
-          <div
-            v-for="item in lowStockItems"
-            :key="item.id"
-            class="low-stock-item"
-          >
-            <div>
-              <div class="lsi-name">{{ item.product_name }}</div>
-              <div class="lsi-sku text-muted text-sm">{{ item.sku }}</div>
-            </div>
-            <div class="lsi-qty">
-              <span class="badge badge-danger">{{ item.quantity }} left</span>
+      <!-- Low Stock Alerts (1/3 width) -->
+      <div>
+        <BaseCard title="Low Stock Alerts" subtitle="Items below reorder level">
+          <div v-if="loadingInventory" class="flex items-center justify-center h-48">
+            <div class="inline-flex items-center">
+              <div class="w-4 h-4 border-2 border-accent-pink-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
           </div>
-          <div v-if="lowStockItems.length === 0" class="good-state">
-            <div class="status-dot green"></div>
-            All stock levels are healthy
+          <div v-else class="space-y-3">
+            <template v-if="lowStockItems.length > 0">
+              <div
+                v-for="item in lowStockItems"
+                :key="item.id"
+                class="flex items-center justify-between p-4 rounded-lg border border-gray-200 bg-surface-base hover:shadow-xs transition-shadow duration-200"
+              >
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate">{{ item.product_name }}</p>
+                  <p class="text-xs text-gray-500 truncate">{{ item.sku }}</p>
+                </div>
+                <Badge :label="`${item.quantity} left`" variant="error" size="sm" />
+              </div>
+            </template>
+            <div v-else class="flex flex-col items-center justify-center py-8">
+              <div class="w-12 h-12 rounded-full bg-status-success/15 flex items-center justify-center mb-2">
+                <CheckCircle2 :style="{ color: '#10b981', width: '24px', height: '24px' }" />
+              </div>
+              <p class="text-sm font-medium text-gray-900">All stock healthy</p>
+              <p class="text-xs text-gray-500 text-center mt-1">No items below reorder level</p>
+            </div>
           </div>
-        </div>
+          <template #footer>
+            <div class="flex justify-end">
+              <router-link to="/inventory">
+                <BaseButton variant="ghost" label="Manage inventory →" size="sm" />
+              </router-link>
+            </div>
+          </template>
+        </BaseCard>
       </div>
     </div>
   </div>
@@ -96,6 +118,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/store/auth.store'
 import api from '@/api/axios'
+import BaseCard from '@/components/ui/BaseCard.vue'
+import BaseTable from '@/components/ui/BaseTable.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
+import Badge from '@/components/ui/Badge.vue'
+import { TrendingUp, Package, MapPin, AlertTriangle, CheckCircle2 } from 'lucide-vue-next'
 
 const auth = useAuthStore()
 
@@ -104,17 +131,44 @@ const roleLabel = computed(() => {
   return map[auth.user?.role] || ''
 })
 
-const recentOrders   = ref([])
-const lowStockItems  = ref([])
-const loadingOrders   = ref(true)
+const recentOrders = ref([])
+const lowStockItems = ref([])
+const loadingOrders = ref(true)
 const loadingInventory = ref(true)
 
 const statCards = ref([
-  { icon: '◈', label: 'Total Orders',   value: '—', sub: 'Today', color: 'blue' },
-  { icon: '◻', label: 'Products',       value: '—', sub: 'Active', color: 'purple' },
-  { icon: '◉', label: 'Branches',       value: '—', sub: 'Active', color: 'green' },
-  { icon: '⚠', label: 'Low Stock',      value: '—', sub: 'Items needing attention', color: 'orange' },
+  { icon: 'TrendingUp', label: 'Total Orders', value: '—', sub: 'This month', color: '#3b82f6', bgColor: '#dbeafe' },
+  { icon: 'Package', label: 'Products', value: '—', sub: 'In catalog', color: '#9059ae', bgColor: '#f3e8ff' },
+  { icon: 'MapPin', label: 'Branches', value: '—', sub: 'Active', color: '#31a8a2', bgColor: '#d1faf5' },
+  { icon: 'AlertTriangle', label: 'Low Stock', value: '—', sub: 'Attention needed', color: '#f59e0b', bgColor: '#fef3c7' },
 ])
+
+const orderColumns = [
+  { key: 'order_number', label: 'Order #' },
+  { key: 'branch_name', label: 'Branch' },
+  { key: 'grand_total', label: 'Total' },
+  { key: 'status', label: 'Status' },
+]
+
+function getIconComponent(iconName) {
+  const icons = {
+    'TrendingUp': TrendingUp,
+    'Package': Package,
+    'MapPin': MapPin,
+    'AlertTriangle': AlertTriangle,
+  }
+  return icons[iconName] || TrendingUp
+}
+
+function getStatusBadgeVariant(status) {
+  const map = {
+    completed: 'success',
+    pending: 'warning',
+    cancelled: 'error',
+    confirmed: 'info',
+  }
+  return map[status.toLowerCase()] || 'neutral'
+}
 
 onMounted(async () => {
   try {
@@ -124,7 +178,7 @@ onMounted(async () => {
       api.get('/branches'),
     ])
 
-    const orders   = ordersRes   || []
+    const orders = ordersRes || []
     const products = productsRes || []
     const branches = branchesRes || []
 
@@ -132,11 +186,11 @@ onMounted(async () => {
     loadingOrders.value = false
 
     // Load inventory for current user's branch
-    const branchId = auth.userBranchId || (branches[0]?.id)
+    const branchId = auth.userBranchId || branches[0]?.id
     if (branchId) {
       const invRes = await api.get(`/inventory?branch_id=${branchId}`)
       const inventory = invRes || []
-      lowStockItems.value = inventory.filter(i => i.quantity <= i.reorder_level && i.quantity >= 0)
+      lowStockItems.value = inventory.filter(i => i.quantity <= i.reorder_level && i.quantity >= 0).slice(0, 5)
       statCards.value[3].value = lowStockItems.value.length
     }
     loadingInventory.value = false
@@ -149,16 +203,6 @@ onMounted(async () => {
     loadingInventory.value = false
   }
 })
-
-function statusBadge(status) {
-  const map = {
-    completed: 'badge badge-success',
-    pending:   'badge badge-warning',
-    cancelled: 'badge badge-danger',
-    confirmed: 'badge badge-info',
-  }
-  return map[status] || 'badge badge-neutral'
-}
 </script>
 
 <style scoped>
