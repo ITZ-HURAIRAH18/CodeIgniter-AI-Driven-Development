@@ -27,8 +27,24 @@ class TransferController extends BaseApiController
     public function index(): \CodeIgniter\HTTP\ResponseInterface
     {
         $actor    = $this->actor();
-        $branchId = ($actor->role_id === 1) ? null : (int) $actor->branch_id;
-        return $this->ok($this->model->listAll($branchId));
+        $branchId = $this->request->getGet('branch_id');
+
+        if ((int) $actor->role_id === 2) {
+            $branchModel = model(\App\Models\BranchModel::class);
+            $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);
+
+            if ($branchId && !in_array((int)$branchId, $myBranchIds)) {
+                return $this->apiError('Access denied: You do not manage this branch.', 403);
+            }
+
+            if (!$branchId) {
+                if (empty($myBranchIds)) return $this->ok([]);
+                return $this->ok($this->model->listAllMultiBranch($myBranchIds));
+            }
+        }
+
+        $targetBranchId = ($actor->role_id === 1) ? ($branchId ? (int)$branchId : null) : (int) $actor->branch_id;
+        return $this->ok($this->model->listAll($targetBranchId));
     }
 
     /** GET /api/v1/transfers/{id} */

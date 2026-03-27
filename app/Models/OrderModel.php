@@ -53,4 +53,21 @@ class OrderModel extends Model
 
         return $builder->get()->getResultArray();
     }
+    /**
+     * Get orders for multiple specific branches.
+     */
+    public function getWithDetailsMultiBranch(array $branchIds): array
+    {
+        if (empty($branchIds)) return [];
+
+        return $this->db->table('orders o')
+            ->select('o.*, b.name AS branch_name, u.name AS created_by')
+            ->join('branches b', 'b.id = o.branch_id')
+            ->join('users u', 'u.id = o.user_id')
+            ->where('o.deleted_at', null)
+            ->whereIn('o.branch_id', $branchIds)
+            ->orderBy('o.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
 }

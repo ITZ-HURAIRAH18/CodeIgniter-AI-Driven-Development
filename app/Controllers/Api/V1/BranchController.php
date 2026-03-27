@@ -41,6 +41,15 @@ class BranchController extends BaseApiController
             return $this->validationError($this->model->errors());
         }
 
+        // Validate that manager_id is a branch_manager (role 2)
+        if (isset($data['manager_id'])) {
+            $userModel = model(\App\Models\UserModel::class);
+            $manager = $userModel->find($data['manager_id']);
+            if (!$manager || (int)$manager->role_id !== 2) {
+                return $this->apiError('Selected manager must have the Branch Manager role.', 400);
+            }
+        }
+
         $id = $this->model->insert($data, true);
         return $this->created($this->model->find($id));
     }
@@ -52,6 +61,16 @@ class BranchController extends BaseApiController
         if (!$branch) return $this->apiError('Branch not found.', 404);
 
         $data = $this->request->getJSON(true);
+
+        // Validate that manager_id is a branch_manager (role 2) if provided
+        if (isset($data['manager_id'])) {
+            $userModel = model(\App\Models\UserModel::class);
+            $manager = $userModel->find($data['manager_id']);
+            if (!$manager || (int)$manager->role_id !== 2) {
+                return $this->apiError('Selected manager must have the Branch Manager role.', 400);
+            }
+        }
+
         $this->model->update($id, $data);
 
         return $this->ok($this->model->find($id), 'Branch updated.');

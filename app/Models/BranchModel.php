@@ -32,4 +32,13 @@ class BranchModel extends Model
             ->get()
             ->getResultArray();
     }
+    /**
+     * Return IDs of all branches managed by a specific user.
+     */
+    public function getManagerBranchIds(int $userId): array
+    {
+        return $this->where('manager_id', $userId)
+                    ->where('deleted_at', null)
+                    ->findColumn('id') ?? [];
+    }
 }

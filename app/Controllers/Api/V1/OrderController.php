@@ -32,9 +32,24 @@ class OrderController extends BaseApiController
             $actor    = $this->actor();
             $branchId = $this->request->getGet('branch_id');
 
-            // Sales users and managers see only their branch
-            if (in_array((int) $actor->role_id, [2, 3]) && !$branchId) {
-                $branchId = $actor->branch_id;
+            // Managers can see all their branches' orders
+            if ((int) $actor->role_id === 2) {
+                $branchModel = model(\App\Models\BranchModel::class);
+                $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);
+
+                if ($branchId && !in_array((int)$branchId, $myBranchIds)) {
+                     return $this->apiError('Access denied for this branch.', 403);
+                }
+
+                if (!$branchId) {
+                    if (empty($myBranchIds)) return $this->ok([]);
+                    return $this->ok($this->model->getWithDetailsMultiBranch($myBranchIds));
+                }
+            }
+
+            // Sales users see only their assigned branch orders
+            if ((int) $actor->role_id === 3) {
+                 return $this->ok($this->model->getWithDetails((int) $actor->branch_id));
             }
 
             return $this->ok($this->model->getWithDetails($branchId ? (int) $branchId : null));
@@ -85,9 +100,18 @@ class OrderController extends BaseApiController
 
         $actor = $this->actor();
 
-        // If branch_manager or sales_user, enforce their branch
-        if (in_array((int) $actor->role_id, [2, 3])) {
+        // Enforce branch based on role
+        if ((int) $actor->role_id === 3) {
+            // Sales user: must use their assigned branch
             $data['branch_id'] = $actor->branch_id;
+        } elseif ((int) $actor->role_id === 2) {
+            // Manager: must use one of their managed branches
+            $branchModel = model(\App\Models\BranchModel::class);
+            $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);
+
+            if (!isset($data['branch_id']) || !in_array((int)$data['branch_id'], $myBranchIds)) {
+                return $this->apiError('Invalid branch selection. You do not manage this branch.', 403);
+            }
         }
 
         try {

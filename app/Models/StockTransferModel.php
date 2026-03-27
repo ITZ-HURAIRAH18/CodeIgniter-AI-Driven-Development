@@ -62,4 +62,24 @@ class StockTransferModel extends Model
 
         return $builder->get()->getResultArray();
     }
+    /**
+     * List transfers for multiple branches.
+     */
+    public function listAllMultiBranch(array $branchIds): array
+    {
+        if (empty($branchIds)) return [];
+
+        return $this->db->table('stock_transfers st')
+            ->select('st.*, fb.name AS from_branch, tb.name AS to_branch, u.name AS initiated_by_name')
+            ->join('branches fb', 'fb.id = st.from_branch_id')
+            ->join('branches tb', 'tb.id = st.to_branch_id')
+            ->join('users u', 'u.id = st.initiated_by')
+            ->groupStart()
+                ->whereIn('st.from_branch_id', $branchIds)
+                ->orWhereIn('st.to_branch_id', $branchIds)
+            ->groupEnd()
+            ->orderBy('st.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
 }

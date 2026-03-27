@@ -29,16 +29,28 @@ class InventoryController extends BaseApiController
             $branchId = $this->request->getGet('branch_id');
             $actor    = $this->actor();
 
-            // Branch managers can only see their own branch
-            if ((int) $actor->role_id === 2 && !$branchId) {
-                $branchId = $actor->branch_id;
+            // Branch managers restricted to their own branches
+            if ((int) $actor->role_id === 2) {
+                $branchModel = model(\App\Models\BranchModel::class);
+                $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);
+
+                if ($branchId && !in_array((int)$branchId, $myBranchIds)) {
+                    return $this->apiError('Access denied: You do not manage this branch.', 403);
+                }
+
+                if (!$branchId) {
+                    // Show all inventory for all my branches
+                    if (empty($myBranchIds)) return $this->ok([]);
+                    return $this->ok($this->model->whereIn('branch_id', $myBranchIds)->findAll());
+                }
             }
 
-            if (!$branchId) {
+            if (!$branchId && (int) $actor->role_id !== 1) {
                 return $this->apiError('branch_id is required.', 400);
             }
 
-            return $this->ok($this->model->getByBranch((int) $branchId));
+            $data = $branchId ? $this->model->getByBranch((int) $branchId) : $this->model->findAll();
+            return $this->ok($data);
         } catch (\Exception $e) {
             log_message('error', 'InventoryController::index: ' . $e->getMessage());
             return $this->apiError('Failed to retrieve inventory: ' . $e->getMessage(), 500);
