@@ -1,0 +1,18 @@
+vendor/
+.env
+.DS_Store
+*.log
+writable/cache/*
+writable/logs/*
+writable/session/*
+writable/uploads/*
+!writable/.gitkeep
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
