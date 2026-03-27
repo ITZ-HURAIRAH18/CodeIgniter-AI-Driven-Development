@@ -6,7 +6,7 @@ use App\Models\BranchModel;
 
 class BranchController extends BaseApiController
 {
-    private BranchModel $model;
+    protected $model;
 
     public function __construct()
     {
@@ -16,7 +16,12 @@ class BranchController extends BaseApiController
     /** GET /api/v1/branches */
     public function index(): \CodeIgniter\HTTP\ResponseInterface
     {
-        return $this->ok($this->model->getWithManagers());
+        try {
+            return $this->ok($this->model->getWithManagers());
+        } catch (\Exception $e) {
+            log_message('error', 'BranchController::index: ' . $e->getMessage());
+            return $this->apiError('Failed to retrieve branches: ' . $e->getMessage(), 500);
+        }
     }
 
     /** GET /api/v1/branches/{id} */

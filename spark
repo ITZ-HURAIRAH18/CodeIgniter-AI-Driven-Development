@@ -3,6 +3,16 @@
 
 /*
  *---------------------------------------------------------------
+ * POLYFILL MISSING KINT DEPENDENCY 
+ *---------------------------------------------------------------
+ * Bypasses the autoloader crash in development mode.
+ */
+if (!class_exists('Kint')) {
+    class Kint { public static $enabled_mode = false; }
+}
+
+/*
+ *---------------------------------------------------------------
  * CHECK SERVER API
  *---------------------------------------------------------------
  */

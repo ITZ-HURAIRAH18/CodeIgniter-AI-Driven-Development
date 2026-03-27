@@ -28,7 +28,7 @@ class BranchModel extends Model
         return $this->db->table('branches b')
             ->select('b.*, u.name AS manager_name, u.email AS manager_email')
             ->join('users u', 'u.id = b.manager_id', 'left')
-            ->whereNull('b.deleted_at')
+            ->where('b.deleted_at', null)
             ->get()
             ->getResultArray();
     }

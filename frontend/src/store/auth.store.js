@@ -24,7 +24,7 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const res = await api.post('/auth/login', { email, password })
-        this.setSession(res.data)
+        this.setSession(res)  // res is the data payload directly
         return res
       } catch (err) {
         this.error = err.message || 'Login failed'
@@ -46,8 +46,8 @@ export const useAuthStore = defineStore('auth', {
 
     async refreshAccessToken() {
       const res = await api.post('/auth/refresh', { refresh_token: this.refreshToken })
-      this.accessToken = res.data.access_token
-      localStorage.setItem('bos_access_token', res.data.access_token)
+      this.accessToken = res.access_token
+      localStorage.setItem('bos_access_token', res.access_token)
     },
 
     async logout() {

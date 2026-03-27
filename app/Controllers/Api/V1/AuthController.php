@@ -6,11 +6,21 @@ use App\Services\AuthService;
 
 class AuthController extends BaseApiController
 {
-    private AuthService $authService;
+    protected $authService = null;
 
-    public function __construct()
+    /**
+     * Get or initialize AuthService
+     */
+    private function getAuthService(): AuthService
     {
-        $this->authService = new AuthService();
+        if ($this->authService === null) {
+            try {
+                $this->authService = new AuthService();
+            } catch (\Exception $e) {
+                throw new \Exception('Failed to initialize authentication service: ' . $e->getMessage());
+            }
+        }
+        return $this->authService;
     }
 
     /**
@@ -18,23 +28,30 @@ class AuthController extends BaseApiController
      */
     public function login(): \CodeIgniter\HTTP\ResponseInterface
     {
-        $rules = [
-            'email'    => 'required|valid_email',
-            'password' => 'required|min_length[6]',
-        ];
-
-        if (!$this->validate($rules)) {
-            return $this->validationError($this->validator->getErrors());
-        }
-
         try {
-            $result = $this->authService->login(
-                $this->request->getVar('email'),
-                $this->request->getVar('password')
-            );
-            return $this->ok($result, 'Login successful.');
-        } catch (\InvalidArgumentException $e) {
-            return $this->apiError($e->getMessage(), 401);
+            $rules = [
+                'email'    => 'required|valid_email',
+                'password' => 'required|min_length[6]',
+            ];
+
+            if (!$this->validate($rules)) {
+                return $this->validationError($this->validator->getErrors());
+            }
+
+            try {
+                $result = $this->getAuthService()->login(
+                    $this->request->getVar('email'),
+                    $this->request->getVar('password')
+                );
+                return $this->ok($result, 'Login successful.');
+            } catch (\InvalidArgumentException $e) {
+                return $this->apiError($e->getMessage(), 401);
+            } catch (\Exception $e) {
+                return $this->apiError('Authentication error: ' . $e->getMessage(), 500);
+            }
+        } catch (\Throwable $e) {
+            // Catch any unexpected errors and return with CORS headers
+            return $this->apiError('Server error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -44,9 +61,13 @@ class AuthController extends BaseApiController
      */
     public function logout(): \CodeIgniter\HTTP\ResponseInterface
     {
-        $payload = $this->actor();
-        $this->authService->blacklist($payload->jti, $payload->exp);
-        return $this->ok(null, 'Logged out successfully.');
+        try {
+            $payload = $this->actor();
+            $this->getAuthService()->blacklist($payload->jti, $payload->exp);
+            return $this->ok(null, 'Logged out successfully.');
+        } catch (\Exception $e) {
+            return $this->apiError('Logout error: ' . $e->getMessage(), 500);
+        }
     }
 
     /**
@@ -61,10 +82,12 @@ class AuthController extends BaseApiController
         }
 
         try {
-            $result = $this->authService->refresh($refreshToken);
-            return $this->ok($result, 'Token refreshed.');
+            $result = $this->getAuthService()->refresh($refreshToken);
+            return $this->ok($result, 'Token refreshed successfully.');
         } catch (\RuntimeException $e) {
             return $this->apiError($e->getMessage(), 401);
+        } catch (\Exception $e) {
+            return $this->apiError('Refresh error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -74,13 +97,17 @@ class AuthController extends BaseApiController
      */
     public function me(): \CodeIgniter\HTTP\ResponseInterface
     {
-        $actor = $this->actor();
-        $user  = model('UserModel')->find($actor->sub);
+        try {
+            $actor = $this->actor();
+            $user  = model('UserModel')->find($actor->sub);
 
-        if (!$user) {
-            return $this->apiError('User not found.', 404);
+            if (!$user) {
+                return $this->apiError('User not found.', 404);
+            }
+
+            return $this->ok($user);
+        } catch (\Exception $e) {
+            return $this->apiError('Error fetching user profile: ' . $e->getMessage(), 500);
         }
-
-        return $this->ok($user);
     }
 }

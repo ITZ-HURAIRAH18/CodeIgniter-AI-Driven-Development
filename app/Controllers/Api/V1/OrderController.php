@@ -10,8 +10,8 @@ use App\Services\OrderService;
 
 class OrderController extends BaseApiController
 {
-    private OrderService $service;
-    private OrderModel   $model;
+    protected $service;
+    protected $model;
 
     public function __construct()
     {
@@ -28,15 +28,20 @@ class OrderController extends BaseApiController
      */
     public function index(): \CodeIgniter\HTTP\ResponseInterface
     {
-        $actor    = $this->actor();
-        $branchId = $this->request->getGet('branch_id');
+        try {
+            $actor    = $this->actor();
+            $branchId = $this->request->getGet('branch_id');
 
-        // Sales users and managers see only their branch
-        if (in_array((int) $actor->role_id, [2, 3]) && !$branchId) {
-            $branchId = $actor->branch_id;
+            // Sales users and managers see only their branch
+            if (in_array((int) $actor->role_id, [2, 3]) && !$branchId) {
+                $branchId = $actor->branch_id;
+            }
+
+            return $this->ok($this->model->getWithDetails($branchId ? (int) $branchId : null));
+        } catch (\Exception $e) {
+            log_message('error', 'OrderController::index: ' . $e->getMessage());
+            return $this->apiError('Failed to retrieve orders: ' . $e->getMessage(), 500);
         }
-
-        return $this->ok($this->model->getWithDetails($branchId ? (int) $branchId : null));
     }
 
     /**

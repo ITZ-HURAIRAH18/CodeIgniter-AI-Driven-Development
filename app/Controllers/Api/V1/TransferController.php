@@ -10,8 +10,8 @@ use App\Services\StockTransferService;
 
 class TransferController extends BaseApiController
 {
-    private StockTransferService $service;
-    private StockTransferModel   $model;
+    protected $service;
+    protected $model;
 
     public function __construct()
     {

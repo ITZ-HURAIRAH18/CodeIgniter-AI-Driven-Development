@@ -26,7 +26,7 @@ class Database extends Config
      */
     public array $default = [
         'DSN' => '',
-        'hostname' => 'localhost',
+        'hostname' => '127.0.0.1',
         'username' => 'root', // <-- Must be your MySQL user
         'password' => 'student123', // <-- Must be your MySQL password
         'database' => 'CodeIgniter',

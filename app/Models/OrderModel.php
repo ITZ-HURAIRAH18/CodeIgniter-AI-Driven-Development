@@ -44,7 +44,7 @@ class OrderModel extends Model
             ->select('o.*, b.name AS branch_name, u.name AS created_by')
             ->join('branches b', 'b.id = o.branch_id')
             ->join('users u', 'u.id = o.user_id')
-            ->whereNull('o.deleted_at')
+            ->where('o.deleted_at', null)
             ->orderBy('o.created_at', 'DESC');
 
         if ($branchId) {

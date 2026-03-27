@@ -7,6 +7,18 @@ use CodeIgniter\Router\RouteCollection;
  */
 
 // ============================================================
+// Root Route — API Status
+// ============================================================
+$routes->get('/', function() {
+    return response()->setJSON(['status' => 'API Running', 'version' => '1.0.0', 'endpoint' => '/api/v1']);
+});
+
+// ============================================================
+// CORS Preflight Handler — Global OPTIONS for all API routes
+// ============================================================
+$routes->options('api/v1/(:any)', 'Api\V1\TestController::corsPreFlight', ['filter' => 'cors']);
+
+// ============================================================
 // API v1 Routes — Multi-Branch Inventory & Order System
 // All routes under /api/v1/
 // Filters: cors (all), auth:jwt (protected), role (per-group)
@@ -14,12 +26,17 @@ use CodeIgniter\Router\RouteCollection;
 
 $routes->group('api/v1', ['filter' => 'cors'], function ($routes) {
 
+    // ── Test/Debug endpoints ────────────────────────────────────────
+    $routes->get('test/health', 'Api\V1\TestController::health');
+    $routes->get('test/db',     'Api\V1\TestController::db');
+    $routes->post('test/login-debug', 'Api\V1\TestController::loginDebug');
+
     // ── Public endpoints ────────────────────────────────────────
     $routes->post('auth/login',   'Api\V1\AuthController::login');
     $routes->post('auth/refresh', 'Api\V1\AuthController::refresh');
 
     // ── Protected endpoints (JWT required) ──────────────────────
-    $routes->group('', ['filter' => 'auth:jwt'], function ($routes) {
+    $routes->group('', ['filter' => 'auth'], function ($routes) {
 
         // Auth
         $routes->post('auth/logout', 'Api\V1\AuthController::logout');

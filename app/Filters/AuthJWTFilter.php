@@ -15,28 +15,42 @@ use CodeIgniter\HTTP\ResponseInterface;
  */
 class AuthJWTFilter implements FilterInterface
 {
+    private function getErrorResponse(string $message, int $code = 401): ResponseInterface
+    {
+        $origin = request()->getHeaderLine('Origin') ?: '*';
+        
+        return response()
+            ->setJSON([
+                'success' => false,
+                'message' => $message,
+            ])
+            ->setStatusCode($code)
+            ->setHeader('Access-Control-Allow-Origin', $origin)
+            ->setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+            ->setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+            ->setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+
     public function before(RequestInterface $request, $arguments = null): mixed
     {
         $header = $request->getHeaderLine('Authorization');
 
         if (!str_starts_with($header, 'Bearer ')) {
-            return response()->setJSON([
-                'success' => false,
-                'message' => 'Authorization token required.',
-            ])->setStatusCode(401);
+            return $this->getErrorResponse('Authorization token required.', 401);
         }
 
         $token = substr($header, 7);
 
         try {
-            $payload = (new AuthService())->validateAccessToken($token);
-            // Store payload in request globals for controllers
-            $request->setGlobal('auth_payload', $payload);
+            $authService = new AuthService();
+            $payload = $authService->validateAccessToken($token);
+            
+            // Store payload as custom property on request
+            $request->authPayload = $payload;
+        } catch (\Exception $e) {
+            return $this->getErrorResponse('Unauthorized: ' . $e->getMessage(), 401);
         } catch (\Throwable $e) {
-            return response()->setJSON([
-                'success' => false,
-                'message' => 'Unauthorized: ' . $e->getMessage(),
-            ])->setStatusCode(401);
+            return $this->getErrorResponse('Authentication error: ' . $e->getMessage(), 500);
         }
 
         return null; // continue

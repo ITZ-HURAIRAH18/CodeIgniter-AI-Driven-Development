@@ -6,7 +6,7 @@ use App\Models\ProductModel;
 
 class ProductController extends BaseApiController
 {
-    private ProductModel $model;
+    protected $model;
 
     public function __construct()
     {
@@ -16,14 +16,19 @@ class ProductController extends BaseApiController
     /** GET /api/v1/products */
     public function index(): \CodeIgniter\HTTP\ResponseInterface
     {
-        $search = $this->request->getGet('q');
-        $status = $this->request->getGet('status');
+        try {
+            $search = $this->request->getGet('q');
+            $status = $this->request->getGet('status');
 
-        $query = $this->model->whereNull('deleted_at');
-        if ($search) $query->groupStart()->like('name', $search)->orLike('sku', $search)->groupEnd();
-        if ($status) $query->where('status', $status);
+            $query = $this->model->where('deleted_at', null);
+            if ($search) $query->groupStart()->like('name', $search)->orLike('sku', $search)->groupEnd();
+            if ($status) $query->where('status', $status);
 
-        return $this->ok($query->paginate(20), 'Products retrieved.');
+            return $this->ok($query->paginate(20), 'Products retrieved.');
+        } catch (\Exception $e) {
+            log_message('error', 'ProductController::index: ' . $e->getMessage());
+            return $this->apiError('Failed to retrieve products: ' . $e->getMessage(), 500);
+        }
     }
 
     /** GET /api/v1/products/{id} */

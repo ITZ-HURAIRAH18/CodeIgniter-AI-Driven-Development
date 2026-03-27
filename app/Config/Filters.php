@@ -17,11 +17,12 @@ class Filters extends BaseFilters
     public array $aliases = [
         'csrf'        => CSRFFilter::class,
         'toolbar'     => PerformanceMetrics::class,
+        'performance' => PerformanceMetrics::class,
         'honeypot'    => HoneypotFilter::class,
         'pagecache'   => PageCache::class,
         'forcehttps'  => ForceHTTPS::class,
         // Custom filters
-        'auth:jwt'    => \App\Filters\AuthJWTFilter::class,
+        'auth'        => \App\Filters\AuthJWTFilter::class,
         'role'        => \App\Filters\RoleFilter::class,
         'cors'        => \App\Filters\CorsFilter::class,
     ];

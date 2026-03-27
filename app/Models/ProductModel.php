@@ -30,7 +30,7 @@ class ProductModel extends Model
      */
     public function search(string $term): array
     {
-        return $this->whereNull('deleted_at')
+        return $this->where('deleted_at', null)
                     ->groupStart()
                         ->like('name', $term)
                         ->orLike('sku', $term)

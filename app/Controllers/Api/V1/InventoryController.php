@@ -8,8 +8,8 @@ use App\Services\InventoryService;
 
 class InventoryController extends BaseApiController
 {
-    private InventoryService $service;
-    private InventoryModel   $model;
+    protected $service;
+    protected $model;
 
     public function __construct()
     {
@@ -25,19 +25,24 @@ class InventoryController extends BaseApiController
      */
     public function index(): \CodeIgniter\HTTP\ResponseInterface
     {
-        $branchId = $this->request->getGet('branch_id');
-        $actor    = $this->actor();
+        try {
+            $branchId = $this->request->getGet('branch_id');
+            $actor    = $this->actor();
 
-        // Branch managers can only see their own branch
-        if ((int) $actor->role_id === 2 && !$branchId) {
-            $branchId = $actor->branch_id;
+            // Branch managers can only see their own branch
+            if ((int) $actor->role_id === 2 && !$branchId) {
+                $branchId = $actor->branch_id;
+            }
+
+            if (!$branchId) {
+                return $this->apiError('branch_id is required.', 400);
+            }
+
+            return $this->ok($this->model->getByBranch((int) $branchId));
+        } catch (\Exception $e) {
+            log_message('error', 'InventoryController::index: ' . $e->getMessage());
+            return $this->apiError('Failed to retrieve inventory: ' . $e->getMessage(), 500);
         }
-
-        if (!$branchId) {
-            return $this->apiError('branch_id is required.', 400);
-        }
-
-        return $this->ok($this->model->getByBranch((int) $branchId));
     }
 
     /**

@@ -23,7 +23,7 @@ class InventoryModel extends Model
             ->select('i.*, p.name AS product_name, p.sku, p.sale_price, p.unit, p.tax_percentage')
             ->join('products p', 'p.id = i.product_id')
             ->where('i.branch_id', $branchId)
-            ->whereNull('p.deleted_at')
+            ->where('p.deleted_at', null)
             ->get()
             ->getResultArray();
     }

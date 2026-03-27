@@ -18,7 +18,7 @@ api.interceptors.request.use((config) => {
 
 // Response interceptor — handle 401 (refresh or logout)
 api.interceptors.response.use(
-  (response) => response.data,
+  (response) => response.data.data,  // Extract the actual data from the envelope
   async (error) => {
     const originalRequest = error.config
     const auth = useAuthStore()

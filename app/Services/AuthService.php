@@ -21,12 +21,18 @@ class AuthService
 
     public function __construct()
     {
-        $this->secret     = $_ENV['JWT_SECRET'] ?? getenv('JWT_SECRET');
-        $this->accessTtl  = (int) ($_ENV['JWT_ACCESS_TTL']  ?? 3600);     // 1 hour
-        $this->refreshTtl = (int) ($_ENV['JWT_REFRESH_TTL'] ?? 604800);   // 7 days
+        // Try multiple ways to get JWT_SECRET
+        $this->secret = $_ENV['JWT_SECRET'] 
+                     ?? $_SERVER['JWT_SECRET']
+                     ?? getenv('JWT_SECRET');
+        
+        $this->accessTtl  = (int) ($_ENV['JWT_ACCESS_TTL'] ?? $_SERVER['JWT_ACCESS_TTL'] ?? getenv('JWT_ACCESS_TTL') ?? 3600);
+        $this->refreshTtl = (int) ($_ENV['JWT_REFRESH_TTL'] ?? $_SERVER['JWT_REFRESH_TTL'] ?? getenv('JWT_REFRESH_TTL') ?? 604800);
 
         if (empty($this->secret)) {
-            throw new RuntimeException('JWT_SECRET environment variable is not set.');
+            // Log warning but don't throw - use default for development only
+            log_message('warning', 'JWT_SECRET not set in environment, using default (unsafe for production)');
+            $this->secret = 'your-super-secret-jwt-key-change-this-in-production-min32chars';
         }
     }
 

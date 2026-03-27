@@ -24,15 +24,28 @@ class RoleFilter implements FilterInterface
         'sales_user'     => 3,
     ];
 
+    private function getErrorResponse(string $message, int $code = 401): ResponseInterface
+    {
+        $origin = request()->getHeaderLine('Origin') ?: '*';
+        
+        return response()
+            ->setJSON([
+                'success' => false,
+                'message' => $message,
+            ])
+            ->setStatusCode($code)
+            ->setHeader('Access-Control-Allow-Origin', $origin)
+            ->setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+            ->setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
+            ->setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+
     public function before(RequestInterface $request, $arguments = null): mixed
     {
-        $payload = $request->getGlobal('auth_payload');
+        $payload = $request->authPayload;
 
         if (!$payload) {
-            return response()->setJSON([
-                'success' => false,
-                'message' => 'Authentication required.',
-            ])->setStatusCode(401);
+            return $this->getErrorResponse('Authentication required.', 401);
         }
 
         if (empty($arguments)) {
@@ -45,11 +58,10 @@ class RoleFilter implements FilterInterface
         );
 
         if (!in_array((int) $payload->role_id, $allowedRoleIds, true)) {
-            return response()->setJSON([
-                'success'  => false,
-                'message'  => 'Forbidden: You do not have permission to access this resource.',
-                'required' => implode(' or ', $arguments),
-            ])->setStatusCode(403);
+            return $this->getErrorResponse(
+                'Forbidden: You do not have permission to access this resource.',
+                403
+            );
         }
 
         return null;
