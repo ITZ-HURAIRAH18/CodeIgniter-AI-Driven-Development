@@ -33,16 +33,8 @@ class BranchController extends BaseApiController
                 );
             }
 
-            // Sales users - see only their assigned branch
-            if ((int) $actor->role_id === 3) {
-                if (!$actor->branch_id) {
-                    log_message('warning', "SalesController::index - Sales user {$actor->sub} has no assigned branch");
-                    return $this->ok([]);
-                }
-                return $this->ok([$this->model->find((int)$actor->branch_id)]);
-            }
-
-            // Admins - see all branches without restriction
+            // Sales users can see all branches (no restriction)
+            // Admin and sales users see all branches without restriction
             return $this->ok($this->model->getWithManagers());
         } catch (\Exception $e) {
             log_message('error', 'BranchController::index: ' . $e->getMessage());

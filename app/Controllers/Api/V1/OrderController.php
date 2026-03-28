@@ -47,10 +47,8 @@ class OrderController extends BaseApiController
                 }
             }
 
-            // Sales users see only their assigned branch orders
-            if ((int) $actor->role_id === 3) {
-                 return $this->ok($this->model->getWithDetails((int) $actor->branch_id));
-            }
+            // Sales users can see orders from ALL branches
+            // No branch restriction for sales users
 
             return $this->ok($this->model->getWithDetails($branchId ? (int) $branchId : null));
         } catch (\Exception $e) {
@@ -101,10 +99,8 @@ class OrderController extends BaseApiController
         $actor = $this->actor();
 
         // Enforce branch based on role
-        if ((int) $actor->role_id === 3) {
-            // Sales user: must use their assigned branch
-            $data['branch_id'] = $actor->branch_id;
-        } elseif ((int) $actor->role_id === 2) {
+        // Sales users: can make sales on ALL branches (no restriction)
+        if ((int) $actor->role_id === 2) {
             // Manager: must use one of their managed branches
             $branchModel = model(\App\Models\BranchModel::class);
             $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);

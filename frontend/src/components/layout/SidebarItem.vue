@@ -1,16 +1,16 @@
 <template>
   <router-link
     :to="to"
-    class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-custom transition-all group"
+    class="flex items-center gap-3 px-3 py-2.5 text-xs font-semibold rounded-lg transition-all group whitespace-nowrap"
     :class="[
       active 
-        ? 'bg-primary-50 text-primary-600 border border-primary-100 shadow-soft' 
-        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 border border-transparent hover:border-slate-100'
+        ? 'bg-rose-50 text-rose-700 border border-rose-100 shadow-soft' 
+        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800 border border-transparent'
     ]"
   >
-    <component :is="icons[icon]" class="w-4 h-4 transition-colors group-hover:scale-110 duration-200" />
-    <span class="flex-1 tracking-tight">{{ label }}</span>
-    <ChevronRightIcon v-if="active" class="w-3 h-3 text-primary-400" />
+    <component :is="icons[icon]" class="w-4 h-4 transition-colors flex-shrink-0" />
+    <span class="flex-1 truncate">{{ label }}</span>
+    <ChevronRightIcon v-if="active" class="w-3 h-3 text-rose-400 flex-shrink-0" />
   </router-link>
 </template>
 

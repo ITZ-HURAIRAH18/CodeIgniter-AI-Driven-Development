@@ -206,7 +206,7 @@ const filteredBranches = computed(() => {
   // Backend API already filters by role:
   // - Admin: gets all branches
   // - Manager: gets only their managed branches
-  // - Sales: gets their assigned branch (but sales can't create orders for multiple branches anyway)
+  // - Sales: gets all branches (can make sales on any branch)
   return branches.value
 })
 

@@ -42,28 +42,17 @@ class InventoryController extends BaseApiController
                 }
 
                 if (!$branchId) {
-                    // Show all inventory for all managed branches
+                    // Show all inventory for all managed branches with product details
                     if (empty($myBranchIds)) return $this->ok([]);
-                    return $this->ok($this->model->whereIn('branch_id', $myBranchIds)->findAll());
+                    return $this->ok($this->model->getByBranchesWithDetails($myBranchIds));
                 }
                 
                 // Manager requested specific branch - get that branch's inventory
                 return $this->ok($this->model->getByBranch((int) $branchId));
             }
 
-            // Sales users - restricted to their assigned branch
-            if ((int) $actor->role_id === 3) {
-                if (!$actor->branch_id) {
-                    return $this->apiError('Sales user has no branch assigned.', 400);
-                }
-                if ($branchId && (int)$branchId !== (int)$actor->branch_id) {
-                    return $this->apiError('Access denied: You can only view your assigned branch.', 403);
-                }
-                return $this->ok($this->model->getByBranch((int)$actor->branch_id));
-            }
-
-            // Admins - can view any branch or all inventory
-            $data = $branchId ? $this->model->getByBranch((int) $branchId) : $this->model->findAll();
+            // Sales users and admins can view inventory from ALL branches
+            $data = $branchId ? $this->model->getByBranch((int) $branchId) : $this->model->getAllWithProductDetails();
             return $this->ok($data);
         } catch (\Exception $e) {
             log_message('error', 'InventoryController::index: ' . $e->getMessage());
@@ -163,6 +152,7 @@ class InventoryController extends BaseApiController
 
     /**
      * GET /api/v1/inventory/logs?branch_id=X&product_id=Y
+     * Or GET /api/v1/inventory/logs (returns recent logs for dashboard)
      */
     public function logs(): \CodeIgniter\HTTP\ResponseInterface
     {
@@ -170,8 +160,24 @@ class InventoryController extends BaseApiController
         $productId = (int) $this->request->getGet('product_id');
 
         $logModel = model(InventoryLogModel::class);
-        $history  = $logModel->getHistory($branchId, $productId);
-
-        return $this->ok($history);
+        
+        // If both parameters provided, get history for specific branch/product
+        if ($branchId > 0 && $productId > 0) {
+            $history = $logModel->getHistory($branchId, $productId);
+            return $this->ok($history);
+        }
+        
+        // Otherwise, get recent logs across all data (for dashboard) with product details
+        $actor = $this->actor();
+        $logs = $logModel->getRecentLogs(50);
+        
+        // If branch manager, filter to their branches only
+        if ((int) $actor->role_id === 2) {
+            $branchModel = model(\App\Models\BranchModel::class);
+            $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);
+            $logs = array_filter($logs, fn($log) => in_array($log['branch_id'], $myBranchIds));
+        }
+        
+        return $this->ok(array_values($logs));
     }
 }

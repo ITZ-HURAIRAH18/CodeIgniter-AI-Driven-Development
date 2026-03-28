@@ -29,6 +29,38 @@ class InventoryModel extends Model
     }
 
     /**
+     * Get all inventory across all branches with product details.
+     */
+    public function getAllWithProductDetails(): array
+    {
+        return $this->db->table('inventory i')
+            ->select('i.*, p.name AS product_name, p.sku, p.sale_price, p.unit, p.tax_percentage, b.name AS branch_name')
+            ->join('products p', 'p.id = i.product_id', 'left')
+            ->join('branches b', 'b.id = i.branch_id', 'left')
+            ->where('p.deleted_at', null)
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Get inventory for specific branches with product details.
+     */
+    public function getByBranchesWithDetails(array $branchIds): array
+    {
+        if (empty($branchIds)) {
+            return [];
+        }
+        return $this->db->table('inventory i')
+            ->select('i.*, p.name AS product_name, p.sku, p.sale_price, p.unit, p.tax_percentage, b.name AS branch_name')
+            ->join('products p', 'p.id = i.product_id', 'left')
+            ->join('branches b', 'b.id = i.branch_id', 'left')
+            ->whereIn('i.branch_id', $branchIds)
+            ->where('p.deleted_at', null)
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
      * Get a single inventory row — optionally with FOR UPDATE lock.
      * MUST be called inside an open transaction.
      */

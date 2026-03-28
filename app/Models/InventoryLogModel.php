@@ -59,4 +59,19 @@ class InventoryLogModel extends Model
                     ->limit($limit)
                     ->findAll();
     }
+
+    /**
+     * Get recent logs with product details for dashboard.
+     */
+    public function getRecentLogs(int $limit = 50): array
+    {
+        return $this->db->table('inventory_logs il')
+                    ->select('il.*, p.name AS product_name, b.name AS branch_name')
+                    ->join('products p', 'p.id = il.product_id', 'left')
+                    ->join('branches b', 'b.id = il.branch_id', 'left')
+                    ->orderBy('il.created_at', 'DESC')
+                    ->limit($limit)
+                    ->get()
+                    ->getResultArray();
+    }
 }
