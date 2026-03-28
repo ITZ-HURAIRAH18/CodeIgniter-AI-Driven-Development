@@ -111,6 +111,7 @@ import {
   ShoppingCart,
   Truck,
   Building2,
+  Users,
   Settings,
   LogOutIcon,
 } from 'lucide-vue-next'
@@ -151,6 +152,12 @@ const allMenuItems = {
   ],
   // Management Section
   management: [
+    {
+      to: '/users',
+      label: 'Users',
+      icon: Users,
+      roles: [ROLES.SUPER_ADMIN], // Admin only
+    },
     {
       to: '/products',
       label: 'Products',

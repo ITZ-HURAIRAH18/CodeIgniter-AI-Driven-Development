@@ -23,6 +23,12 @@ const routes = [
         component: () => import('@/views/Dashboard.vue'),
       },
       {
+        path: 'users',
+        name: 'UserManagement',
+        component: () => import('@/views/Admin/UserManagement.vue'),
+        meta: { roles: [1] }, // admin only
+      },
+      {
         path: 'branches',
         name: 'Branches',
         component: () => import('@/views/Branch/BranchListView.vue'),
