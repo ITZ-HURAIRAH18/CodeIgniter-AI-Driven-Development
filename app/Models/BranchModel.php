@@ -17,6 +17,7 @@ class BranchModel extends Model
     ];
 
     protected $validationRules = [
+        'id'   => 'permit_empty|integer',
         'name' => 'required|min_length[2]|max_length[100]|is_unique[branches.name,id,{id}]',
     ];
 

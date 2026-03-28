@@ -19,16 +19,30 @@ class BranchController extends BaseApiController
         try {
             $actor = $this->actor();
 
-            // Branch managers only see their own branch
+            // Branch managers - see only their managed branches
             if ((int) $actor->role_id === 2) {
                 $myBranchIds = $this->model->getManagerBranchIds((int)$actor->sub);
-                if (empty($myBranchIds)) return $this->ok([]);
+                log_message('debug', "BranchController::index - Manager ID: {$actor->sub}, Manages branches: " . implode(',', $myBranchIds));
+                
+                if (empty($myBranchIds)) {
+                    log_message('warning', "BranchController::index - Manager {$actor->sub} has no assigned branches");
+                    return $this->ok([]);
+                }
                 return $this->ok(
                     $this->model->whereIn('id', $myBranchIds)->findAll()
                 );
             }
 
-            // Admins and sales users see all branches
+            // Sales users - see only their assigned branch
+            if ((int) $actor->role_id === 3) {
+                if (!$actor->branch_id) {
+                    log_message('warning', "SalesController::index - Sales user {$actor->sub} has no assigned branch");
+                    return $this->ok([]);
+                }
+                return $this->ok([$this->model->find((int)$actor->branch_id)]);
+            }
+
+            // Admins - see all branches without restriction
             return $this->ok($this->model->getWithManagers());
         } catch (\Exception $e) {
             log_message('error', 'BranchController::index: ' . $e->getMessage());
@@ -53,8 +67,9 @@ class BranchController extends BaseApiController
             return $this->validationError($this->model->errors());
         }
 
-        // Validate that manager_id is a branch_manager (role 2)
-        if (isset($data['manager_id'])) {
+        // Validate manager_id is a branch manager
+        if (isset($data['manager_id']) && $data['manager_id'] !== null) {
+            $data['manager_id'] = (int) $data['manager_id'];
             $userModel = model(\App\Models\UserModel::class);
             $manager = $userModel->find($data['manager_id']);
             if (!$manager || (int)$manager->role_id !== 2) {
@@ -62,6 +77,7 @@ class BranchController extends BaseApiController
             }
         }
 
+        // Insert branch with manager_id - this establishes the manager-branch relationship
         $id = $this->model->insert($data, true);
         return $this->created($this->model->find($id));
     }
@@ -74,8 +90,9 @@ class BranchController extends BaseApiController
 
         $data = $this->request->getJSON(true);
 
-        // Validate that manager_id is a branch_manager (role 2) if provided
-        if (isset($data['manager_id'])) {
+        // Validate manager_id is a branch manager if provided
+        if (isset($data['manager_id']) && $data['manager_id'] !== null) {
+            $data['manager_id'] = (int) $data['manager_id'];
             $userModel = model(\App\Models\UserModel::class);
             $manager = $userModel->find($data['manager_id']);
             if (!$manager || (int)$manager->role_id !== 2) {
@@ -83,8 +100,8 @@ class BranchController extends BaseApiController
             }
         }
 
+        // Update branch (only updates branches.manager_id, not users.branch_id)
         $this->model->update($id, $data);
-
         return $this->ok($this->model->find($id), 'Branch updated.');
     }
 

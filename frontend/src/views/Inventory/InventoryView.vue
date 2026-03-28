@@ -3,24 +3,24 @@
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-section">
       <div>
-        <h1 class="text-3xl font-bold text-slate-900 drop-shadow-sm">Stock Management</h1>
-        <p class="text-slate-500 text-sm mt-1 flex items-center gap-2">
-          <ActivityIcon class="w-3.5 h-3.5 text-rose-500" />
+        <h1 class="text-4xl font-bold text-slate-900 drop-shadow-sm tracking-tight">Stock Management</h1>
+        <p class="text-slate-500 text-sm mt-2 flex items-center gap-2 font-medium">
+          <ActivityIcon class="w-4 h-4 text-rose-500" />
           Real-time inventory levels across enterprise network
         </p>
       </div>
-      <div v-if="canManage" class="flex items-center gap-3">
-        <BaseButton variant="secondary" @click="openAdjustModal" size="md" class="border-slate-200" :title="'Adjust stock levels'">
+      <div v-if="canManage" class="flex items-center gap-2 flex-wrap md:flex-nowrap">
+        <BaseButton variant="secondary" @click="openAdjustModal" size="md" class="border-slate-200 shadow-sm" :title="'Adjust stock levels'">
           <Settings2Icon class="w-4 h-4" />
-          <span class="ml-1.5">Adjust Levels</span>
+          <span class="hidden sm:inline ml-1.5">Adjust Levels</span>
         </BaseButton>
-        <BaseButton variant="secondary" @click="showTransferModal = true" size="md" class="border-slate-200" :title="'Transfer stock between branches'">
+        <BaseButton variant="secondary" @click="showTransferModal = true" size="md" class="border-slate-200 shadow-sm" :title="'Transfer stock between branches'">
           <ArrowRightLeft class="w-4 h-4" />
-          <span class="ml-1.5">Transfer Stock</span>
+          <span class="hidden sm:inline ml-1.5">Transfer Stock</span>
         </BaseButton>
-        <BaseButton variant="primary" @click="showAddModal = true" size="md" class="shadow-rose-sm" :title="'Replenish stock'">
+        <BaseButton variant="primary" @click="showAddModal = true" size="md" class="shadow-lg shadow-rose-200" :title="'Replenish stock'">
           <PlusIcon class="w-4 h-4" />
-          <span class="ml-1.5">Replenish Stock</span>
+          <span class="hidden sm:inline ml-1.5">Replenish Stock</span>
         </BaseButton>
       </div>
     </div>
@@ -30,82 +30,103 @@
       <div class="flex flex-col md:flex-row gap-4 items-end md:items-center justify-between">
         <div class="flex-1 flex flex-col md:flex-row gap-4 w-full md:w-auto">
           <!-- Branch Selector (Admin/Multi-branch manager) -->
-          <div v-if="auth.isAdmin || (branches.length > 1)" class="w-full md:w-64">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Active Node</label>
-            <Select v-model="selectedBranchId" @change="loadInventory" class="w-full">
-              <option value="">Full Network Access</option>
-              <option v-for="b in branches" :key="b.id" :value="b.id">{{ b.name }}</option>
-            </Select>
+          <div v-if="auth.isAdmin || (auth.isBranchManager && branches.length > 0)" class="w-full md:w-72">
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Active Node</label>
+            <select 
+              v-model="selectedBranchId"
+              class="w-full px-4 py-2.5 rounded-lg text-sm font-semibold bg-white border-2 border-slate-200 text-slate-900 focus:outline-none focus:border-accent-pink-500 focus:ring-2 focus:ring-accent-pink-500/20 cursor-pointer appearance-none transition-all hover:border-slate-300"
+              style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
+            >
+              <option value="">All Branches</option>
+              <option v-for="b in filteredBranches" :key="b.id" :value="b.id">{{ b.name }}</option>
+            </select>
           </div>
           
           <!-- Search -->
-          <div class="w-full md:w-80">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Search Analytics</label>
+          <div class="w-full md:flex-1">
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Search Analytics</label>
             <div class="relative group">
-              <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
-              <Input v-model="search" placeholder="SKU, Product, or Category..." class="pl-9 bg-white" />
+              <SearchIcon class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
+              <Input v-model="search" placeholder="Product name, SKU, or Category..." class="pl-10 bg-white border-2 border-slate-200 font-medium" />
             </div>
           </div>
         </div>
         
-        <div class="flex items-center gap-3">
-           <div class="text-[11px] font-bold text-slate-400 bg-white border border-border-light px-3 py-1.5 rounded-full shadow-soft flex items-center gap-2 italic">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Synchronized with Cloud Nodes
+        <div class="flex items-center gap-3 whitespace-nowrap">
+           <div class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-lg shadow-soft flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Real-time Sync Active
            </div>
         </div>
       </div>
     </Card>
 
     <!-- Main Data Table -->
-    <Card no-padding>
-      <DataTable
-        :columns="columns"
-        :data="filteredInventory"
-        :loading="loading"
-        empty-message="No operational inventory detected for this branch."
-      >
-        <template #cell-product_name="{ value, row }">
-          <div class="flex flex-col">
-            <span class="font-bold text-slate-900 tracking-tight">{{ row.product_name || value || 'N/A' }}</span>
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ row.sku || 'N/A' }}</span>
+    <Card no-padding class="shadow-lg border-slate-200">
+      <div v-if="filteredInventory.length > 0" class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-slate-50 border-b-2 border-slate-200 sticky top-0">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-tight">Product Stream</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-tight">Cloud Balance</th>
+              <th class="px-6 py-4 text-right text-xs font-bold text-slate-600 uppercase tracking-tight">Unit Value</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-tight">Node Status</th>
+              <th v-if="canManage" class="px-6 py-4 text-center text-xs font-bold text-slate-600 uppercase tracking-tight">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr v-for="row in filteredInventory" :key="row.id" class="hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4">
+                <div class="flex flex-col">
+                  <span class="font-bold text-slate-900 tracking-tight">{{ row.product_name || 'Unknown' }}</span>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ row.sku || 'N/A' }}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-32 h-2 bg-slate-100 rounded-full overflow-hidden shrink-0 border border-slate-200">
+                     <div :class="['h-full rounded-full transition-all duration-300', getStockBarColor(row.quantity, row.reorder_level)]" :style="{ width: Math.min((row.quantity / (row.reorder_level * 2)) * 100, 100) + '%' }"></div>
+                  </div>
+                  <span :class="['font-black tabular-nums w-12 text-right', row.quantity <= row.reorder_level ? 'text-rose-600' : 'text-slate-900']">
+                    {{ row.quantity || 0 }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <span class="font-black text-slate-800 tabular-nums">${{ row.sale_price && !isNaN(row.sale_price) ? parseFloat(row.sale_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00' }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <Badge 
+                  :label="getStatusLabel(row.quantity, row.reorder_level)"
+                  :variant="getStatusVariant(row.quantity, row.reorder_level)"
+                  class="font-bold italic uppercase tracking-tighter"
+                />
+              </td>
+              <td v-if="canManage" class="px-6 py-4">
+                <div class="flex items-center justify-center gap-2">
+                  <BaseButton variant="ghost" size="sm" @click="openAdjustModal(row)" class="h-9 w-9 !p-0" title="Adjust Balance">
+                     <Edit3Icon class="w-4 h-4" />
+                  </BaseButton>
+                  <BaseButton variant="ghost" size="sm" @click="openLogsModal(row)" class="h-9 w-9 !p-0" title="Operational History">
+                     <HistoryIcon class="w-4 h-4" />
+                  </BaseButton>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-else class="flex items-center justify-center py-16">
+        <div class="text-center">
+          <ActivityIcon class="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <p class="text-slate-600 font-medium">No inventory items in {{ branches.length > 0 ? branches.length : 'this' }} branch(es)</p>
+          <p class="text-slate-400 text-sm">Start by replenishing stock to add items</p>
+          <div class="mt-4 text-xs text-slate-500">
+            <p v-if="branches.length === 0">⚠️ No branches assigned</p>
+            <p v-else>📦 Branches: {{ branches.map(b => b.name).join(', ') }}</p>
           </div>
-        </template>
-        
-        <template #cell-quantity="{ value, row }">
-          <div class="flex items-center gap-4">
-            <div class="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden shrink-0 border border-slate-200">
-               <div :class="['h-full rounded-full transition-all duration-300', getStockBarColor(value, row.reorder_level)]" :style="{ width: Math.min((value / (row.reorder_level * 2)) * 100, 100) + '%' }"></div>
-            </div>
-            <span :class="['font-black tabular-nums', value <= row.reorder_level ? 'text-rose-600' : 'text-slate-900']">
-              {{ value || 0 }}
-            </span>
-          </div>
-        </template>
-
-        <template #cell-sale_price="{ value, row }">
-          <span class="font-black text-slate-800 tabular-nums">${{ value && !isNaN(value) ? parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00' }}</span>
-        </template>
-
-        <template #cell-status="{ row }">
-          <Badge 
-            :label="getStatusLabel(row.quantity, row.reorder_level)"
-            :variant="getStatusVariant(row.quantity, row.reorder_level)"
-            class="font-black italic uppercase tracking-tighter scale-90"
-          />
-        </template>
-
-        <template v-if="canManage" #actions="{ row }">
-          <div class="flex items-center gap-1.5">
-            <BaseButton variant="ghost" size="sm" @click="openAdjustModal(row)" class="h-8 w-8 !p-0" title="Adjust Balance">
-               <Edit3Icon class="w-3.5 h-3.5" />
-            </BaseButton>
-            <BaseButton variant="ghost" size="sm" @click="openLogsModal(row)" class="h-8 w-8 !p-0" title="Operational History">
-               <HistoryIcon class="w-3.5 h-3.5" />
-            </BaseButton>
-          </div>
-        </template>
-      </DataTable>
+        </div>
+      </div>
     </Card>
 
       <!-- Replenish Stock Modal -->
@@ -332,7 +353,6 @@ import {
 } from 'lucide-vue-next'
 
 import Card from '@/components/ui/Card.vue'
-import DataTable from '@/components/ui/DataTable.vue'
 import Badge from '@/components/ui/Badge.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import Modal from '@/components/ui/Modal.vue'
@@ -346,7 +366,8 @@ const allProducts = ref([])
 const loading = ref(true)
 const submitting = ref(false)
 const search  = ref('')
-const selectedBranchId = ref(auth.userBranchId || '')
+// For sales users, pre-fill with their branch; for managers/admins, leave empty to select
+const selectedBranchId = ref(auth.isSalesUser ? (auth.userBranchId || '') : '')
 
 const showAddModal    = ref(false)
 const showAdjustModal = ref(false)
@@ -356,7 +377,8 @@ const editingItem     = ref(null)
 const currentLogItem  = ref(null)
 
 const addForm = reactive({
-  branch_id: auth.userBranchId || '',
+  // Sales users: pre-fill branch; Managers/Admins: leave empty to select
+  branch_id: auth.isSalesUser ? (auth.userBranchId || '') : '',
   product_id: '',
   quantity: 1,
   notes: ''
@@ -377,13 +399,6 @@ const transferForm = reactive({
 const stockLogs = ref([])
 const loadingLogs = ref(false)
 
-const columns = [
-  { key: 'product_name', label: 'Product Stream', bold: true },
-  { key: 'quantity', label: 'Cloud Balance' },
-  { key: 'sale_price', label: 'Unit Value', align: 'right' },
-  { key: 'status', label: 'Node Status' },
-]
-
 const canManage = computed(() => auth.isAdmin || auth.isBranchManager)
 
 const filteredInventory = computed(() => {
@@ -398,12 +413,11 @@ const filteredInventory = computed(() => {
 
 const filteredBranches = computed(() => {
   if (auth.isAdmin) return branches.value
-  // Branch managers can only see branches they manage
+  // Branch managers see only branches they manage
+  // The API already filters branches for managers, so just return all loaded branches
   if (auth.isBranchManager) {
-    return branches.value.filter(b => {
-      // Check if user is a manager for this branch
-      return b.managers?.some(m => m.id === auth.user?.id) || b.manager_id === auth.user?.id
-    })
+    console.log('Manager branches:', branches.value)
+    return branches.value
   }
   return []
 })
@@ -431,6 +445,13 @@ watch(
   }
 )
 
+watch(
+  () => selectedBranchId.value,
+  () => {
+    loadInventory()
+  }
+)
+
 onMounted(async () => {
   // Load branches and products first, then inventory
   await Promise.all([
@@ -446,22 +467,27 @@ async function loadBranches() {
   if (auth.isAdmin || auth.isBranchManager) {
     try {
       const res = await api.get('/branches')
-      branches.value = res || []
-      console.log('Branches loaded:', branches.value)
+      
+      // Handle both paginated and direct array responses
+      const branchesData = Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
+      branches.value = branchesData
+      
+      console.log('Branches loaded:', branches.value.length, 'branches', branches.value)
       
       // Initialize selectedBranchId based on user role
-      if (!selectedBranchId.value) {
-        if (auth.isBranchManager && auth.userBranchId) {
-          // Branch manager - auto-select their branch
-          selectedBranchId.value = auth.userBranchId
-        } else if (auth.isAdmin && branches.value.length) {
+      if (!selectedBranchId.value && branches.value.length > 0) {
+        if (auth.isBranchManager) {
+          // Branch manager - auto-select their first branch
+          selectedBranchId.value = branches.value[0].id
+          console.log('Branch manager assigned to branch:', selectedBranchId.value)
+        } else if (auth.isAdmin) {
           // Admin - select first branch
           selectedBranchId.value = branches.value[0].id
         }
       }
       
       // Initialize add form with selected branch
-      if (!addForm.branch_id && branches.value.length) {
+      if (!addForm.branch_id && branches.value.length > 0) {
         addForm.branch_id = selectedBranchId.value || branches.value[0].id
       }
     } catch (e) { 
@@ -484,10 +510,15 @@ async function loadProducts() {
 async function loadInventory() {
   loading.value = true
   try {
-    const branchId = selectedBranchId.value || auth.userBranchId
-    if (!branchId && !auth.isAdmin) { loading.value = false; return }
+    let url = '/inventory'
     
-    const url = branchId ? `/inventory?branch_id=${branchId}` : '/inventory'
+    // Admin and managers can load without branch_id (backend filters)
+    // but if a branch is selected, use it
+    if (selectedBranchId.value) {
+      url = `/inventory?branch_id=${selectedBranchId.value}`
+    }
+    
+    console.log('Loading inventory from:', url)
     const res = await api.get(url)
     let inventoryData = res || []
     
@@ -509,7 +540,7 @@ async function loadInventory() {
       }
     })
     
-    console.log('Inventory loaded:', inventory.value)
+    console.log('Inventory loaded:', inventory.value.length, 'items')
   } catch (e) {
     console.error('Failed to load inventory:', e)
   } finally {
@@ -600,18 +631,26 @@ async function openLogsModal(row) {
     const res = await api.get(`/inventory/logs?branch_id=${row.branch_id || row.id}&product_id=${row.product_id}`)
     let logs = Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
     
-    // Ensure logs have the required fields
-    stockLogs.value = logs.map(log => ({
-      id: log.id,
-      created_at: log.created_at,
-      transaction_type: log.transaction_type || log.type || 'unknown',
-      quantity_change: log.quantity_change || log.quantity || 0,
-      branch_name: log.branch_name || row.branch_name || 'N/A',
-      notes: log.notes || '',
-      ...log
-    }))
+    console.log('Raw logs from API:', logs)
     
-    console.log('Stock logs loaded:', stockLogs.value)
+    // Map from actual DB fields: movement_type, qty_change, branch_id
+    stockLogs.value = logs.map(log => {
+      // Find branch name from our loaded branches
+      const branch = branches.value.find(b => b.id === log.branch_id)
+      const branchName = branch?.name || `Branch ${log.branch_id}`
+      
+      return {
+        id: log.id,
+        created_at: log.created_at,
+        transaction_type: log.movement_type || 'unknown',
+        quantity_change: log.qty_change !== undefined ? log.qty_change : 0,
+        branch_name: branchName,
+        notes: log.notes || '',
+        ...log
+      }
+    })
+    
+    console.log('Processed logs for display:', stockLogs.value)
   } catch (e) {
     console.error('Failed to load logs:', e)
     alert('Failed to load stock history.')
@@ -655,9 +694,13 @@ const getLogBadgeVariant = (type) => {
     'adjust': 'warning',
     'transfer_out': 'neutral',
     'transfer_in': 'success',
-    'sale': 'error'
+    'sale': 'error',
+    'replenish': 'success',
+    'adjustment': 'warning',
+    'transfer': 'info',
+    'order': 'error'
   }
-  return variants[type] || 'neutral'
+  return variants[type?.toLowerCase()] || 'neutral'
 }
 
 const getLogTypeLabel = (type) => {
@@ -666,9 +709,13 @@ const getLogTypeLabel = (type) => {
     'adjust': 'Adjustment',
     'transfer_out': 'Transfer Out',
     'transfer_in': 'Transfer In',
-    'sale': 'Sale'
+    'sale': 'Sale',
+    'replenish': 'Replenish',
+    'adjustment': 'Adjustment',
+    'transfer': 'Transfer',
+    'order': 'Sale Order'
   }
-  return labels[type] || type
+  return labels[type?.toLowerCase()] || type || 'Unknown'
 }
 
 const getQuantityClass = (qty) => {

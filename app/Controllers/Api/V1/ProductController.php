@@ -24,7 +24,10 @@ class ProductController extends BaseApiController
             if ($search) $query->groupStart()->like('name', $search)->orLike('sku', $search)->groupEnd();
             if ($status) $query->where('status', $status);
 
-            return $this->ok($query->paginate(20), 'Products retrieved.');
+            // For dashboard use, return simple array (no pagination)
+            // Pagination not needed for dashboard - just need all products
+            $products = $query->findAll();
+            return $this->ok($products, 'Products retrieved.');
         } catch (\Exception $e) {
             log_message('error', 'ProductController::index: ' . $e->getMessage());
             return $this->apiError('Failed to retrieve products: ' . $e->getMessage(), 500);

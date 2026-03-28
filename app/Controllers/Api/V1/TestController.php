@@ -12,10 +12,11 @@ class TestController extends BaseApiController
     {
         try {
             $db = \Config\Database::connect();
+            $actor = $this->actor();
             $users = $db->table('users')->countAllResults();
             $admin = $db->table('users')->where('email', 'admin@system.com')->get()->getRow();
             
-            return $this->ok([
+            $debug = [
                 'database_connected' => true,
                 'total_users' => $users,
                 'admin_user' => $admin ? [
@@ -24,7 +25,32 @@ class TestController extends BaseApiController
                     'name' => $admin->name,
                     'has_password' => !empty($admin->password),
                 ] : null,
-            ], 'Database test successful');
+            ];
+            
+            // If manager, show their data
+            if ((int)($actor->role_id ?? 0) === 2) {
+                $branchModel = model(\App\Models\BranchModel::class);
+                $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);
+                
+                $productModel = model(\App\Models\ProductModel::class);
+                $products = $productModel->where('deleted_at', null)->findAll();
+                
+                $inventoryModel = model(\App\Models\InventoryModel::class);
+                $inventory = $inventoryModel->whereIn('branch_id', $myBranchIds)->findAll();
+                
+                $orderModel = model(\App\Models\OrderModel::class);
+                $orders = $orderModel->findAll();
+                
+                $debug['manager_debug'] = [
+                    'manager_id' => $actor->sub,
+                    'managed_branches' => $myBranchIds,
+                    'total_products' => count($products),
+                    'total_inventory_items' => count($inventory),
+                    'total_orders' => count($orders),
+                ];
+            }
+            
+            return $this->ok($debug, 'Database test successful');
         } catch (\Exception $e) {
             return $this->apiError('Database error: ' . $e->getMessage(), 500);
         }

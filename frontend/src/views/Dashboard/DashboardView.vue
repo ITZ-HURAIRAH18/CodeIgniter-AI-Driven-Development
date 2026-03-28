@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="space-y-6">
     <!-- Page Header -->
     <div class="flex items-start justify-between">
@@ -313,4 +313,4 @@ onMounted(async () => {
   color: var(--clr-success);
   font-size: 14px;
 }
-</style>
+</style> -->

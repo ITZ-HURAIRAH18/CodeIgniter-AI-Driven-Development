@@ -8,8 +8,8 @@ class Cors extends BaseConfig
 {
     public array $default = [
 
-        // ✅ Allow your frontend (Vite React)
-        'allowedOrigins' => ['http://localhost:5173'],
+        // ✅ Allow all origins (for development/debugging)
+        'allowedOrigins' => ['*'],
 
         // Optional (keep empty unless needed)
         'allowedOriginsPatterns' => [],

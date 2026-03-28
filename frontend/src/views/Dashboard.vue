@@ -13,10 +13,10 @@
         <div class="flex items-start justify-between">
           <div>
             <p class="text-slate-600 text-sm font-medium">Total Inventory Value</p>
-            <p class="text-3xl font-bold text-slate-900 mt-2">$248,500</p>
+            <p class="text-3xl font-bold text-slate-900 mt-2">${{ dashboardStats.totalInventoryValue.toLocaleString('en-US') }}</p>
             <p class="text-rose-700 text-xs font-semibold mt-3 flex items-center gap-1">
               <TrendingUpIcon class="w-3 h-3" />
-              +8.2% from last month
+              Across {{ branchData.length }} branch{{ branchData.length !== 1 ? 'es' : '' }}
             </p>
           </div>
           <div class="p-3 bg-rose-50 rounded-custom">
@@ -30,10 +30,10 @@
         <div class="flex items-start justify-between">
           <div>
             <p class="text-slate-600 text-sm font-medium">Total Products</p>
-            <p class="text-3xl font-bold text-slate-900 mt-2">1,247</p>
+            <p class="text-3xl font-bold text-slate-900 mt-2">{{ dashboardStats.totalProducts }}</p>
             <p class="text-green-700 text-xs font-semibold mt-3 flex items-center gap-1">
               <TrendingUpIcon class="w-3 h-3" />
-              +42 this month
+              In catalog
             </p>
           </div>
           <div class="p-3 bg-green-50 rounded-custom">
@@ -47,7 +47,7 @@
         <div class="flex items-start justify-between">
           <div>
             <p class="text-slate-600 text-sm font-medium">Low Stock Items</p>
-            <p class="text-3xl font-bold text-slate-900 mt-2">23</p>
+            <p class="text-3xl font-bold text-slate-900 mt-2">{{ dashboardStats.lowStockItems }}</p>
             <p class="text-orange-700 text-xs font-semibold mt-3 flex items-center gap-1">
               <AlertCircleIcon class="w-3 h-3" />
               Requires attention
@@ -64,10 +64,10 @@
         <div class="flex items-start justify-between">
           <div>
             <p class="text-slate-600 text-sm font-medium">Pending Orders</p>
-            <p class="text-3xl font-bold text-slate-900 mt-2">156</p>
+            <p class="text-3xl font-bold text-slate-900 mt-2">{{ dashboardStats.pendingOrders }}</p>
             <p class="text-cyan-700 text-xs font-semibold mt-3 flex items-center gap-1">
               <ShoppingCartIcon class="w-3 h-3" />
-              $45,230 in value
+              {{ dashboardStats.totalOrders }} total orders
             </p>
           </div>
           <div class="p-3 bg-cyan-50 rounded-custom">
@@ -219,7 +219,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useAuthStore } from '@/store/auth.store'
+import api from '@/api/axios'
 import Card from '@/components/ui/Card.vue'
 import DataTable from '@/components/ui/DataTable.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -234,9 +236,10 @@ import {
   EditIcon,
   PlusIcon,
   CheckCircleIcon,
-  ClockIcon,
-  AlertIcon
+  ClockIcon
 } from 'lucide-vue-next'
+
+const auth = useAuthStore()
 
 // KPI Data
 const branchColumns = [
@@ -246,12 +249,15 @@ const branchColumns = [
   { key: 'status', label: 'Status', width: '100px' }
 ]
 
-const branchData = [
-  { name: 'Main Branch', inventory_count: 4521, inventory_value: '$125,430', status: 'Optimal' },
-  { name: 'Downtown Hub', inventory_count: 3847, inventory_value: '$98,230', status: 'Optimal' },
-  { name: 'West Side', inventory_count: 2156, inventory_value: '$52,340', status: 'Low Stock' },
-  { name: 'Airport Zone', inventory_count: 1823, inventory_value: '$45,200', status: 'Critical' }
-]
+const branchData = ref([])
+const loading = ref(true)
+const dashboardStats = ref({
+  totalOrders: 0,
+  totalProducts: 0,
+  lowStockItems: 0,
+  pendingOrders: 0,
+  totalInventoryValue: 0
+})
 
 const productColumns = [
   { key: 'name', label: 'Product', width: 'auto', bold: true },
@@ -260,12 +266,7 @@ const productColumns = [
   { key: 'trend', label: 'Trend', width: '80px', align: 'right' }
 ]
 
-const topProducts = [
-  { name: 'Premium Widget A', units_sold: 425, revenue: '$12,750', trend: 12.5 },
-  { name: 'Standard Item B', units_sold: 312, revenue: '$8,430', trend: 5.2 },
-  { name: 'Deluxe Package C', units_sold: 287, revenue: '$14,500', trend: -2.1 },
-  { name: 'Basic Option D', units_sold: 201, revenue: '$3,218', trend: 18.9 }
-]
+const topProducts = ref([])
 
 const branchPerformanceColumns = [
   { key: 'name', label: 'Branch', width: 'auto', bold: true },
@@ -274,20 +275,15 @@ const branchPerformanceColumns = [
   { key: 'avg_days_stock', label: 'Avg Days', width: '100px', align: 'right' }
 ]
 
-const branchPerformanceData = [
-  { name: 'Main Branch', inventory_value: '125,430', inventory_turnover: 5.2, avg_days_stock: 70 },
-  { name: 'Downtown Hub', inventory_value: '98,230', inventory_turnover: 4.8, avg_days_stock: 76 },
-  { name: 'West Side', inventory_value: '52,340', inventory_turnover: 3.2, avg_days_stock: 114 },
-  { name: 'Airport Zone', inventory_value: '45,200', inventory_turnover: 2.8, avg_days_stock: 130 }
-]
+const branchPerformanceData = ref([])
 
-const recentActivities = [
+const recentActivities = ref([
   { type: 'created', title: 'New product added', time: '2 hours ago' },
   { type: 'updated', title: 'Inventory transferred', time: '4 hours ago' },
   { type: 'alert', title: '5 items low stock', time: '6 hours ago' },
   { type: 'completed', title: 'Order #12345 completed', time: '1 day ago' },
   { type: 'updated', title: 'Branch sync completed', time: '1 day ago' }
-]
+])
 
 const getStatusVariant = (status) => {
   const map = {
@@ -313,10 +309,98 @@ const getActivityIcon = (type) => {
   const icons = {
     'created': PlusIcon,
     'updated': ClockIcon,
-    'alert': AlertIcon,
+    'alert': AlertCircleIcon,
     'completed': CheckCircleIcon,
-    'error': AlertIcon
+    'error': AlertCircleIcon
   }
-  return icons[type] || AlertIcon
+  return icons[type] || AlertCircleIcon
 }
+
+// Load dashboard data based on user role
+const loadDashboardData = async () => {
+  try {
+    loading.value = true
+    console.log('📊 Loading dashboard data for', auth.isBranchManager ? 'manager' : 'admin')
+    
+    // Load branches - same endpoint for both, backend filters by role
+    const branchRes = await api.get('/branches')
+    const branches = Array.isArray(branchRes) ? branchRes : (branchRes.data || [])
+    console.log('📍 Loaded branches:', branches.length)
+    
+    // Load inventory data - if manager, gets their branches' inventory only
+    const inventoryRes = await api.get('/inventory')
+    const inventoryData = Array.isArray(inventoryRes) ? inventoryRes : (inventoryRes.data || [])
+    console.log('📦 Loaded inventory items:', inventoryData.length)
+    
+    // Load orders
+    const ordersRes = await api.get('/orders')
+    const orderData = Array.isArray(ordersRes) ? ordersRes : (ordersRes.data || [])
+    console.log('📋 Loaded orders:', orderData.length)
+    
+    // Process branch data
+    const processedBranches = branches.map(branch => {
+      const branchInventory = inventoryData.filter(inv => inv.branch_id === branch.id)
+      const branchOrders = orderData.filter(ord => ord.branch_id === branch.id)
+      
+      const inventoryValue = branchInventory.reduce((sum, inv) => sum + ((inv.quantity || 0) * (inv.sale_price || 0)), 0)
+      const lowStockCount = branchInventory.filter(inv => inv.quantity < (inv.reorder_level || 10)).length
+      
+      // Determine status
+      let status = 'Optimal'
+      if (lowStockCount > branchInventory.length * 0.5) status = 'Critical'
+      else if (lowStockCount > 0) status = 'Low Stock'
+      
+      return {
+        id: branch.id,
+        name: branch.name,
+        inventory_count: branchInventory.length,
+        inventory_value: `$${inventoryValue.toLocaleString('en-US', { minimumFractionDigits: 0 })}`,
+        status: status,
+        low_stock_count: lowStockCount,
+        order_count: branchOrders.length
+      }
+    })
+    
+    branchData.value = processedBranches
+    
+    // Calculate dashboard stats
+    const totalInventoryValue = processedBranches.reduce((sum, b) => {
+      const val = parseInt(b.inventory_value.replace(/[$,]/g, ''))
+      return sum + val
+    }, 0)
+    
+    const totalLowStock = processedBranches.reduce((sum, b) => sum + b.low_stock_count, 0)
+    const totalOrders = processedBranches.reduce((sum, b) => sum + b.order_count, 0)
+    
+    dashboardStats.value = {
+      totalOrders: totalOrders,
+      totalProducts: inventoryData.length,
+      lowStockItems: totalLowStock,
+      pendingOrders: orderData.filter(o => o.status !== 'completed').length,
+      totalInventoryValue: totalInventoryValue
+    }
+    
+    // Load top products for managed branches
+    if (auth.isBranchManager) {
+      topProducts.value = inventoryData
+        .sort((a, b) => (b.quantity || 0) - (a.quantity || 0))
+        .slice(0, 4)
+        .map(prod => ({
+          name: prod.product_name || 'Unknown Product',
+          units_sold: prod.quantity || 0,
+          revenue: `$${((prod.quantity || 0) * (prod.sale_price || 0)).toLocaleString('en-US')}`,
+          trend: Math.random() * 30 - 15
+        }))
+    }
+    
+  } catch (error) {
+    console.error('Error loading dashboard data:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadDashboardData()
+})
 </script>

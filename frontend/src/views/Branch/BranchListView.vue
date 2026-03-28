@@ -112,18 +112,19 @@
     </div>
 
     <!-- Branch Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div class="bg-surface-elevated rounded-xl shadow-lg max-w-2xl w-full mx-auto border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-100 bg-surface-base">
+    <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div class="bg-surface-elevated rounded-xl shadow-2xl max-w-2xl w-full mx-auto border border-gray-200 my-8 flex flex-col max-h-[90vh]">
+        <div class="px-6 py-4 border-b border-gray-100 bg-surface-base sticky top-0 z-10 rounded-t-xl">
           <h2 class="text-lg font-semibold text-gray-900">{{ editing ? 'Edit Branch' : 'New Branch' }}</h2>
           <p class="text-sm text-gray-600 mt-1">{{ editing ? 'Update branch information' : 'Create a new branch location' }}</p>
         </div>
 
-        <div v-if="modalError" class="mx-6 mt-6 p-4 rounded-lg bg-status-error/10 border border-status-error/20">
-          <p class="text-sm text-status-error">{{ modalError }}</p>
-        </div>
+        <div class="flex-1 overflow-y-auto">
+          <div v-if="modalError" class="mx-6 mt-6 p-4 rounded-lg bg-status-error/10 border border-status-error/20">
+            <p class="text-sm text-status-error">{{ modalError }}</p>
+          </div>
 
-        <form @submit.prevent="save" class="p-6 space-y-6">
+          <form @submit.prevent="save" class="p-6 space-y-6">
           <!-- Location Info -->
           <div class="space-y-4">
             <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Location</h3>
@@ -167,10 +168,19 @@
                 class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
               >
                 <option :value="null">— Unassigned —</option>
+                <!-- Show only managers (role_id = 2) -->
                 <option v-for="user in users" :key="user.id" :value="user.id">
-                  {{ user.name }}
+                  {{ user.name }} (Manager)
+                </option>
+                <!-- Debug: Show if no managers found -->
+                <option v-if="users.length === 0" disabled>
+                  No managers available
                 </option>
               </select>
+              <!-- Debug info -->
+              <div v-if="users.length === 0" class="text-xs text-orange-600 mt-2">
+                ⚠️ No managers found. Available users: {{ allUsers.length }}
+              </div>
             </div>
 
             <div>
@@ -185,12 +195,14 @@
             </div>
           </div>
 
-          <!-- Actions -->
-          <div class="flex gap-3 pt-4 border-t border-gray-200">
-            <BaseButton variant="ghost" label="Cancel" @click="showModal = false" class="flex-1" />
-            <BaseButton variant="primary" label="Save Branch" type="submit" :loading="saving" class="flex-1" />
-          </div>
-        </form>
+          </form>
+        </div>
+
+        <!-- Sticky Actions Footer -->
+        <div class="flex gap-3 p-6 border-t border-gray-200 bg-surface-base sticky bottom-0 rounded-b-xl">
+          <BaseButton variant="ghost" label="Cancel" @click="showModal = false" class="flex-1" />
+          <BaseButton variant="primary" label="Save Branch" type="submit" :loading="saving" class="flex-1" @click="save" />
+        </div>
       </div>
     </div>
   </div>
@@ -216,6 +228,7 @@ const showModal = ref(false)
 const editing = ref(null)
 const saving = ref(false)
 const modalError = ref('')
+const allUsers = ref([])
 
 const form = reactive({
   name: '',
@@ -251,8 +264,25 @@ onMounted(async () => {
       api.get('/branches').catch(() => []),
       api.get('/users').catch(() => [])
     ])
-    branches.value = Array.isArray(branchRes) ? branchRes : []
-    users.value = Array.isArray(userRes) ? userRes.filter(u => u.role >= 2) : []
+    
+    // Handle paginated responses
+    branches.value = Array.isArray(branchRes.data) ? branchRes.data : (Array.isArray(branchRes) ? branchRes : [])
+    
+    // Get all users and filter for branch managers ONLY (role_id = 2, exclude sales users)
+    const allUsersList = Array.isArray(userRes.data) ? userRes.data : (Array.isArray(userRes) ? userRes : [])
+    allUsers.value = allUsersList
+    
+    // Log for debugging
+    console.log('All users from API:', allUsers.value)
+    
+    users.value = allUsers.value.filter(u => {
+      console.log('Checking user:', u.name, 'role_id:', u.role_id, 'role:', u.role)
+      const roleId = u.role_id !== undefined ? u.role_id : u.role
+      return roleId === 2 || roleId === '2'  // Only branch managers
+    })
+    
+    console.log('Filtered managers:', users.value)
+    console.log('Data loaded:', { branches: branches.value.length, users: users.value.length, managers: users.value.length })
   } catch (e) {
     console.error('Failed to load data:', e)
     branches.value = []
@@ -286,16 +316,26 @@ async function save() {
   saving.value = true
   modalError.value = ''
   try {
+    // Ensure manager_id is a number
+    const saveData = {
+      ...form,
+      manager_id: form.manager_id ? parseInt(form.manager_id, 10) : null,
+      is_active: form.is_active ? 1 : 0
+    }
+    
+    console.log('Saving branch:', saveData)
+    
     if (editing.value) {
-      await api.put(`/branches/${editing.value}`, form)
+      await api.put(`/branches/${editing.value}`, saveData)
     } else {
-      await api.post('/branches', form)
+      await api.post('/branches', saveData)
     }
     const res = await api.get('/branches')
-    branches.value = res || []
+    branches.value = Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
     showModal.value = false
   } catch (e) {
-    modalError.value = e?.message || 'Failed to save branch.'
+    console.error('Save error:', e)
+    modalError.value = e?.response?.data?.message || e?.message || 'Failed to save branch.'
   } finally {
     saving.value = false
   }

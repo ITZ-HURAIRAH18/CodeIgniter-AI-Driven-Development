@@ -203,12 +203,11 @@ const taxTotal  = computed(() => orderItems.value.reduce((s, i) => s + i.tax_amt
 const grandTotal = computed(() => (parseFloat(subtotal.value) + parseFloat(taxTotal.value)).toFixed(2))
 
 const filteredBranches = computed(() => {
-  if (auth.isAdmin || auth.isSalesUser) return branches.value
-  if (auth.isBranchManager) {
-    // Only branches managed by this manager
-    return branches.value.filter(b => b.manager_id === auth.user?.id)
-  }
-  return []
+  // Backend API already filters by role:
+  // - Admin: gets all branches
+  // - Manager: gets only their managed branches
+  // - Sales: gets their assigned branch (but sales can't create orders for multiple branches anyway)
+  return branches.value
 })
 
 onMounted(async () => {

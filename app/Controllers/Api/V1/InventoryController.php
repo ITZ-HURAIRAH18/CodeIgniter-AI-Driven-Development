@@ -29,26 +29,40 @@ class InventoryController extends BaseApiController
             $branchId = $this->request->getGet('branch_id');
             $actor    = $this->actor();
 
-            // Branch managers restricted to their own branches
+            // Branch managers - can view all their branches' inventory
             if ((int) $actor->role_id === 2) {
                 $branchModel = model(\App\Models\BranchModel::class);
                 $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);
+                
+                log_message('debug', "InventoryController::index - Manager ID: {$actor->sub}, Manages branches: " . implode(',', $myBranchIds));
 
                 if ($branchId && !in_array((int)$branchId, $myBranchIds)) {
+                    log_message('warning', "InventoryController::index - Manager {$actor->sub} denied access to branch {$branchId}");
                     return $this->apiError('Access denied: You do not manage this branch.', 403);
                 }
 
                 if (!$branchId) {
-                    // Show all inventory for all my branches
+                    // Show all inventory for all managed branches
                     if (empty($myBranchIds)) return $this->ok([]);
                     return $this->ok($this->model->whereIn('branch_id', $myBranchIds)->findAll());
                 }
+                
+                // Manager requested specific branch - get that branch's inventory
+                return $this->ok($this->model->getByBranch((int) $branchId));
             }
 
-            if (!$branchId && (int) $actor->role_id !== 1) {
-                return $this->apiError('branch_id is required.', 400);
+            // Sales users - restricted to their assigned branch
+            if ((int) $actor->role_id === 3) {
+                if (!$actor->branch_id) {
+                    return $this->apiError('Sales user has no branch assigned.', 400);
+                }
+                if ($branchId && (int)$branchId !== (int)$actor->branch_id) {
+                    return $this->apiError('Access denied: You can only view your assigned branch.', 403);
+                }
+                return $this->ok($this->model->getByBranch((int)$actor->branch_id));
             }
 
+            // Admins - can view any branch or all inventory
             $data = $branchId ? $this->model->getByBranch((int) $branchId) : $this->model->findAll();
             return $this->ok($data);
         } catch (\Exception $e) {
