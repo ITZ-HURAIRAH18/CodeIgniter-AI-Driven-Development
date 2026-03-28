@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="min-h-screen bg-gradient-to-br from-surface-light via-accent-pink-50 to-accent-teal-50 flex items-center justify-center px-4 sm:px-6 lg:px-8 relative overflow-hidden">
     <!-- Decorative background elements -->
     <div class="fixed inset-0 pointer-events-none">
@@ -224,11 +224,35 @@ const handleLogin = async () => {
 
   loading.value = true
   try {
-    await auth.login(form.email, form.password)
-    router.push('/dashboard')
+    console.log('🔐 Login attempt:', { email: form.email })
+    console.log('📍 API URL:', import.meta.env.VITE_API_URL)
+    
+    const result = await auth.login(form.email, form.password)
+    console.log('✅ Login successful:', result)
+    
+    // Small delay before redirect to allow UI update
+    setTimeout(() => {
+      router.push('/dashboard')
+    }, 500)
   } catch (err) {
-    error.value = err?.message || 'Login failed. Please try again.'
-  } finally {
+    console.error('❌ Full error object:', err)
+    
+    // Extract error message from different possible sources
+    let errorMsg = 'Login failed. '
+    
+    if (err?.response?.data?.message) {
+      errorMsg += err.response.data.message
+    } else if (err?.message) {
+      errorMsg += err.message
+    } else if (err?.data?.message) {
+      errorMsg += err.data.message
+    } else if (typeof err === 'string') {
+      errorMsg += err
+    } else {
+      errorMsg += 'Please try again or check your backend connection.'
+    }
+    
+    error.value = errorMsg
     loading.value = false
   }
 }
@@ -285,4 +309,4 @@ const fillCreds = (email, password) => {
 .animate-blob-slow {
   animation: blob-slow 8s infinite;
 }
-</style>
+</style> -->

@@ -91,6 +91,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'Poppins', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+        inter: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
       },
       fontSize: {
         // Professional typography scale
