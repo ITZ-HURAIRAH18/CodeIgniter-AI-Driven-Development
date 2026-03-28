@@ -50,7 +50,6 @@ defineProps({
     default: ''
   }
 })
-</script>
 
 defineEmits(['update:modelValue'])
 </script>

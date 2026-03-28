@@ -42,6 +42,11 @@ class RoleFilter implements FilterInterface
 
     public function before(RequestInterface $request, $arguments = null): mixed
     {
+        // ✅ Allow CORS preflight OPTIONS requests without authentication
+        if ($request->getMethod() === 'OPTIONS') {
+            return null; // continue (will be handled by CorsFilter)
+        }
+
         $payload = $request->authPayload;
 
         if (!$payload) {

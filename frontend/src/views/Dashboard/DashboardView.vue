@@ -177,27 +177,51 @@ onMounted(async () => {
       api.get('/products'),
       api.get('/branches'),
     ])
-
     const orders = ordersRes || []
     const products = productsRes || []
     const branches = branchesRes || []
 
-    recentOrders.value = orders.slice(0, 5)
+    let managerBranchIds = []
+    if (auth.isBranchManager) {
+      managerBranchIds = branches.filter(b => b.manager_id === auth.user?.id).map(b => b.id)
+    }
+
+    // Filter data based on role
+    const filteredOrders = auth.isAdmin
+      ? orders
+      : auth.isBranchManager
+        ? orders.filter(o => managerBranchIds.includes(o.branch_id))
+        : []
+    const filteredProducts = auth.isAdmin
+      ? products
+      : auth.isBranchManager
+        ? products.filter(p => managerBranchIds.includes(p.branch_id))
+        : []
+    const filteredBranches = auth.isAdmin
+      ? branches
+      : auth.isBranchManager
+        ? branches.filter(b => managerBranchIds.includes(b.id))
+        : []
+
+    recentOrders.value = filteredOrders.slice(0, 5)
     loadingOrders.value = false
 
-    // Load inventory for current user's branch
-    const branchId = auth.userBranchId || branches[0]?.id
-    if (branchId) {
-      const invRes = await api.get(`/inventory?branch_id=${branchId}`)
-      const inventory = invRes || []
-      lowStockItems.value = inventory.filter(i => i.quantity <= i.reorder_level && i.quantity >= 0).slice(0, 5)
-      statCards.value[3].value = lowStockItems.value.length
+    // Low stock: only for relevant branches
+    let lowStock = []
+    if (filteredBranches.length > 0) {
+      for (const branch of filteredBranches) {
+        const invRes = await api.get(`/inventory?branch_id=${branch.id}`)
+        const inventory = invRes || []
+        lowStock = lowStock.concat(inventory.filter(i => i.quantity <= i.reorder_level && i.quantity >= 0))
+      }
     }
+    lowStockItems.value = lowStock.slice(0, 5)
     loadingInventory.value = false
 
-    statCards.value[0].value = orders.length
-    statCards.value[1].value = products.length
-    statCards.value[2].value = branches.length
+    statCards.value[0].value = filteredOrders.length
+    statCards.value[1].value = filteredProducts.length
+    statCards.value[2].value = filteredBranches.length
+    statCards.value[3].value = lowStock.length
   } catch (e) {
     loadingOrders.value = false
     loadingInventory.value = false

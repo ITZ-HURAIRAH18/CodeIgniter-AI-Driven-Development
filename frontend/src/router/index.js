@@ -37,7 +37,7 @@ const routes = [
       {
         path: 'inventory',
         name: 'Inventory',
-        component: () => import('@/views/Inventory/InventoryViewPro.vue'),
+        component: () => import('@/views/Inventory/InventoryView.vue'),
         meta: { roles: [1, 2, 3] },
       },
       {

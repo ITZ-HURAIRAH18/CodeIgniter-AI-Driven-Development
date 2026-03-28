@@ -33,6 +33,11 @@ class AuthJWTFilter implements FilterInterface
 
     public function before(RequestInterface $request, $arguments = null): mixed
     {
+        // ✅ Allow CORS preflight OPTIONS requests without authentication
+        if ($request->getMethod() === 'OPTIONS') {
+            return null; // continue (will be handled by CorsFilter)
+        }
+
         $header = $request->getHeaderLine('Authorization');
 
         if (!str_starts_with($header, 'Bearer ')) {

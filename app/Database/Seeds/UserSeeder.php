@@ -40,7 +40,8 @@ class UserSeeder extends Seeder
             ],
             [
                 'role_id'   => 3,
-                'branch_id' => 1,
+                // No branch assignment for sales user
+                'branch_id' => null,
                 'name'      => 'Sales User One',
                 'email'     => 'sales@branch1.com',
                 'password'  => password_hash('Sales@12345',   PASSWORD_BCRYPT),

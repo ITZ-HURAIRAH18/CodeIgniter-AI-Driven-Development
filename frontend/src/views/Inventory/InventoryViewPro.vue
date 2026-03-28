@@ -326,7 +326,7 @@ async function loadProducts() {
 async function submitAddStock() {
   submitting.value = true
   try {
-    await api.post('/inventory', {
+    await api.post('/inventory/add', {
       branch_id: addForm.value.branch_id || null,
       product_id: addForm.value.product_id,
       quantity: addForm.value.quantity,
@@ -337,6 +337,7 @@ async function submitAddStock() {
     await loadInventory()
   } catch (e) {
     console.error('Failed to add stock:', e)
+    alert(e.response?.data?.message || 'Failed to add stock.')
   } finally {
     submitting.value = false
   }
@@ -349,16 +350,25 @@ function openAdjustModal(item) {
 }
 
 async function submitAdjustStock() {
+  if (!editingItem.value) {
+    alert('Please select an item to adjust')
+    return
+  }
+  
   submitting.value = true
   try {
-    await api.put(`/inventory/${editingItem.value.id}`, {
+    await api.post('/inventory/adjust', {
+      branch_id: editingItem.value.branch_id,
+      product_id: editingItem.value.product_id,
       quantity: adjustForm.value.quantity,
       notes: adjustForm.value.notes,
     })
     showAdjustModal.value = false
+    editingItem.value = null
     await loadInventory()
   } catch (e) {
     console.error('Failed to adjust stock:', e)
+    alert(e.response?.data?.message || 'Failed to adjust stock.')
   } finally {
     submitting.value = false
   }

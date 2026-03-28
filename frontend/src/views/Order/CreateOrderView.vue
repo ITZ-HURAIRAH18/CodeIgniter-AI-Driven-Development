@@ -15,14 +15,14 @@
       <!-- Left: Order builder -->
       <div class="order-form">
 
-        <!-- Branch selection (admin only) -->
-        <div class="card" v-if="auth.isAdmin">
+        <!-- Branch selection (admin, manager, sales) -->
+        <div class="card" v-if="auth.isAdmin || auth.isBranchManager || auth.isSalesUser">
           <h3 class="section-title">Branch</h3>
           <div class="form-group">
             <label class="form-label">Select Branch</label>
             <select v-model="selectedBranchId" class="form-control" @change="onBranchChange">
               <option value="">— Select branch —</option>
-              <option v-for="b in branches" :key="b.id" :value="b.id">{{ b.name }}</option>
+              <option v-for="b in filteredBranches" :key="b.id" :value="b.id">{{ b.name }}</option>
             </select>
           </div>
         </div>
@@ -170,7 +170,7 @@ const picker = ref({
 
 // For branch managers and sales, fixed to their branch
 const effectiveBranchId = computed(() =>
-  auth.isAdmin ? selectedBranchId.value : auth.userBranchId
+  selectedBranchId.value
 )
 
 const inventoryOptions = computed(() =>
@@ -202,13 +202,19 @@ const subtotal  = computed(() => orderItems.value.reduce((s, i) => s + i.qty_sub
 const taxTotal  = computed(() => orderItems.value.reduce((s, i) => s + i.tax_amt, 0).toFixed(2))
 const grandTotal = computed(() => (parseFloat(subtotal.value) + parseFloat(taxTotal.value)).toFixed(2))
 
-onMounted(async () => {
-  if (auth.isAdmin) {
-    const res = await api.get('/branches')
-    branches.value = res || []
-  } else {
-    await loadInventory()
+const filteredBranches = computed(() => {
+  if (auth.isAdmin || auth.isSalesUser) return branches.value
+  if (auth.isBranchManager) {
+    // Only branches managed by this manager
+    return branches.value.filter(b => b.manager_id === auth.user?.id)
   }
+  return []
+})
+
+onMounted(async () => {
+  // Always load all branches for selection
+  const res = await api.get('/branches')
+  branches.value = res || []
 })
 
 async function onBranchChange() {

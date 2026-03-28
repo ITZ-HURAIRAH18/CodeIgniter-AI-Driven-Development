@@ -6,7 +6,7 @@
         <h1 class="text-3xl font-bold text-gray-900">Products</h1>
         <p class="text-sm text-gray-600 mt-1">Product catalog with pricing and tax information</p>
       </div>
-      <BaseButton v-if="auth.isAdmin" variant="primary" label="+ Add Product" @click="openCreate" />
+      <BaseButton v-if="auth.isAdmin" variant="primary" @click="openCreate">+ Add Product</BaseButton>
     </div>
 
     <!-- Filter Bar -->
@@ -109,123 +109,125 @@
     </BaseCard>
 
     <!-- Product Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div class="bg-surface-elevated rounded-xl shadow-lg max-w-2xl w-full mx-auto border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-100 bg-surface-base">
+    <div v-if="showModal && auth.isAdmin" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-surface-elevated rounded-xl shadow-lg max-w-2xl w-full mx-auto border border-gray-200 max-h-[90vh] flex flex-col">
+        <div class="px-6 py-4 border-b border-gray-100 bg-surface-base flex-shrink-0">
           <h2 class="text-lg font-semibold text-gray-900">{{ editing ? 'Edit Product' : 'New Product' }}</h2>
           <p class="text-sm text-gray-600 mt-1">{{ editing ? 'Update product information' : 'Create a new product catalog entry' }}</p>
         </div>
 
-        <div v-if="modalError" class="mx-6 mt-6 p-4 rounded-lg bg-status-error/10 border border-status-error/20">
-          <p class="text-sm text-status-error">{{ modalError }}</p>
+        <div class="overflow-y-auto flex-1">
+          <div v-if="modalError" class="mx-6 mt-6 p-4 rounded-lg bg-status-error/10 border border-status-error/20">
+            <p class="text-sm text-status-error">{{ modalError }}</p>
+          </div>
+
+          <form @submit.prevent="saveProduct" class="p-6 space-y-6">
+            <!-- Basic Info -->
+            <div class="space-y-4">
+              <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Basic Information</h3>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">SKU *</label>
+                  <input
+                    v-model="form.sku"
+                    type="text"
+                    placeholder="PROD-001"
+                    required
+                    :disabled="!!editing"
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500 disabled:bg-gray-50 disabled:text-gray-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Unit</label>
+                  <input
+                    v-model="form.unit"
+                    type="text"
+                    placeholder="pcs, kg, L..."
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Product Name *</label>
+                <input
+                  v-model="form.name"
+                  type="text"
+                  placeholder="Widget A"
+                  required
+                  class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Description</label>
+                <textarea
+                  v-model="form.description"
+                  placeholder="Optional product description"
+                  rows="3"
+                  class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="space-y-4">
+              <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Pricing & Tax</h3>
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Cost Price *</label>
+                  <input
+                    v-model.number="form.cost_price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Sale Price *</label>
+                  <input
+                    v-model.number="form.sale_price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Tax % *</label>
+                  <input
+                    v-model.number="form.tax_percentage"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    required
+                    class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Status -->
+            <div class="space-y-4">
+              <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Status</h3>
+              <select
+                v-model="form.status"
+                class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </form>
         </div>
 
-        <form @submit.prevent="saveProduct" class="p-6 space-y-6">
-          <!-- Basic Info -->
-          <div class="space-y-4">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Basic Information</h3>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">SKU *</label>
-                <input
-                  v-model="form.sku"
-                  type="text"
-                  placeholder="PROD-001"
-                  required
-                  :disabled="!!editing"
-                  class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500 disabled:bg-gray-50 disabled:text-gray-500"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Unit</label>
-                <input
-                  v-model="form.unit"
-                  type="text"
-                  placeholder="pcs, kg, L..."
-                  class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
-                />
-              </div>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Product Name *</label>
-              <input
-                v-model="form.name"
-                type="text"
-                placeholder="Widget A"
-                required
-                class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Description</label>
-              <textarea
-                v-model="form.description"
-                placeholder="Optional product description"
-                rows="3"
-                class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
-              ></textarea>
-            </div>
-          </div>
-
-          <!-- Pricing -->
-          <div class="space-y-4">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Pricing & Tax</h3>
-            <div class="grid grid-cols-3 gap-4">
-              <div>
-                <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Cost Price *</label>
-                <input
-                  v-model.number="form.cost_price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Sale Price *</label>
-                <input
-                  v-model.number="form.sale_price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">Tax % *</label>
-                <input
-                  v-model.number="form.tax_percentage"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max="100"
-                  required
-                  class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Status -->
-          <div class="space-y-4">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Status</h3>
-            <select
-              v-model="form.status"
-              class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
-          <!-- Actions -->
-          <div class="flex gap-3 pt-4 border-t border-gray-200">
-            <BaseButton variant="ghost" label="Cancel" @click="showModal = false" class="flex-1" />
-            <BaseButton variant="primary" label="Save Product" type="submit" :loading="saving" class="flex-1" />
-          </div>
-        </form>
+        <!-- Sticky Footer Actions -->
+        <div class="px-6 py-4 border-t border-gray-200 bg-surface-base flex-shrink-0 flex gap-3">
+          <BaseButton variant="ghost" @click="showModal = false" class="flex-1">Cancel</BaseButton>
+          <BaseButton variant="primary" :loading="saving" class="flex-1" @click="saveProduct">Save Product</BaseButton>
+        </div>
       </div>
     </div>
   </div>
