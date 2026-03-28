@@ -1,45 +1,117 @@
 <template>
-  <div class="create-order">
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">Create Order</h1>
-        <p class="page-subtitle">Select products, verify stock, and place order</p>
+  <div class="space-y-6">
+    <!-- Breadcrumb & Header -->
+    <div>
+      <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-2">
+        <span>Dashboard</span>
+        <span class="text-slate-300">/</span>
+        <router-link to="/orders" class="hover:text-slate-700 transition-colors">Orders</router-link>
+        <span class="text-slate-300">/</span>
+        <span class="text-slate-900 font-semibold">Create Order</span>
       </div>
-      <router-link to="/orders" class="btn btn-secondary">← Back to Orders</router-link>
+      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Create New Order</h1>
+    </div>
+
+    <!-- Progress Stepper -->
+    <div class="bg-white border border-slate-200 rounded-lg p-6">
+      <div class="flex items-center justify-between">
+        <!-- Step 1: Select Branch -->
+        <div class="flex items-center flex-1">
+          <div :class="['flex items-center justify-center w-8 h-8 rounded-full font-semibold text-xs', step >= 1 ? 'bg-rose-600 text-white' : 'bg-slate-200 text-slate-600']">
+            1
+          </div>
+          <div class="ml-3">
+            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Step 1</p>
+            <p class="text-sm font-medium text-slate-900">Select Branch</p>
+          </div>
+        </div>
+
+        <!-- Connector 1 -->
+        <div :class="['h-0.5 mx-4', step >= 2 ? 'bg-rose-600' : 'bg-slate-200']" style="flex:1;max-width:40px"></div>
+
+        <!-- Step 2: Add Items -->
+        <div class="flex items-center flex-1">
+          <div :class="['flex items-center justify-center w-8 h-8 rounded-full font-semibold text-xs', step >= 2 ? 'bg-rose-600 text-white' : 'bg-slate-200 text-slate-600']">
+            2
+          </div>
+          <div class="ml-3">
+            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Step 2</p>
+            <p class="text-sm font-medium text-slate-900">Add Items</p>
+          </div>
+        </div>
+
+        <!-- Connector 2 -->
+        <div :class="['h-0.5 mx-4', step >= 3 ? 'bg-rose-600' : 'bg-slate-200']" style="flex:1;max-width:40px"></div>
+
+        <!-- Step 3: Review & Place -->
+        <div class="flex items-center flex-1">
+          <div :class="['flex items-center justify-center w-8 h-8 rounded-full font-semibold text-xs', step >= 3 ? 'bg-rose-600 text-white' : 'bg-slate-200 text-slate-600']">
+            3
+          </div>
+          <div class="ml-3">
+            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Step 3</p>
+            <p class="text-sm font-medium text-slate-900">Review & Place</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Alert -->
-    <div v-if="alertMsg" :class="`alert alert-${alertType}`">{{ alertMsg }}</div>
+    <div v-if="alertMsg" :class="['rounded-lg border px-4 py-3 text-sm font-medium', alertType === 'success' ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-red-50 border-red-300 text-red-800']">
+      {{ alertMsg }}
+    </div>
 
-    <div class="order-layout">
-      <!-- Left: Order builder -->
-      <div class="order-form">
+    <!-- Two-Column Layout -->
+    <div class="grid grid-cols-3 gap-6 auto-rows-max">
 
-        <!-- Branch selection (admin, manager, sales) -->
-        <div class="card" v-if="auth.isAdmin || auth.isBranchManager || auth.isSalesUser">
-          <h3 class="section-title">Branch</h3>
-          <div class="form-group">
-            <label class="form-label">Select Branch</label>
-            <select v-model="selectedBranchId" class="form-control" @change="onBranchChange">
+      <!-- LEFT: 2/3 - Form Column -->
+      <div class="col-span-2 space-y-6">
+
+        <!-- Branch Selection Card -->
+        <div v-if="auth.isAdmin || auth.isBranchManager || auth.isSalesUser" class="bg-white border border-slate-200 rounded-lg p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center">
+              <CheckCircle2Icon class="w-4 h-4 text-rose-600" />
+            </div>
+            <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">Select Branch</h2>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Branch *</label>
+            <select 
+              v-model="selectedBranchId" 
+              @change="onBranchChange"
+              class="w-full px-3 py-2.5 h-10 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer"
+            >
               <option value="">— Select branch —</option>
               <option v-for="b in filteredBranches" :key="b.id" :value="b.id">{{ b.name }}</option>
             </select>
           </div>
         </div>
 
-        <!-- Product Picker -->
-        <div class="card">
-          <h3 class="section-title">Add Products</h3>
+        <!-- Add Products Card -->
+        <div class="bg-white border border-slate-200 rounded-lg p-6">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-8 h-8 rounded-full" :class="selectedBranchId ? 'bg-rose-50' : 'bg-slate-100'">
+              <ShoppingCartIcon class="w-4 h-4" :class="selectedBranchId ? 'text-rose-600' : 'text-slate-400'" style="margin:2px auto" />
+            </div>
+            <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">Add Products</h2>
+          </div>
 
-          <div v-if="!effectiveBranchId" class="empty-state-sm">
-            Select a branch first
+          <div v-if="!selectedBranchId" class="text-center py-8 px-4">
+            <ShoppingCartIcon class="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <p class="text-slate-600 text-sm font-medium">Select a branch first to add products</p>
           </div>
 
           <template v-else>
-            <div class="product-picker">
-              <div class="form-group">
-                <label class="form-label">Product</label>
-                <select v-model="picker.productId" class="form-control" @change="onProductSelect">
+            <div class="space-y-4">
+              <!-- Product Selection -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Product *</label>
+                <select 
+                  v-model="picker.productId" 
+                  @change="onProductSelect"
+                  class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer"
+                >
                   <option value="">— Choose product —</option>
                   <option
                     v-for="item in inventoryOptions"
@@ -52,93 +124,142 @@
                 </select>
               </div>
 
-              <div class="form-group" v-if="picker.productId">
-                <label class="form-label">
-                  Quantity
-                  <span class="form-hint" style="display:inline; margin-left:8px">
-                    Max: {{ availableQty }}
-                  </span>
-                </label>
-                <input
-                  v-model.number="picker.quantity"
-                  type="number" min="1" :max="availableQty"
-                  class="form-control"
-                  :class="{ 'is-error': picker.qtyError }"
-                  placeholder="0"
-                />
-                <span v-if="picker.qtyError" class="form-error">{{ picker.qtyError }}</span>
+              <!-- Product Details Card (if selected) -->
+              <div v-if="selectedInvItem" class="bg-slate-50 border border-slate-200 rounded-md p-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Product</p>
+                    <p class="text-sm font-medium text-slate-900 mt-1">{{ selectedInvItem.product_name }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">SKU</p>
+                    <p class="text-sm font-mono text-slate-900 mt-1">{{ selectedInvItem.sku }}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Stock Level</p>
+                    <p class="text-sm font-medium text-slate-900 mt-1">{{ selectedInvItem.quantity }} units</p>
+                  </div>
+                  <div>
+                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Unit Price</p>
+                    <p class="text-sm font-mono font-medium text-slate-900 mt-1">${{ Number(selectedInvItem.sale_price).toFixed(2) }}</p>
+                  </div>
+                </div>
               </div>
 
-              <!-- Price preview -->
-              <div class="price-preview" v-if="picker.productId && picker.quantity > 0">
-                <span>{{ picker.quantity }} × ${{ unitPrice }}</span>
-                <span class="price-line">= ${{ lineTotal }}</span>
+              <!-- Quantity Input -->
+              <div v-if="picker.productId">
+                <div class="flex items-end justify-between mb-2">
+                  <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide">Quantity *</label>
+                  <span class="text-xs text-slate-500">Max: {{ availableQty }} units</span>
+                </div>
+                <div class="flex gap-2">
+                  <input
+                    v-model.number="picker.quantity"
+                    type="number" 
+                    min="1" 
+                    :max="availableQty"
+                    class="flex-1 px-3 py-2.5 h-10 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
+                    :class="{ 'border-red-500 ring-1 ring-red-500/20': picker.qtyError }"
+                    placeholder="0"
+                  />
+                  <button
+                    @click="addToOrder"
+                    :disabled="!canAddItem"
+                    class="px-4 h-10 bg-rose-600 text-white rounded-md font-medium text-sm hover:bg-rose-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <PlusIcon class="w-4 h-4" />
+                  </button>
+                </div>
+                <p v-if="picker.qtyError" class="text-xs text-red-600 mt-2">{{ picker.qtyError }}</p>
+                <div v-else-if="picker.quantity > 0" class="flex items-center justify-between px-3 py-2.5 mt-2 bg-slate-50 border border-slate-200 rounded-md">
+                  <span class="text-sm text-slate-600">{{ picker.quantity }} × ${{ unitPrice }}</span>
+                  <span class="text-sm font-semibold text-slate-900">= ${{ lineTotal }}</span>
+                </div>
               </div>
-
-              <button
-                class="btn btn-secondary"
-                :disabled="!canAddItem"
-                @click="addToOrder"
-              >
-                + Add to Order
-              </button>
             </div>
           </template>
         </div>
+
       </div>
 
-      <!-- Right: Order summary -->
-      <div class="order-summary">
-        <div class="card">
-          <h3 class="section-title">Order Summary</h3>
+      <!-- RIGHT: 1/3 - Sticky Summary Column -->
+      <div class="col-span-1">
+        <div class="sticky top-6 bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+          <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wide mb-6">Order Summary</h3>
 
-          <div v-if="orderItems.length === 0" class="empty-state-sm">
-            No items added yet
+          <!-- Empty State -->
+          <div v-if="orderItems.length === 0" class="text-center py-8">
+            <ShoppingBagIcon class="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <p class="text-slate-600 text-sm font-medium">No items yet</p>
+            <p class="text-slate-500 text-xs mt-1">Add products to your order</p>
           </div>
 
-          <div v-else>
-            <div class="order-item" v-for="(item, idx) in orderItems" :key="idx">
-              <div class="oi-info">
-                <div class="oi-name">{{ item.product_name }}</div>
-                <div class="oi-qty text-muted text-sm">{{ item.quantity }} × ${{ Number(item.unit_price).toFixed(2) }}</div>
-              </div>
-              <div class="oi-right">
-                <div class="oi-total">${{ Number(item.line_total).toFixed(2) }}</div>
-                <button class="oi-remove" @click="removeItem(idx)">✕</button>
-              </div>
-            </div>
-
-            <div class="order-totals">
-              <div class="total-row">
-                <span>Subtotal</span>
-                <span class="font-mono">${{ subtotal }}</span>
-              </div>
-              <div class="total-row">
-                <span>Tax</span>
-                <span class="font-mono">${{ taxTotal }}</span>
-              </div>
-              <div class="total-row grand">
-                <span>Grand Total</span>
-                <span class="font-mono">${{ grandTotal }}</span>
+          <!-- Order Items List -->
+          <div v-else class="space-y-4">
+            <!-- Items -->
+            <div class="space-y-3 mb-4 pb-4 border-b border-slate-200">
+              <div 
+                v-for="(item, idx) in orderItems" 
+                :key="idx"
+                class="flex items-start justify-between gap-2 group"
+              >
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-slate-900 truncate">{{ item.product_name }}</p>
+                  <p class="text-xs text-slate-500 mt-0.5">{{ item.quantity }} × ${{ Number(item.unit_price).toFixed(2) }}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-semibold text-slate-900 tabular-nums">${{ Number(item.line_total).toFixed(2) }}</span>
+                  <button
+                    @click="removeItem(idx)"
+                    class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-50 rounded text-red-600 hover:text-red-700"
+                  >
+                    <TrashIcon class="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div class="form-group mt-4">
-              <label class="form-label">Notes (optional)</label>
-              <input v-model="notes" type="text" class="form-control" placeholder="Order notes..." />
+            <!-- Breakdown -->
+            <div class="space-y-2.5">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-600">Subtotal</span>
+                <span class="font-mono text-slate-900">{{ subtotal }}</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-600">Tax</span>
+                <span class="font-mono text-slate-900">{{ taxTotal }}</span>
+              </div>
+              <div class="pt-2.5 border-t border-slate-200 flex items-center justify-between">
+                <span class="font-semibold text-slate-900">Grand Total</span>
+                <span class="text-lg font-bold text-rose-600 font-mono">{{ grandTotal }}</span>
+              </div>
             </div>
 
+            <!-- Notes -->
+            <div class="mt-4 pt-4 border-t border-slate-200">
+              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Notes (optional)</label>
+              <textarea 
+                v-model="notes"
+                placeholder="Add order notes..."
+                class="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 resize-none"
+                rows="2"
+              ></textarea>
+            </div>
+
+            <!-- Place Order Button -->
             <button
-              class="btn btn-primary btn-lg w-full"
-              :disabled="placing || orderItems.length === 0"
               @click="placeOrder"
+              :disabled="placing || orderItems.length === 0 || !selectedBranchId"
+              class="w-full mt-4 px-4 py-2.5 h-10 bg-rose-600 text-white rounded-lg font-medium text-sm hover:bg-rose-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <span v-if="placing" class="spinner"></span>
+              <CheckCircle2Icon v-if="!placing" class="w-4 h-4" />
+              <div v-else class="w-4 h-4 border-2 border-white border-t-rose-600 rounded-full animate-spin"></div>
               {{ placing ? 'Placing Order...' : 'Place Order' }}
             </button>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </template>
@@ -147,6 +268,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth.store'
+import { ShoppingCartIcon, ShoppingBagIcon, TrashIcon, PlusIcon, CheckCircle2Icon } from 'lucide-vue-next'
 import api from '@/api/axios'
 
 const auth   = useAuthStore()
@@ -154,7 +276,7 @@ const router = useRouter()
 
 // State
 const branches      = ref([])
-const inventory     = ref([])  // Current branch inventory
+const inventory     = ref([])
 const orderItems    = ref([])
 const selectedBranchId = ref('')
 const notes         = ref('')
@@ -168,10 +290,12 @@ const picker = ref({
   qtyError:  '',
 })
 
-// For branch managers and sales, fixed to their branch
-const effectiveBranchId = computed(() =>
-  selectedBranchId.value
-)
+// Current step in stepper (1, 2, or 3)
+const step = computed(() => {
+  if (!selectedBranchId.value) return 1
+  if (orderItems.value.length === 0) return 2
+  return 3
+})
 
 const inventoryOptions = computed(() =>
   inventory.value.filter(i => i.quantity > 0)
@@ -197,21 +321,14 @@ const canAddItem = computed(() => {
          picker.value.quantity <= availableQty.value
 })
 
-// Computed totals
-const subtotal  = computed(() => orderItems.value.reduce((s, i) => s + i.qty_sub, 0).toFixed(2))
-const taxTotal  = computed(() => orderItems.value.reduce((s, i) => s + i.tax_amt, 0).toFixed(2))
-const grandTotal = computed(() => (parseFloat(subtotal.value) + parseFloat(taxTotal.value)).toFixed(2))
+// Totals
+const subtotal  = computed(() => '$' + orderItems.value.reduce((s, i) => s + i.qty_sub, 0).toFixed(2))
+const taxTotal  = computed(() => '$' + orderItems.value.reduce((s, i) => s + i.tax_amt, 0).toFixed(2))
+const grandTotal = computed(() => '$' + (parseFloat(orderItems.value.reduce((s, i) => s + i.qty_sub, 0)) + parseFloat(orderItems.value.reduce((s, i) => s + i.tax_amt, 0))).toFixed(2))
 
-const filteredBranches = computed(() => {
-  // Backend API already filters by role:
-  // - Admin: gets all branches
-  // - Manager: gets only their managed branches
-  // - Sales: gets all branches (can make sales on any branch)
-  return branches.value
-})
+const filteredBranches = computed(() => branches.value)
 
 onMounted(async () => {
-  // Always load all branches for selection
   const res = await api.get('/branches')
   branches.value = res || []
 })
@@ -223,9 +340,8 @@ async function onBranchChange() {
 }
 
 async function loadInventory() {
-  const branchId = effectiveBranchId.value
-  if (!branchId) return
-  const res = await api.get(`/inventory?branch_id=${branchId}`)
+  if (!selectedBranchId.value) return
+  const res = await api.get(`/inventory?branch_id=${selectedBranchId.value}`)
   inventory.value = res || []
 }
 
@@ -235,7 +351,6 @@ function onProductSelect() {
 }
 
 function addToOrder() {
-  // Client-side validation BEFORE hitting API
   picker.value.qtyError = ''
 
   if (picker.value.quantity <= 0) {
@@ -252,7 +367,7 @@ function addToOrder() {
   const sub = qty * Number(inv.sale_price)
   const tax = sub * (Number(inv.tax_percentage) / 100)
 
-  // Check if product already in order — merge quantities
+  // Merge if product already in order
   const existing = orderItems.value.find(i => i.product_id === inv.product_id)
   if (existing) {
     const newQty = existing.quantity + qty
@@ -287,14 +402,14 @@ function removeItem(idx) {
 }
 
 async function placeOrder() {
-  if (!orderItems.value.length) return
+  if (!orderItems.value.length || !selectedBranchId.value) return
 
   placing.value = true
   alertMsg.value = ''
 
   try {
     const payload = {
-      branch_id: effectiveBranchId.value,
+      branch_id: selectedBranchId.value,
       notes:     notes.value,
       items: orderItems.value.map(i => ({
         product_id: i.product_id,
@@ -303,7 +418,7 @@ async function placeOrder() {
     }
 
     const res = await api.post('/orders', payload)
-    alertMsg.value  = `Order ${res?.order_number || ''} placed successfully!`
+    alertMsg.value  = `Order #${res?.order_number || ''} placed successfully!`
     alertType.value = 'success'
 
     setTimeout(() => router.push('/orders'), 1500)
@@ -315,76 +430,3 @@ async function placeOrder() {
   }
 }
 </script>
-
-<style scoped>
-.page-header {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  gap: 16px; margin-bottom: 24px;
-}
-.page-title   { font-size: 24px; font-weight: 700; letter-spacing: -0.03em; }
-.page-subtitle { color: var(--clr-text-muted); font-size: 14px; margin-top: 4px; }
-
-.order-layout {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 20px;
-  align-items: start;
-}
-@media (max-width: 1024px) { .order-layout { grid-template-columns: 1fr; } }
-
-.section-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--clr-text-secondary); }
-.empty-state-sm { text-align: center; color: var(--clr-text-muted); padding: 24px; font-size: 14px; }
-.order-form { display: flex; flex-direction: column; gap: 16px; }
-
-.card { margin-bottom: 0; }
-
-.product-picker { display: flex; flex-direction: column; gap: 12px; }
-
-.price-preview {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 14px;
-  background: var(--clr-bg-elevated);
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  color: var(--clr-text-secondary);
-}
-.price-line { font-weight: 700; color: var(--clr-accent-light); font-size: 16px; }
-
-.is-error { border-color: var(--clr-danger); }
-
-/* Order items */
-.order-item {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--clr-border);
-}
-.order-item:last-of-type { border-bottom: none; }
-.oi-name  { font-size: 14px; font-weight: 500; }
-.oi-right { display: flex; align-items: center; gap: 12px; }
-.oi-total { font-weight: 600; font-size: 15px; }
-.oi-remove {
-  background: transparent; border: none;
-  color: var(--clr-text-muted); cursor: pointer;
-  font-size: 12px; padding: 4px;
-  transition: color var(--trans-fast);
-}
-.oi-remove:hover { color: var(--clr-danger); }
-
-/* Totals */
-.order-totals {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--clr-border);
-}
-.total-row {
-  display: flex; justify-content: space-between;
-  font-size: 14px; color: var(--clr-text-secondary);
-  padding: 5px 0;
-}
-.total-row.grand {
-  font-size: 18px; font-weight: 700;
-  color: var(--clr-text-primary);
-  margin-top: 8px; padding-top: 12px;
-  border-top: 1px solid var(--clr-border-accent);
-}
-</style>

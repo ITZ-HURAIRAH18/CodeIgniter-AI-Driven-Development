@@ -1,41 +1,33 @@
 <template>
-  <div class="space-y-section">
-    <!-- Page Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-section">
+  <div class="space-y-6">
+    <!-- Page Header with Breadcrumb -->
+    <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-4xl font-bold text-slate-900 drop-shadow-sm tracking-tight">Stock Management</h1>
-        <p class="text-slate-500 text-sm mt-2 flex items-center gap-2 font-medium">
-          <ActivityIcon class="w-4 h-4 text-rose-500" />
+        <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-2">
+          <span>Dashboard</span>
+          <span class="text-slate-300">/</span>
+          <span class="text-slate-900 font-semibold">Stock Management</span>
+        </div>
+        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Stock Management</h1>
+        <p class="text-slate-500 text-sm mt-1 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           Real-time inventory levels across enterprise network
         </p>
       </div>
-      <div v-if="canManage" class="flex items-center gap-2 flex-wrap md:flex-nowrap">
-        <BaseButton variant="secondary" @click="openAdjustModal" size="md" class="border-slate-200 shadow-sm" :title="'Adjust stock levels'">
-          <Settings2Icon class="w-4 h-4" />
-          <span class="hidden sm:inline ml-1.5">Adjust Levels</span>
-        </BaseButton>
-        <BaseButton variant="secondary" @click="showTransferModal = true" size="md" class="border-slate-200 shadow-sm" :title="'Transfer stock between branches'">
-          <ArrowRightLeft class="w-4 h-4" />
-          <span class="hidden sm:inline ml-1.5">Transfer Stock</span>
-        </BaseButton>
-        <BaseButton variant="primary" @click="showAddModal = true" size="md" class="shadow-lg shadow-rose-200" :title="'Replenish stock'">
-          <PlusIcon class="w-4 h-4" />
-          <span class="hidden sm:inline ml-1.5">Replenish Stock</span>
-        </BaseButton>
-      </div>
     </div>
 
-    <!-- Controls Bar -->
-    <Card class="mb-gutter bg-surface-alt/50">
+    <!-- Compact Filter Bar -->
+    <div class="bg-white border border-slate-200 rounded-lg p-4 space-y-4">
       <div class="flex flex-col md:flex-row gap-4 items-end md:items-center justify-between">
-        <div class="flex-1 flex flex-col md:flex-row gap-4 w-full md:w-auto">
-          <!-- Branch Selector (Admin/Multi-branch manager) -->
-          <div v-if="auth.isAdmin || (auth.isBranchManager && branches.length > 0)" class="w-full md:w-72">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Active Node</label>
+        <!-- Left: Filters grouped together -->
+        <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
+          <!-- Branch Selector -->
+          <div v-if="auth.isAdmin || (auth.isBranchManager && branches.length > 0)" class="w-full md:w-56">
+            <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">Active Node</label>
             <select 
               v-model="selectedBranchId"
-              class="w-full px-4 py-2.5 rounded-lg text-sm font-semibold bg-white border-2 border-slate-200 text-slate-900 focus:outline-none focus:border-accent-pink-500 focus:ring-2 focus:ring-accent-pink-500/20 cursor-pointer appearance-none transition-all hover:border-slate-300"
-              style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
+              class="w-full px-3 py-2 h-9 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer appearance-none transition-all hover:border-slate-300"
+              style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%236b7280%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2rem'"
             >
               <option value="">All Branches</option>
               <option v-for="b in filteredBranches" :key="b.id" :value="b.id">{{ b.name }}</option>
@@ -44,71 +36,99 @@
           
           <!-- Search -->
           <div class="w-full md:flex-1">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">Search Analytics</label>
+            <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">Search</label>
             <div class="relative group">
-              <SearchIcon class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
-              <Input v-model="search" placeholder="Product name, SKU, or Category..." class="pl-10 bg-white border-2 border-slate-200 font-medium" />
+              <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
+              <Input v-model="search" placeholder="Product name, SKU..." class="pl-9 h-9 text-sm" />
             </div>
           </div>
         </div>
-        
-        <div class="flex items-center gap-3 whitespace-nowrap">
-           <div class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-2 rounded-lg shadow-soft flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Real-time Sync Active
-           </div>
+
+        <!-- Right: Action buttons -->
+        <div v-if="canManage" class="flex items-center gap-2 flex-wrap">
+          <BaseButton variant="ghost" size="sm" class="h-9 w-9 !p-0" title="Filter options">
+            <FilterIcon class="w-4 h-4" />
+          </BaseButton>
+          <BaseButton variant="ghost" size="sm" class="h-9 w-9 !p-0" title="Export data">
+            <DownloadIcon class="w-4 h-4" />
+          </BaseButton>
+          <div class="w-px h-5 bg-slate-200"></div>
+          <BaseButton variant="secondary" @click="openAdjustModal" size="sm" class="h-9 px-3" title="Adjust stock">
+            <Settings2Icon class="w-4 h-4" />
+          </BaseButton>
+          <BaseButton variant="secondary" @click="showTransferModal = true" size="sm" class="h-9 px-3" title="Transfer stock">
+            <ArrowRightLeft class="w-4 h-4" />
+          </BaseButton>
+          <BaseButton variant="primary" @click="showAddModal = true" size="sm" class="h-9 px-3">
+            <PlusIcon class="w-4 h-4" />
+            <span class="ml-2">Replenish</span>
+          </BaseButton>
         </div>
       </div>
-    </Card>
+    </div>
 
-    <!-- Main Data Table -->
-    <Card no-padding class="shadow-lg border-slate-200">
+    <!-- Enterprise Data Table -->
+    <div class="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
       <div v-if="filteredInventory.length > 0" class="overflow-x-auto">
         <table class="w-full">
-          <thead class="bg-slate-50 border-b-2 border-slate-200 sticky top-0">
+          <thead class="bg-slate-50/80 border-b border-slate-200 sticky top-0">
             <tr>
-              <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-tight">Product Stream</th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-tight">Cloud Balance</th>
-              <th class="px-6 py-4 text-right text-xs font-bold text-slate-600 uppercase tracking-tight">Unit Value</th>
-              <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-tight">Node Status</th>
-              <th v-if="canManage" class="px-6 py-4 text-center text-xs font-bold text-slate-600 uppercase tracking-tight">Actions</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Product</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Stock Level</th>
+              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Unit Price</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Inventory Status</th>
+              <th v-if="canManage" class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
-            <tr v-for="row in filteredInventory" :key="row.id" class="hover:bg-slate-50 transition-colors">
-              <td class="px-6 py-4">
+          <tbody class="divide-y divide-slate-200">
+            <tr v-for="(row, idx) in filteredInventory" :key="row.id" :class="['transition-colors hover:bg-slate-50/80', idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30']">
+              <!-- Product Column -->
+              <td class="px-6 py-3 whitespace-nowrap">
                 <div class="flex flex-col">
-                  <span class="font-bold text-slate-900 tracking-tight">{{ row.product_name || 'Unknown' }}</span>
-                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{{ row.sku || 'N/A' }}</span>
+                  <span class="font-semibold text-slate-900 text-sm">{{ row.product_name || 'Unknown' }}</span>
+                  <span class="text-xs text-slate-400 font-medium">{{ row.sku || 'N/A' }}</span>
                 </div>
               </td>
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-4">
-                  <div class="w-32 h-2 bg-slate-100 rounded-full overflow-hidden shrink-0 border border-slate-200">
-                     <div :class="['h-full rounded-full transition-all duration-300', getStockBarColor(row.quantity, row.reorder_level)]" :style="{ width: Math.min((row.quantity / (row.reorder_level * 2)) * 100, 100) + '%' }"></div>
+              
+              <!-- Stock Level Column (Progress Bar) -->
+              <td class="px-6 py-3">
+                <div class="flex items-center gap-3">
+                  <div class="flex-1 min-w-[120px]">
+                    <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                      <div 
+                        :class="['h-full rounded-full transition-all duration-300', getStockBarColor(row.quantity, row.reorder_level)]" 
+                        :style="{ width: Math.min((row.quantity / (row.reorder_level * 2)) * 100, 100) + '%' }">
+                      </div>
+                    </div>
                   </div>
-                  <span :class="['font-black tabular-nums w-12 text-right', row.quantity <= row.reorder_level ? 'text-rose-600' : 'text-slate-900']">
-                    {{ row.quantity || 0 }}
-                  </span>
+                  <span class="text-sm font-bold text-slate-900 tabular-nums w-12 text-right">{{ row.quantity || 0 }}</span>
                 </div>
               </td>
-              <td class="px-6 py-4 text-right">
-                <span class="font-black text-slate-800 tabular-nums">${{ row.sale_price && !isNaN(row.sale_price) ? parseFloat(row.sale_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00' }}</span>
+              
+              <!-- Unit Price Column -->
+              <td class="px-6 py-3 text-right">
+                <span class="text-sm font-semibold text-slate-900 tabular-nums">${{ row.sale_price && !isNaN(row.sale_price) ? parseFloat(row.sale_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00' }}</span>
               </td>
-              <td class="px-6 py-4">
-                <Badge 
-                  :label="getStatusLabel(row.quantity, row.reorder_level)"
-                  :variant="getStatusVariant(row.quantity, row.reorder_level)"
-                  class="font-bold italic uppercase tracking-tighter"
-                />
+              
+              <!-- Status Column -->
+              <td class="px-6 py-3">
+                <span :class="[
+                  'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium',
+                  getStatusVariantClasses(row.quantity, row.reorder_level)
+                ]">
+                  <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDotColor(row.quantity, row.reorder_level)"></span>
+                  {{ getStatusLabel(row.quantity, row.reorder_level) }}
+                </span>
               </td>
-              <td v-if="canManage" class="px-6 py-4">
-                <div class="flex items-center justify-center gap-2">
-                  <BaseButton variant="ghost" size="sm" @click="openAdjustModal(row)" class="h-9 w-9 !p-0" title="Adjust Balance">
-                     <Edit3Icon class="w-4 h-4" />
+              
+              <!-- Actions Column -->
+              <td v-if="canManage" class="px-6 py-3 text-right">
+                <div class="flex items-center justify-end gap-1">
+                  <BaseButton variant="ghost" size="sm" @click="openAdjustModal(row)" class="h-8 w-8 !p-0 hover:bg-slate-100" title="Adjust">
+                    <Edit3Icon class="w-4 h-4 text-slate-600" />
                   </BaseButton>
-                  <BaseButton variant="ghost" size="sm" @click="openLogsModal(row)" class="h-9 w-9 !p-0" title="Operational History">
-                     <HistoryIcon class="w-4 h-4" />
+                  <BaseButton variant="ghost" size="sm" @click="openLogsModal(row)" class="h-8 w-8 !p-0 hover:bg-slate-100" title="History">
+                    <HistoryIcon class="w-4 h-4 text-slate-600" />
                   </BaseButton>
                 </div>
               </td>
@@ -116,18 +136,16 @@
           </tbody>
         </table>
       </div>
-      <div v-else class="flex items-center justify-center py-16">
+      
+      <!-- Empty State -->
+      <div v-else class="flex items-center justify-center py-16 px-4">
         <div class="text-center">
           <ActivityIcon class="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p class="text-slate-600 font-medium">No inventory items in {{ branches.length > 0 ? branches.length : 'this' }} branch(es)</p>
-          <p class="text-slate-400 text-sm">Start by replenishing stock to add items</p>
-          <div class="mt-4 text-xs text-slate-500">
-            <p v-if="branches.length === 0">⚠️ No branches assigned</p>
-            <p v-else>📦 Branches: {{ branches.map(b => b.name).join(', ') }}</p>
-          </div>
+          <p class="text-slate-600 font-medium text-sm">No inventory items found</p>
+          <p class="text-slate-500 text-xs mt-1">Start by replenishing stock to add items</p>
         </div>
       </div>
-    </Card>
+    </div>
 
       <!-- Replenish Stock Modal -->
     <Modal :show="showAddModal" title="Replenish Cloud Stock" maxWidth="lg" @close="showAddModal = false">
@@ -347,7 +365,8 @@ import { useAuthStore } from '@/store/auth.store'
 import api from '@/api/axios'
 import { 
   PlusIcon, SearchIcon, ActivityIcon, Edit3Icon, Settings2Icon, 
-  HistoryIcon, PackagePlusIcon, AlertTriangleIcon, ArrowRightLeft 
+  HistoryIcon, PackagePlusIcon, AlertTriangleIcon, ArrowRightLeft,
+  FilterIcon, DownloadIcon
 } from 'lucide-vue-next'
 
 import Card from '@/components/ui/Card.vue'
@@ -601,20 +620,31 @@ async function submitAdjustStock() {
 
 // Helpers
 const getStatusLabel = (q, r) => {
-  if (q === 0) return 'DEPLETED'
-  if (q <= r) return 'LOW NODE'
-  return 'STABLE'
+  if (q === 0) return 'Depleted'
+  if (q <= r * 0.2) return 'Critical'
+  if (q <= r) return 'Low Stock'
+  return 'Stable'
 }
 
-const getStatusVariant = (q, r) => {
-  if (q === 0) return 'error'
-  if (q <= r) return 'warning'
-  return 'success'
+const getStatusVariantClasses = (q, r) => {
+  if (q === 0) return 'bg-red-50 text-red-700'
+  if (q <= r * 0.2) return 'bg-red-50 text-red-700'
+  if (q <= r) return 'bg-amber-50 text-amber-700'
+  return 'bg-emerald-50 text-emerald-700'
+}
+
+const getStatusDotColor = (q, r) => {
+  if (q === 0) return 'bg-red-500'
+  if (q <= r * 0.2) return 'bg-red-500'
+  if (q <= r) return 'bg-amber-500'
+  return 'bg-emerald-500'
 }
 
 const getStockBarColor = (q, r) => {
-  if (q === 0) return 'bg-rose-500'
-  if (q <= r) return 'bg-amber-500'
+  // Color-coded progress bar: red (<5%), amber (<20%), green (healthy)
+  const percentage = (q / (r * 2)) * 100
+  if (percentage < 5) return 'bg-red-500'
+  if (percentage < 20) return 'bg-amber-500'
   return 'bg-emerald-500'
 }
 
