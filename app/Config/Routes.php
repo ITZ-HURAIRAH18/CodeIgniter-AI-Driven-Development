@@ -40,18 +40,35 @@ $routes->group('api/v1', ['filter' => 'cors'], function ($routes) {
         $routes->post('auth/logout', 'Api\V1\AuthController::logout');
         $routes->get('auth/me',      'Api\V1\AuthController::me');
 
-        // Users — read: all (for dropdowns/selects)
+        // Users — read: all (for dropdowns/selects); write: admin only
         $routes->get('users', 'Api\V1\UserController::index');
+
+        $routes->group('users', ['filter' => 'role:admin'], function ($routes) {
+            $routes->post('',                    'Api\V1\UserController::create');
+            $routes->put('(:num)/assign-branch', 'Api\V1\UserController::assignBranch/$1');
+        });
 
         // Branches — read: all roles; write: admin only
         $routes->get('branches',        'Api\V1\BranchController::index');
         $routes->get('branches/(:num)', 'Api\V1\BranchController::show/$1');
+        
+        // Branch management (admin/manager)
+        $routes->get('branches/(:num)/managers', 'Api\V1\BranchController::getManagers/$1', 
+                    ['filter' => 'role:admin,branch_manager']);
+        $routes->get('branches/(:num)/sales', 'Api\V1\BranchController::getSales/$1',
+                    ['filter' => 'role:admin,branch_manager']);
 
         $routes->group('branches', ['filter' => 'role:admin'], function ($routes) {
-            $routes->post('',          'Api\V1\BranchController::create');
-            $routes->put('(:num)',     'Api\V1\BranchController::update/$1');
-            $routes->delete('(:num)',  'Api\V1\BranchController::delete/$1');
+            $routes->post('',                                    'Api\V1\BranchController::create');
+            $routes->put('(:num)',                               'Api\V1\BranchController::update/$1');
+            $routes->delete('(:num)',                            'Api\V1\BranchController::delete/$1');
+            $routes->post('(:num)/assign-manager',               'Api\V1\BranchController::assignManager/$1');
+            $routes->delete('(:num)/remove-manager/(:num)',      'Api\V1\BranchController::removeManager/$1/$2');
         });
+
+        // Sales assignment — admin or manager for their branches
+        $routes->post('branches/(:num)/assign-sales', 'Api\V1\BranchController::assignSales/$1', 
+                     ['filter' => 'role:admin,branch_manager']);
 
         // Products — read: all; write: admin
         $routes->get('products',        'Api\V1\ProductController::index');

@@ -94,7 +94,7 @@
         </div>
         <div class="flex-1 min-w-0">
           <div class="text-sm font-medium text-gray-900 truncate">{{ userName }}</div>
-          <div class="text-xs text-gray-500 font-medium truncate">{{ userRole }}</div>
+          <div class="text-xs text-gray-500 font-medium truncate">{{ userRoleLabel }}</div>
         </div>
       </div>
     </div>
@@ -119,29 +119,90 @@ const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 
-const mainMenu = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/inventory', label: 'Inventory', icon: Package },
-  { to: '/orders', label: 'Orders', icon: ShoppingCart },
-]
+// ─── Role Constants ───
+const ROLES = {
+  SUPER_ADMIN: 1,
+  BRANCH_MANAGER: 2,
+  SALES_USER: 3,
+}
 
-const managementMenu = [
-  { to: '/products', label: 'Products', icon: ShoppingCart },
-  { to: '/transfers', label: 'Transfers', icon: Truck },
-  { to: '/branches', label: 'Branches', icon: Building2 },
-]
+// ─── Menu Configuration ───
+const allMenuItems = {
+  // Main Section
+  main: [
+    {
+      to: '/dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      roles: [ROLES.SUPER_ADMIN, ROLES.BRANCH_MANAGER, ROLES.SALES_USER], // visible to all
+    },
+    {
+      to: '/inventory',
+      label: 'Inventory',
+      icon: Package,
+      roles: [ROLES.SUPER_ADMIN, ROLES.BRANCH_MANAGER], // Admin & Manager only
+    },
+    {
+      to: '/orders',
+      label: 'Orders',
+      icon: ShoppingCart,
+      roles: [ROLES.SUPER_ADMIN, ROLES.BRANCH_MANAGER, ROLES.SALES_USER], // visible to all
+    },
+  ],
+  // Management Section
+  management: [
+    {
+      to: '/products',
+      label: 'Products',
+      icon: ShoppingCart,
+      roles: [ROLES.SUPER_ADMIN, ROLES.BRANCH_MANAGER, ROLES.SALES_USER], // visible to all (read-only for manager & sales)
+    },
+    {
+      to: '/transfers',
+      label: 'Transfers',
+      icon: Truck,
+      roles: [ROLES.SUPER_ADMIN, ROLES.BRANCH_MANAGER], // Admin & Manager only
+    },
+    {
+      to: '/branches',
+      label: 'Branches',
+      icon: Building2,
+      roles: [ROLES.SUPER_ADMIN], // Admin only
+    },
+  ],
+}
+
+// ─── Computed Properties ───
+const userRole = computed(() => auth.user?.role)
 
 const userName = computed(() => auth.user?.name || 'User')
-const userRole = computed(() => {
-  const roles = { 1: 'Admin', 2: 'Manager', 3: 'Staff' }
-  return roles[auth.user?.role] || 'Member'
+
+const userRoleLabel = computed(() => {
+  const roles = {
+    [ROLES.SUPER_ADMIN]: 'Super Admin',
+    [ROLES.BRANCH_MANAGER]: 'Branch Manager',
+    [ROLES.SALES_USER]: 'Sales User',
+  }
+  return roles[userRole.value] || 'Member'
 })
+
 const userInitials = computed(() => 
   userName.value.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 )
 
+// ─── Filter Menu Items by Role ───
+const mainMenu = computed(() => 
+  allMenuItems.main.filter(item => item.roles.includes(userRole.value))
+)
+
+const managementMenu = computed(() => 
+  allMenuItems.management.filter(item => item.roles.includes(userRole.value))
+)
+
+// ─── Check if Route is Active ───
 const isActive = (path) => route.path.startsWith(path)
 
+// ─── Logout Handler ───
 const handleLogout = async () => {
   try {
     await auth.logout()

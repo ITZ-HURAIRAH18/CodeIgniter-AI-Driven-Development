@@ -84,6 +84,15 @@ class InventoryController extends BaseApiController
         $actor = $this->actor();
 
         try {
+            // Branch managers can only add stock to their own branches
+            if ((int) $actor->role_id === 2) {
+                $branchModel = model(\App\Models\BranchModel::class);
+                $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);
+                if (!in_array((int)$data['branch_id'], $myBranchIds)) {
+                    return $this->apiError('Access denied: You cannot add stock to this branch.', 403);
+                }
+            }
+
             $result = $this->service->addStock(
                 branchId:  (int) $data['branch_id'],
                 productId: (int) $data['product_id'],
@@ -116,6 +125,15 @@ class InventoryController extends BaseApiController
         $actor = $this->actor();
 
         try {
+            // Branch managers can only adjust stock in their own branches
+            if ((int) $actor->role_id === 2) {
+                $branchModel = model(\App\Models\BranchModel::class);
+                $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);
+                if (!in_array((int)$data['branch_id'], $myBranchIds)) {
+                    return $this->apiError('Access denied: You cannot adjust stock in this branch.', 403);
+                }
+            }
+
             $result = $this->service->adjustStock(
                 branchId:  (int) $data['branch_id'],
                 productId: (int) $data['product_id'],

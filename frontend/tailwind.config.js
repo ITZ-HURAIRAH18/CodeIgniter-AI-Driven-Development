@@ -8,6 +8,17 @@ export default {
     extend: {
       colors: {
         // Soft pastel palette for low-strain, modern look
+        'background': '#fafbfc',  // Main page background
+        'primary': {
+          50: '#fdf6f8',
+          100: '#fce7f0',
+          200: '#f8c5e0',
+          300: '#f5a8d8',
+          400: '#ef7fcc',
+          500: '#e75ab8',   // Primary soft pink
+          600: '#d63fa9',
+          700: '#b8278f',
+        },
         'surface': {
           'light': '#fafbfc',    // Main page background
           'base': '#f8f9fa',     // Card backgrounds
@@ -115,12 +126,15 @@ export default {
         'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
         'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        'soft': '0 1px 3px 0 rgba(0, 0, 0, 0.08)',
+        'soft-md': '0 4px 8px 0 rgba(0, 0, 0, 0.1)',
       },
       borderRadius: {
         'sm': '0.25rem',
         'base': '0.375rem',
         'md': '0.5rem',
         'lg': '0.75rem',
+        'custom': '0.5rem',
       },
       keyframes: {
         'fade-in': {
