@@ -1,6 +1,104 @@
 <template>
   <div class="min-h-screen bg-slate-50 font-inter">
-    <div class="max-w-7xl mx-auto px-6 py-6">
+    <!-- Sales User Welcome Screen -->
+    <div v-if="auth.isSalesUser" class="min-h-screen flex items-center justify-center px-6 py-12">
+      <div class="max-w-3xl w-full">
+        <!-- Welcome Card -->
+        <div class="rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden">
+          <!-- Header Section - Minimal Professional -->
+          <div class="px-8 py-12 border-b border-slate-200">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 rounded-lg bg-rose-50 flex items-center justify-center flex-shrink-0">
+                <ShoppingCartIcon class="w-7 h-7 text-rose-700" />
+              </div>
+              <div>
+                <h1 class="text-2xl font-bold text-slate-900">Welcome to Sales Dashboard</h1>
+                <p class="text-slate-600 text-sm mt-1">Manage your sales and track product inventory</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Content Section -->
+          <div class="px-8 py-8">
+            <!-- User Greeting -->
+            <div class="mb-8">
+              <p class="text-slate-900 font-semibold">Hello, {{ auth.user?.name || 'Sales Representative' }}</p>
+              <p class="text-slate-600 text-sm mt-1">Access your sales tools and manage orders efficiently</p>
+            </div>
+            
+            <!-- Main Actions Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <!-- View Products Card -->
+              <router-link to="/products" class="group p-6 rounded-lg bg-slate-50 border border-slate-200 hover:border-rose-300 hover:bg-rose-50 transition-all duration-200">
+                <div class="flex items-start gap-3">
+                  <div class="w-10 h-10 rounded-md bg-white border border-slate-200 group-hover:border-rose-300 flex items-center justify-center flex-shrink-0">
+                    <BoxIcon class="w-5 h-5 text-slate-600 group-hover:text-rose-700" />
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-slate-900 group-hover:text-rose-900">View Products</p>
+                    <p class="text-slate-600 text-sm mt-0.5">Browse available inventory and check stock levels</p>
+                  </div>
+                </div>
+              </router-link>
+              
+              <!-- Create Order Card -->
+              <router-link to="/orders/create" class="group p-6 rounded-lg bg-slate-50 border border-slate-200 hover:border-rose-300 hover:bg-rose-50 transition-all duration-200">
+                <div class="flex items-start gap-3">
+                  <div class="w-10 h-10 rounded-md bg-white border border-slate-200 group-hover:border-rose-300 flex items-center justify-center flex-shrink-0">
+                    <ShoppingCartIcon class="w-5 h-5 text-slate-600 group-hover:text-rose-700" />
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-slate-900 group-hover:text-rose-900">Create Order</p>
+                    <p class="text-slate-600 text-sm mt-0.5">Start a new order and process sales quickly</p>
+                  </div>
+                </div>
+              </router-link>
+            </div>
+            
+            <!-- Secondary Actions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <!-- View All Orders -->
+              <router-link to="/orders" class="group p-4 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all duration-200">
+                <div class="flex items-center gap-3">
+                  <CheckCircleIcon class="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
+                  <p class="font-medium text-slate-700 group-hover:text-slate-900 text-sm">View All Orders</p>
+                </div>
+              </router-link>
+              
+              <!-- Inventory Overview -->
+              <router-link to="/inventory" class="group p-4 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all duration-200">
+                <div class="flex items-center gap-3">
+                  <TrendingUpIcon class="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
+                  <p class="font-medium text-slate-700 group-hover:text-slate-900 text-sm">Inventory Overview</p>
+                </div>
+              </router-link>
+            </div>
+            
+            <!-- Info Section -->
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-6">
+              <p class="font-semibold text-slate-900 text-sm mb-3">Quick Tips</p>
+              <ul class="space-y-2 text-sm text-slate-600">
+                <li class="flex gap-2">
+                  <span class="text-rose-700 font-semibold flex-shrink-0">→</span>
+                  <span>Check real-time product availability before creating orders</span>
+                </li>
+                <li class="flex gap-2">
+                  <span class="text-rose-700 font-semibold flex-shrink-0">→</span>
+                  <span>Track order status and manage customer inquiries efficiently</span>
+                </li>
+                <li class="flex gap-2">
+                  <span class="text-rose-700 font-semibold flex-shrink-0">→</span>
+                  <span>View inventory levels across all branches in real-time</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin/Manager Dashboard -->
+    <div v-else class="max-w-7xl mx-auto px-6 py-6">
       <!-- Page Header -->
       <div class="mb-8 pt-2">
         <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
@@ -301,7 +399,7 @@
           </div>
         </div>
       </div>
-      </div>
+    </div>
     </div>
   </div>
 </template>
@@ -420,6 +518,12 @@ const formatTimeAgo = (dateString) => {
 
 // Load dashboard data based on user role
 const loadDashboardData = async () => {
+  // Skip loading for sales representatives
+  if (auth.isSalesUser) {
+    loading.value = false
+    return
+  }
+
   try {
     loading.value = true
     console.log('📊 Loading dashboard data for', auth.isBranchManager ? 'manager' : 'admin')
