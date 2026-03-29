@@ -1,8 +1,0 @@
-At line:1 char:57
-+ cd 'e:\My Projects\CodeIgniter + AI-Driven Development' && php -r "in ...
-+                                                         ~~
-The token '&&' is not a valid statement separator in this version.
-    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordEx 
-   ception
-    + FullyQualifiedErrorId : InvalidEndOfLine
- 
