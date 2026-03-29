@@ -12,7 +12,7 @@
           <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Orders</h1>
           <p class="text-slate-500 text-sm mt-1">Manage and track all customer orders</p>
         </div>
-        <router-link to="/orders/create" class="inline-flex items-center gap-2 px-4 py-2.5 h-10 bg-rose-600 text-white rounded-lg font-medium hover:bg-rose-700 transition-colors shadow-sm">
+        <router-link to="/orders/create" class="inline-flex items-center gap-2 px-4 py-2.5 h-10 bg-rose-500 text-white rounded-lg font-medium hover:bg-rose-600 transition-colors shadow-sm">
           <PlusIcon class="w-4 h-4" />
           <span>New Order</span>
         </router-link>
@@ -163,7 +163,7 @@ const filteredOrders = computed(() => {
 
 const getStatusBadgeClasses = (status) => {
   const map = {
-    completed: 'bg-emerald-50 text-emerald-700',
+    completed: 'bg-rose-50 text-rose-700',
     pending: 'bg-amber-50 text-amber-700',
     cancelled: 'bg-slate-100 text-slate-700',
     confirmed: 'bg-blue-50 text-blue-700'
@@ -173,7 +173,7 @@ const getStatusBadgeClasses = (status) => {
 
 const getStatusDotColor = (status) => {
   const map = {
-    completed: 'bg-emerald-500',
+    completed: 'bg-rose-500',
     pending: 'bg-amber-500',
     cancelled: 'bg-slate-400',
     confirmed: 'bg-blue-500'

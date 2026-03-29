@@ -19,7 +19,7 @@
               v-model="searchQuery"
               type="text"
               placeholder="Search by name or email..."
-              class="w-full h-9 pl-9 pr-3 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm transition-all"
+              class="w-full h-9 pl-9 pr-3 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none text-sm transition-all"
             />
           </div>
         </div>
@@ -77,7 +77,7 @@
           <button
             v-if="isAdmin"
             @click="openDrawer"
-            class="px-4 h-9 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
+            class="px-4 h-9 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -103,7 +103,7 @@
         <!-- Loading State -->
         <div v-if="loading" class="text-center py-12">
           <div class="inline-block animate-spin">
-            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </div>
@@ -121,7 +121,7 @@
                     type="checkbox"
                     :checked="selectedUsers.length === filteredUsers.length && filteredUsers.length > 0"
                     @change="toggleSelectAll"
-                    class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                    class="w-4 h-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500 cursor-pointer"
                   />
                 </th>
                 <th class="text-left py-3 px-4 font-semibold text-slate-700 text-xs">User</th>
@@ -142,14 +142,14 @@
                     type="checkbox"
                     :checked="selectedUsers.includes(user.id)"
                     @change="toggleUserSelection(user.id)"
-                    class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                    class="w-4 h-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500 cursor-pointer"
                   />
                 </td>
 
                 <!-- User Name & Email -->
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                       {{ user.name.charAt(0).toUpperCase() }}
                     </div>
                     <div>
@@ -164,7 +164,7 @@
                 <td class="py-3 px-4">
                   <span
                     :class="{
-                      'bg-blue-100 text-blue-700': user.role_id === 1,
+                      'bg-rose-50 text-rose-700': user.role_id === 1,
                       'bg-emerald-100 text-emerald-700': user.role_id === 2,
                       'bg-amber-100 text-amber-700': user.role_id === 3,
                     }"
@@ -234,7 +234,7 @@
                 v-model="form.name"
                 type="text"
                 placeholder="John Doe"
-                class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm transition-all"
+                class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none text-sm transition-all"
                 required
               />
             </div>
@@ -246,7 +246,7 @@
                 v-model="form.email"
                 type="email"
                 placeholder="user@company.com"
-                class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm transition-all"
+                class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none text-sm transition-all"
                 required
               />
             </div>
@@ -258,7 +258,7 @@
                 v-model="form.password"
                 type="password"
                 placeholder="••••••••"
-                class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm transition-all"
+                class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none text-sm transition-all"
                 required
                 minlength="8"
               />
@@ -270,7 +270,7 @@
               <label class="block text-xs font-semibold text-slate-700 mb-1.5">Role *</label>
               <select
                 v-model="form.role_id"
-                class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm transition-all bg-white"
+                class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent outline-none text-sm transition-all bg-white"
                 required
               >
                 <option value="">Select a role</option>
@@ -306,7 +306,7 @@
           <button
             @click="handleCreateUser"
             :disabled="creating"
-            class="flex-1 h-9 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white rounded-lg font-semibold transition-colors text-sm flex items-center justify-center gap-2"
+            class="flex-1 h-9 px-4 bg-rose-500 hover:bg-rose-600 disabled:bg-slate-300 text-white rounded-lg font-semibold transition-colors text-sm flex items-center justify-center gap-2"
           >
             <svg v-if="!creating" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />

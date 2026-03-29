@@ -1,35 +1,33 @@
 <template>
   <div class="space-y-6">
-    <!-- Page Header with Breadcrumb -->
-    <div class="flex items-center justify-between">
-      <div>
-        <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-2">
-          <span>Dashboard</span>
-          <span class="text-slate-300">/</span>
-          <span class="text-slate-900 font-semibold">Stock Management</span>
+    <!-- Page Header Section -->
+    <div class="bg-white border-b border-slate-200 -mx-6 px-6 py-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-semibold text-slate-900">Stock Management</h1>
+          <p class="text-slate-600 text-sm mt-1">Real-time inventory tracking and stock allocation across all branches</p>
         </div>
-        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Stock Management</h1>
-        <p class="text-slate-500 text-sm mt-1 flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Real-time inventory levels across enterprise network
-        </p>
+        <div class="text-right">
+          <p class="text-xs text-slate-500">Last updated</p>
+          <p class="text-sm font-medium text-slate-900">{{ lastUpdated }}</p>
+        </div>
       </div>
     </div>
 
-    <!-- Compact Filter Bar -->
-    <div class="bg-white border border-slate-200 rounded-lg p-4 space-y-4">
+    <!-- Compact Filter/Toolbar Bar -->
+    <div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
       <div class="flex flex-col md:flex-row gap-4 items-end md:items-center justify-between">
-        <!-- Left: Filters grouped together -->
+        <!-- Left: Filters -->
         <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
           <!-- Branch Selector -->
           <div v-if="auth.isAdmin || (auth.isBranchManager && branches.length > 0)" class="w-full md:w-56">
-            <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">Active Node</label>
+            <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">Node</label>
             <select 
               v-model="selectedBranchId"
-              class="w-full px-3 py-2 h-9 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer appearance-none transition-all hover:border-slate-300"
+              class="w-full px-3 py-2 h-9 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer appearance-none transition-all hover:border-slate-300 shadow-sm"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%236b7280%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2rem'"
             >
-              <option value="">All Branches</option>
+              <option value="">All Nodes</option>
               <option v-for="b in filteredBranches" :key="b.id" :value="b.id">{{ b.name }}</option>
             </select>
           </div>
@@ -39,30 +37,37 @@
             <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">Search</label>
             <div class="relative group">
               <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
-              <Input v-model="search" placeholder="Product name, SKU..." class="pl-9 h-9 text-sm" />
+              <input 
+                v-model="search" 
+                type="text"
+                placeholder="Product name, SKU..." 
+                class="w-full pl-10 pr-4 py-2 h-9 bg-white border border-slate-200 rounded-md text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 transition-all shadow-sm"
+              />
             </div>
           </div>
         </div>
 
         <!-- Right: Action buttons -->
         <div v-if="canManage" class="flex items-center gap-2 flex-wrap">
-          <BaseButton variant="ghost" size="sm" class="h-9 w-9 !p-0" title="Filter options">
-            <FilterIcon class="w-4 h-4" />
-          </BaseButton>
-          <BaseButton variant="ghost" size="sm" class="h-9 w-9 !p-0" title="Export data">
+          <button @click="exportData" class="inline-flex items-center justify-center w-9 h-9 text-slate-600 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 transition-colors shadow-sm" title="Export data">
             <DownloadIcon class="w-4 h-4" />
-          </BaseButton>
+          </button>
+          <button class="inline-flex items-center justify-center w-9 h-9 text-slate-600 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 transition-colors shadow-sm" title="Filter options">
+            <FilterIcon class="w-4 h-4" />
+          </button>
           <div class="w-px h-5 bg-slate-200"></div>
-          <BaseButton variant="secondary" @click="openAdjustModal" size="sm" class="h-9 px-3" title="Adjust stock">
+          <button @click="openAdjustModal" class="inline-flex items-center gap-2 px-3 py-2 h-9 text-sm font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 transition-colors shadow-sm">
             <Settings2Icon class="w-4 h-4" />
-          </BaseButton>
-          <BaseButton variant="secondary" @click="showTransferModal = true" size="sm" class="h-9 px-3" title="Transfer stock">
+            Adjust
+          </button>
+          <button @click="showTransferModal = true" class="inline-flex items-center gap-2 px-3 py-2 h-9 text-sm font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 transition-colors shadow-sm">
             <ArrowRightLeft class="w-4 h-4" />
-          </BaseButton>
-          <BaseButton variant="primary" @click="showAddModal = true" size="sm" class="h-9 px-3">
+            Transfer
+          </button>
+          <button @click="showAddModal = true" class="inline-flex items-center gap-2 px-4 py-2 h-9 text-sm font-semibold text-white bg-rose-500 border border-rose-600 rounded-md hover:bg-rose-600 hover:border-rose-700 transition-colors shadow-sm">
             <PlusIcon class="w-4 h-4" />
-            <span class="ml-2">Replenish</span>
-          </BaseButton>
+            Replenish
+          </button>
         </div>
       </div>
     </div>
@@ -71,30 +76,33 @@
     <div class="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
       <div v-if="filteredInventory.length > 0" class="overflow-x-auto">
         <table class="w-full">
-          <thead class="bg-slate-50/80 border-b border-slate-200 sticky top-0">
+          <!-- Table Header -->
+          <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Product</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Stock Level</th>
-              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Unit Price</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Inventory Status</th>
-              <th v-if="canManage" class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Product</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Stock Level</th>
+              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">Unit Price</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</th>
+              <th v-if="canManage" class="px-6 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-200">
-            <tr v-for="(row, idx) in filteredInventory" :key="row.id" :class="['transition-colors hover:bg-slate-50/80', idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30']">
+          
+          <!-- Table Body -->
+          <tbody class="divide-y divide-slate-100">
+            <tr v-for="(row, idx) in filteredInventory" :key="row.id" class="hover:bg-slate-50/80 transition-colors duration-150">
               <!-- Product Column -->
               <td class="px-6 py-3 whitespace-nowrap">
                 <div class="flex flex-col">
                   <span class="font-semibold text-slate-900 text-sm">{{ row.product_name || 'Unknown' }}</span>
-                  <span class="text-xs text-slate-400 font-medium">{{ row.sku || 'N/A' }}</span>
+                  <span class="text-xs text-slate-500 font-medium">{{ row.sku || 'N/A' }}</span>
                 </div>
               </td>
               
-              <!-- Stock Level Column (Progress Bar) -->
+              <!-- Stock Level with Progress Bar -->
               <td class="px-6 py-3">
                 <div class="flex items-center gap-3">
-                  <div class="flex-1 min-w-[120px]">
-                    <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                  <div class="flex-1 min-w-[140px]">
+                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
                       <div 
                         :class="['h-full rounded-full transition-all duration-300', getStockBarColor(row.quantity, row.reorder_level)]" 
                         :style="{ width: Math.min((row.quantity / (row.reorder_level * 2)) * 100, 100) + '%' }">
@@ -110,13 +118,17 @@
                 <span class="text-sm font-semibold text-slate-900 tabular-nums">${{ row.sale_price && !isNaN(row.sale_price) ? parseFloat(row.sale_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00' }}</span>
               </td>
               
-              <!-- Status Column -->
+              <!-- Status Badge Column (Replaces old badge) -->
               <td class="px-6 py-3">
-                <span :class="[
-                  'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium',
-                  getStatusVariantClasses(row.quantity, row.reorder_level)
-                ]">
-                  <span class="w-1.5 h-1.5 rounded-full" :class="getStatusDotColor(row.quantity, row.reorder_level)"></span>
+                <span
+                  :class="[
+                    'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium',
+                    getStatusVariantClasses(row.quantity, row.reorder_level)
+                  ]"
+                >
+                  <span 
+                    :class="['w-2 h-2 rounded-full', getStatusDotColor(row.quantity, row.reorder_level)]"
+                  ></span>
                   {{ getStatusLabel(row.quantity, row.reorder_level) }}
                 </span>
               </td>
@@ -124,12 +136,20 @@
               <!-- Actions Column -->
               <td v-if="canManage" class="px-6 py-3 text-right">
                 <div class="flex items-center justify-end gap-1">
-                  <BaseButton variant="ghost" size="sm" @click="openAdjustModal(row)" class="h-8 w-8 !p-0 hover:bg-slate-100" title="Adjust">
-                    <Edit3Icon class="w-4 h-4 text-slate-600" />
-                  </BaseButton>
-                  <BaseButton variant="ghost" size="sm" @click="openLogsModal(row)" class="h-8 w-8 !p-0 hover:bg-slate-100" title="History">
-                    <HistoryIcon class="w-4 h-4 text-slate-600" />
-                  </BaseButton>
+                  <button 
+                    @click="openAdjustModal(row)" 
+                    class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors" 
+                    title="Adjust"
+                  >
+                    <Edit3Icon class="w-4 h-4" />
+                  </button>
+                  <button 
+                    @click="openLogsModal(row)" 
+                    class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors" 
+                    title="History"
+                  >
+                    <HistoryIcon class="w-4 h-4" />
+                  </button>
                 </div>
               </td>
             </tr>
@@ -145,6 +165,13 @@
           <p class="text-slate-500 text-xs mt-1">Start by replenishing stock to add items</p>
         </div>
       </div>
+      
+      <!-- Table Footer -->
+      <div v-if="filteredInventory.length > 0" class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-sm text-slate-600">
+        <div>
+          Showing <span class="font-medium text-slate-900">{{ filteredInventory.length }}</span> of <span class="font-medium text-slate-900">{{ inventory.length }}</span> items
+        </div>
+      </div>
     </div>
 
       <!-- Replenish Stock Modal -->
@@ -156,7 +183,7 @@
             <select 
               v-model="addForm.branch_id"
               required
-              class="w-full px-4 py-2.5 rounded-md text-sm font-normal bg-white border border-gray-200 text-gray-900 focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 cursor-pointer appearance-none"
+              class="w-full px-4 py-2.5 rounded-md text-sm font-normal bg-white border border-gray-200 text-gray-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 cursor-pointer appearance-none"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
             >
               <option value="" disabled selected>Select branch...</option>
@@ -169,7 +196,7 @@
               v-model="addForm.product_id"
               :disabled="!addForm.branch_id"
               required
-              class="w-full px-4 py-2.5 rounded-md text-sm font-normal bg-white border border-gray-200 text-gray-900 focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 cursor-pointer appearance-none"
+              class="w-full px-4 py-2.5 rounded-md text-sm font-normal bg-white border border-gray-200 text-gray-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 cursor-pointer appearance-none"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
             >
               <option value="" disabled selected>Select product...</option>
@@ -178,43 +205,45 @@
           </div>
         </div>
         <div v-if="addForm.branch_id && addForm.product_id">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Requisition Quantity *</label>
+          <div class="space-y-1.5 mb-4">
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Quantity *</label>
             <div class="relative">
-              <Input v-model.number="addForm.quantity" type="number" min="1" required class="pl-12 text-lg font-black" />
-              <PackagePlusIcon class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <PackagePlusIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input v-model.number="addForm.quantity" type="number" min="1" required placeholder="Enter quantity" class="w-full pl-10 pr-4 py-2 rounded-md text-lg font-semibold text-slate-900 bg-white border border-slate-200 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
             </div>
           </div>
           <div class="space-y-1.5">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Operational Log (Optional)</label>
-            <Input v-model="addForm.notes" placeholder="Reason for replenishment, reference ID, etc." />
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Notes (Optional)</label>
+            <input v-model="addForm.notes" type="text" placeholder="Reason for replenishment..." class="w-full px-4 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
           </div>
         </div>
-        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-          <BaseButton type="button" variant="ghost" @click="showAddModal = false">Cancel Requisition</BaseButton>
-          <BaseButton type="submit" variant="primary" :loading="submitting" class="shadow-rose-sm">
-             Deploy Resources
-          </BaseButton>
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+          <button type="button" @click="showAddModal = false" class="px-4 py-2 text-slate-700 font-medium hover:bg-slate-50 rounded-md transition-colors">
+            Cancel
+          </button>
+          <button type="submit" :disabled="submitting" class="px-4 py-2 bg-rose-500 text-white font-medium rounded-md hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+            {{ submitting ? 'Processing...' : 'Replenish Stock' }}
+          </button>
         </div>
       </form>
     </Modal>
 
     <!-- Adjust Stock Modal -->
-    <Modal :show="showAdjustModal" :title="'Adjust Node Balance: ' + (editingItem?.product_name || 'System')" maxWidth="md" @close="showAdjustModal = false">
+    <Modal :show="showAdjustModal" :title="'Adjust Stock: ' + (editingItem?.product_name || 'Product')" maxWidth="md" @close="showAdjustModal = false">
       <form @submit.prevent="submitAdjustStock" class="space-y-6">
-        <div class="bg-rose-50 border border-border-light p-4 rounded-xl flex items-start gap-3">
-           <AlertTriangleIcon class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
-           <div class="text-[11px] font-bold text-rose-900 uppercase tracking-tight leading-relaxed">
-              Caution: Adjustments overwrite theoretical cloud balances. All manual overrides are logged for enterprise auditing.
+        <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3">
+           <AlertTriangleIcon class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+           <div class="text-xs font-semibold text-amber-900 uppercase tracking-tight leading-relaxed">
+              All stock adjustments are logged for audit purposes.
            </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="space-y-1.5">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Target Node</label>
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Node *</label>
             <select 
               v-model="editingItem.branch_id"
               required
-              class="w-full px-4 py-2.5 rounded-md text-sm font-normal bg-white border border-gray-200 text-gray-900 focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 cursor-pointer appearance-none"
+              class="w-full px-3 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer appearance-none transition-all shadow-sm"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
             >
               <option value="" disabled selected>Select branch...</option>
@@ -222,12 +251,12 @@
             </select>
           </div>
           <div class="space-y-1.5">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Resource Unit (SKU)</label>
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Product (SKU)</label>
             <select 
               v-model="editingItem.product_id"
               :disabled="!editingItem.branch_id"
               required
-              class="w-full px-4 py-2.5 rounded-md text-sm font-normal bg-white border border-gray-200 text-gray-900 focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 cursor-pointer appearance-none"
+              class="w-full px-3 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 disabled:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400 cursor-pointer appearance-none transition-all shadow-sm"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
             >
               <option value="" disabled selected>Select product...</option>
@@ -236,20 +265,22 @@
           </div>
         </div>
         <div v-if="editingItem.branch_id && editingItem.product_id">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Set Absolute Node Balance</label>
-            <Input v-model.number="adjustForm.quantity" type="number" min="0" required class="text-2xl font-black text-rose-700 bg-rose-50/50 border-rose-200" />
+          <div class="space-y-1.5 mb-4">
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Set Stock Level *</label>
+            <input v-model.number="adjustForm.quantity" type="number" min="0" required placeholder="Enter stock quantity" class="w-full px-4 py-3 rounded-md text-2xl font-bold text-rose-700 bg-rose-50 border border-rose-200 focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
           </div>
           <div class="space-y-1.5">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Adjustment Justification</label>
-            <Input v-model="adjustForm.notes" placeholder="Damaged, Found, Sync Error, etc." required />
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Reason *</label>
+            <input v-model="adjustForm.notes" type="text" placeholder="Damaged, Found, Inventory mismatch, etc." required class="w-full px-4 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
           </div>
         </div>
-        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-          <BaseButton type="button" variant="ghost" @click="showAdjustModal = false">Abort Adjustment</BaseButton>
-          <BaseButton type="submit" variant="primary" :loading="submitting" class="shadow-rose-sm">
-             Commit Adjustment
-          </BaseButton>
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+          <button type="button" @click="showAdjustModal = false" class="px-4 py-2 text-slate-700 font-medium hover:bg-slate-50 rounded-md transition-colors">
+            Cancel
+          </button>
+          <button type="submit" :disabled="submitting" class="px-4 py-2 bg-rose-500 text-white font-medium rounded-md hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+            {{ submitting ? 'Adjusting...' : 'Confirm Adjustment' }}
+          </button>
         </div>
       </form>
     </Modal>
@@ -257,45 +288,45 @@
     <!-- Transfer Stock Modal -->
     <Modal :show="showTransferModal" title="Transfer Stock Between Nodes" maxWidth="md" @close="showTransferModal = false">
       <form @submit.prevent="submitTransferStock" class="space-y-6">
-        <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl flex items-start gap-3">
-           <AlertTriangleIcon class="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-           <div class="text-[11px] font-bold text-blue-900 uppercase tracking-tight leading-relaxed">
-              Transfer stock from one branch to another. All transfers are logged and require approval from destination manager.
+        <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg flex items-start gap-3">
+           <AlertTriangleIcon class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+           <div class="text-xs font-semibold text-blue-900 uppercase tracking-tight leading-relaxed">
+              Transfer stock from one node to another. All transfers are logged.
            </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="space-y-1.5">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">From Node *</label>
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">From Node *</label>
             <select 
               v-model="transferForm.from_branch_id"
               required
-              class="w-full px-4 py-2.5 rounded-md text-sm font-normal bg-white border border-gray-200 text-gray-900 focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500 cursor-pointer appearance-none"
+              class="w-full px-3 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer appearance-none transition-all shadow-sm"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
             >
-              <option value="" disabled selected>Select source branch...</option>
+              <option value="" disabled selected>Select source...</option>
               <option v-for="b in filteredBranches" :key="b.id" :value="b.id">{{ b.name }}</option>
             </select>
           </div>
           <div class="space-y-1.5">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">To Node *</label>
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">To Node *</label>
             <select 
               v-model="transferForm.to_branch_id"
               required
-              class="w-full px-4 py-2.5 rounded-md text-sm font-normal bg-white border border-gray-200 text-gray-900 focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500 cursor-pointer appearance-none"
+              class="w-full px-3 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer appearance-none transition-all shadow-sm"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
             >
-              <option value="" disabled selected>Select destination branch...</option>
+              <option value="" disabled selected>Select destination...</option>
               <option v-for="b in filteredBranches" :key="b.id" :value="b.id" :disabled="b.id == transferForm.from_branch_id">{{ b.name }}</option>
             </select>
           </div>
         </div>
         <div class="space-y-1.5">
-          <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Resource Unit (SKU) *</label>
+          <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Product (SKU) *</label>
           <select 
             v-model="transferForm.product_id"
             :disabled="!transferForm.from_branch_id"
             required
-            class="w-full px-4 py-2.5 rounded-md text-sm font-normal bg-white border border-gray-200 text-gray-900 focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 cursor-pointer appearance-none"
+              class="w-full px-3 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 disabled:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400 cursor-pointer appearance-none transition-all shadow-sm"
             style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
           >
             <option value="" disabled selected>Select product...</option>
@@ -303,14 +334,16 @@
           </select>
         </div>
         <div class="space-y-1.5">
-          <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Transfer Quantity *</label>
-          <Input v-model.number="transferForm.quantity" type="number" min="1" required placeholder="Enter quantity to transfer" />
+          <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Quantity *</label>
+          <input v-model.number="transferForm.quantity" type="number" min="1" required placeholder="Enter quantity to transfer" class="w-full px-4 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
         </div>
-        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-          <BaseButton type="button" variant="ghost" @click="showTransferModal = false">Cancel Transfer</BaseButton>
-          <BaseButton type="submit" variant="primary" :loading="submitting">
-             Initiate Transfer
-          </BaseButton>
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+          <button type="button" @click="showTransferModal = false" class="px-4 py-2 text-slate-700 font-medium hover:bg-slate-50 rounded-md transition-colors">
+            Cancel
+          </button>
+          <button type="submit" :disabled="submitting" class="px-4 py-2 bg-rose-500 text-white font-medium rounded-md hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+            {{ submitting ? 'Processing...' : 'Initiate Transfer' }}
+          </button>
         </div>
       </form>
     </Modal>
@@ -415,6 +448,7 @@ const transferForm = reactive({
 
 const stockLogs = ref([])
 const loadingLogs = ref(false)
+const lastUpdated = ref('Just now')
 
 const canManage = computed(() => auth.isAdmin || auth.isBranchManager)
 
@@ -630,14 +664,14 @@ const getStatusVariantClasses = (q, r) => {
   if (q === 0) return 'bg-red-50 text-red-700'
   if (q <= r * 0.2) return 'bg-red-50 text-red-700'
   if (q <= r) return 'bg-amber-50 text-amber-700'
-  return 'bg-emerald-50 text-emerald-700'
+  return 'bg-rose-50 text-rose-700'
 }
 
 const getStatusDotColor = (q, r) => {
   if (q === 0) return 'bg-red-500'
   if (q <= r * 0.2) return 'bg-red-500'
   if (q <= r) return 'bg-amber-500'
-  return 'bg-emerald-500'
+  return 'bg-rose-500'
 }
 
 const getStockBarColor = (q, r) => {
@@ -645,7 +679,7 @@ const getStockBarColor = (q, r) => {
   const percentage = (q / (r * 2)) * 100
   if (percentage < 5) return 'bg-red-500'
   if (percentage < 20) return 'bg-amber-500'
-  return 'bg-emerald-500'
+  return 'bg-rose-500'
 }
 
 async function openLogsModal(row) {
@@ -684,6 +718,34 @@ async function openLogsModal(row) {
     alert('Failed to load stock history.')
   } finally {
     loadingLogs.value = false
+  }
+}
+
+function exportData() {
+  try {
+    // Prepare CSV content
+    const headers = ['Product', 'SKU', 'Stock Level', 'Unit Price', 'Status']
+    const rows = filteredInventory.value.map(item => [
+      item.product_name || 'Unknown',
+      item.sku || 'N/A',
+      item.quantity || 0,
+      '$' + (parseFloat(item.sale_price || 0).toFixed(2)),
+      getStatusLabel(item.quantity, item.reorder_level)
+    ])
+    
+    // Create CSV
+    const csv = [headers, ...rows].map(row => row.join(',')).join('\n')
+    
+    // Download
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `stock-inventory-${new Date().toISOString().split('T')[0]}.csv`
+    link.click()
+    window.URL.revokeObjectURL(url)
+  } catch (e) {
+    alert('Failed to export data.')
   }
 }
 
@@ -747,7 +809,7 @@ const getLogTypeLabel = (type) => {
 }
 
 const getQuantityClass = (qty) => {
-  if (qty > 0) return 'text-emerald-600'
+  if (qty > 0) return 'text-rose-600'
   if (qty < 0) return 'text-rose-600'
   return 'text-slate-600'
 }

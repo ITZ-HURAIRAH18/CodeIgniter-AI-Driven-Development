@@ -2,7 +2,7 @@
   <aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-slate-50 border-r border-slate-200 shadow-soft">
     <!-- Logo / Brand -->
     <div class="px-gutter py-section border-b border-slate-200 flex items-center gap-3">
-      <div class="w-10 h-10 bg-rose-700 rounded-custom flex items-center justify-center">
+      <div class="w-10 h-10 bg-rose-500 rounded-custom flex items-center justify-center">
         <span class="text-white font-bold text-lg">I</span>
       </div>
       <div>
