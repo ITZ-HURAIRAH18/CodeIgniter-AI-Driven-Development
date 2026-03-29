@@ -14,7 +14,7 @@ class UserModel extends Model
     protected $deletedField  = 'deleted_at';
 
     protected $allowedFields = [
-        'role_id', 'branch_id', 'name', 'email',
+        'role_id', 'name', 'email',
         'password', 'is_active', 'last_login', 'date_of_birth',
     ];
 
@@ -26,6 +26,7 @@ class UserModel extends Model
         'password' => 'required|min_length[8]',
         'role_id'  => 'required|integer|in_list[1,2,3]',
         'date_of_birth' => 'permit_empty|valid_date[Y-m-d]',
+        'is_active' => 'integer|in_list[0,1]',
     ];
 
     /**

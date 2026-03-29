@@ -45,6 +45,8 @@ $routes->group('api/v1', ['filter' => 'cors'], function ($routes) {
 
         $routes->group('users', ['filter' => 'role:admin'], function ($routes) {
             $routes->post('',                    'Api\V1\UserController::create');
+            $routes->put('(:num)',               'Api\V1\UserController::update/$1');
+            $routes->delete('(:num)',            'Api\V1\UserController::delete/$1');
             $routes->put('(:num)/assign-branch', 'Api\V1\UserController::assignBranch/$1');
         });
 

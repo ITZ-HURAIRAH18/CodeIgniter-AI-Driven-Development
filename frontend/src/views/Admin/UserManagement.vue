@@ -18,7 +18,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search by name, email, or age..."
+              placeholder="Search by name or email..."
               class="w-full h-9 pl-9 pr-3 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm transition-all"
             />
           </div>
@@ -125,9 +125,7 @@
                   />
                 </th>
                 <th class="text-left py-3 px-4 font-semibold text-slate-700 text-xs">User</th>
-                <th class="text-left py-3 px-4 font-semibold text-slate-700 text-xs">Age</th>
                 <th class="text-left py-3 px-4 font-semibold text-slate-700 text-xs">Role</th>
-                <th class="text-left py-3 px-4 font-semibold text-slate-700 text-xs">Branch</th>
                 <th class="text-left py-3 px-4 font-semibold text-slate-700 text-xs">Last Active</th>
                 <th class="text-center py-3 px-4 font-semibold text-slate-700 text-xs">Status</th>
               </tr>
@@ -161,10 +159,6 @@
                   </div>
                 </td>
 
-                <!-- Age -->
-                <td class="py-3 px-4 text-slate-600 text-sm">
-                  {{ user.age ? user.age + ' years' : '—' }}
-                </td>
 
                 <!-- Role Badge -->
                 <td class="py-3 px-4">
@@ -180,11 +174,6 @@
                   </span>
                 </td>
 
-                <!-- Branch -->
-                <td class="py-3 px-4 text-slate-600 text-sm">
-                  {{ user.branch_id ? `Branch ${user.branch_id}` : '—' }}
-                </td>
-
                 <!-- Last Active -->
                 <td class="py-3 px-4 text-slate-600 text-sm">
                   {{ formatLastActive(user.last_login) }}
@@ -194,18 +183,18 @@
                 <td class="py-3 px-4 text-center">
                   <span
                     :class="{
-                      'bg-green-100/70 text-green-700 border border-green-200': user.is_active,
-                      'bg-slate-100/70 text-slate-600 border border-slate-200': !user.is_active,
+                      'bg-green-100/70 text-green-700 border border-green-200': parseInt(user.is_active) === 1,
+                      'bg-slate-100/70 text-slate-600 border border-slate-200': parseInt(user.is_active) !== 1,
                     }"
                     class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
                   >
-                    {{ user.is_active ? '● Active' : '○ Inactive' }}
+                    {{ parseInt(user.is_active) === 1 ? '● Active' : '○ Inactive' }}
                   </span>
                 </td>
               </tr>
 
               <tr v-if="filteredUsers.length === 0">
-                <td colspan="7" class="py-8 text-center text-slate-500 text-sm">
+                <td colspan="5" class="py-8 text-center text-slate-500 text-sm">
                   {{ searchQuery ? 'No users found matching your search.' : 'No users found.' }}
                 </td>
               </tr>
@@ -260,19 +249,6 @@
                 class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm transition-all"
                 required
               />
-            </div>
-
-            <!-- Date of Birth -->
-            <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1.5">Date of Birth</label>
-              <input
-                v-model="form.date_of_birth"
-                type="date"
-                class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm transition-all"
-              />
-              <p v-if="form.date_of_birth" class="text-xs text-slate-500 mt-1">
-                Age: {{ calculateAge(form.date_of_birth) }} years
-              </p>
             </div>
 
             <!-- Password -->
@@ -373,7 +349,6 @@ const form = ref({
   name: '',
   email: '',
   password: '',
-  date_of_birth: '',
   role_id: '',
 })
 
@@ -384,8 +359,7 @@ const filteredUsers = computed(() => {
   const query = searchQuery.value.toLowerCase()
   return users.value.filter(user => 
     user.name.toLowerCase().includes(query) || 
-    user.email.toLowerCase().includes(query) ||
-    (user.age && user.age.toString().includes(query))
+    user.email.toLowerCase().includes(query)
   )
 })
 
@@ -446,7 +420,6 @@ const resetForm = () => {
     name: '',
     email: '',
     password: '',
-    date_of_birth: '',
     role_id: '',
   }
   formError.value = ''
@@ -475,13 +448,14 @@ const toggleSelectAll = () => {
 // Bulk Action Methods
 const bulkChangeStatus = async (isActive) => {
   try {
+    const statusValue = isActive ? 1 : 0
     for (const userId of selectedUsers.value) {
+      // Call API to update
+      await userService.updateUser(userId, { is_active: statusValue })
       // Find user and update locally
       const user = users.value.find(u => u.id === userId)
       if (user) {
-        user.is_active = isActive
-        // Call API to update
-        await userService.updateUser(userId, { is_active: isActive })
+        user.is_active = statusValue
       }
     }
     selectedUsers.value = []
@@ -517,12 +491,7 @@ const loadUsers = async () => {
   try {
     loading.value = true
     const data = await userService.getAllUsers()
-    
-    // Calculate age for each user
-    users.value = data.map(user => ({
-      ...user,
-      age: user.date_of_birth ? calculateAge(user.date_of_birth) : null
-    }))
+    users.value = data
   } catch (err) {
     console.error('Failed to load users:', err)
   } finally {
@@ -549,14 +518,10 @@ const handleCreateUser = async () => {
       email: form.value.email,
       password: form.value.password,
       role_id: parseInt(form.value.role_id),
+      is_active: 1, // New users are active by default
     }
 
     // Add date of birth if provided
-    if (form.value.date_of_birth) {
-      createData.date_of_birth = form.value.date_of_birth
-    }
-
-    const newUser = await userService.createUser(createData)
     console.log('✅ User created:', newUser)
 
     formSuccess.value = `User "${newUser.name}" created successfully!`

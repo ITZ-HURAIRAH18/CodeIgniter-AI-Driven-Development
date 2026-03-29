@@ -20,11 +20,7 @@ class CreateUsersTable extends Migration
                 'unsigned'  => true,
                 'null'      => false,
             ],
-            'branch_id' => [
-                'type'     => 'INT',
-                'unsigned' => true,
-                'null'     => true,
-            ],
+
             'name' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
@@ -63,12 +59,10 @@ class CreateUsersTable extends Migration
         $this->forge->addKey('id', true);
         $this->forge->addUniqueKey('email', 'uq_email');
         $this->forge->addKey('role_id', false, false, 'idx_role');
-        $this->forge->addKey('branch_id', false, false, 'idx_branch');
         $this->forge->createTable('users', true);
 
         // Foreign keys
         $this->db->query('ALTER TABLE users ADD CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles(id)');
-        $this->db->query('ALTER TABLE users ADD CONSTRAINT fk_users_branch FOREIGN KEY (branch_id) REFERENCES branches(id) ON DELETE SET NULL');
         $this->db->query('ALTER TABLE branches ADD CONSTRAINT fk_branches_manager FOREIGN KEY (manager_id) REFERENCES users(id) ON DELETE SET NULL');
     }
 
@@ -76,7 +70,6 @@ class CreateUsersTable extends Migration
     {
         $this->db->query('ALTER TABLE branches DROP FOREIGN KEY fk_branches_manager');
         $this->db->query('ALTER TABLE users DROP FOREIGN KEY fk_users_role');
-        $this->db->query('ALTER TABLE users DROP FOREIGN KEY fk_users_branch');
         $this->forge->dropTable('users', true);
     }
 }

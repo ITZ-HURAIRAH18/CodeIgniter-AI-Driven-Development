@@ -65,7 +65,6 @@ class AuthService
                 'name'      => $user->name,
                 'email'     => $user->email,
                 'role'      => (int) $user->role_id,
-                'branch_id' => $user->branch_id ? (int) $user->branch_id : null,
             ],
         ];
     }
@@ -160,7 +159,6 @@ class AuthService
             'exp'       => $now + $ttl,
             'type'      => $type,
             'role_id'   => $user->role_id,
-            'branch_id' => $user->branch_id,
         ];
         return JWT::encode($payload, $this->secret, $this->algo);
     }

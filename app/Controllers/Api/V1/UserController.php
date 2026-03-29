@@ -14,14 +14,13 @@ class UserController extends BaseApiController
     }
 
     /**
-     * GET /api/v1/users — List all active users (for dropdowns)
+     * GET /api/v1/users — List all users (active and inactive)
      */
     public function index(): \CodeIgniter\HTTP\ResponseInterface
     {
         try {
-            $users = $this->model->where('is_active', 1)
-                                  ->where('deleted_at', null)
-                                  ->select('id, name, email, role_id, branch_id')
+            $users = $this->model->where('deleted_at', null)
+                                  ->select('id, name, email, role_id, is_active, last_login, date_of_birth')
                                   ->findAll();
             
             return $this->ok($users);
@@ -55,7 +54,6 @@ class UserController extends BaseApiController
         try {
             // All users created WITHOUT branch
             // Branch assignment happens separately
-            $data['branch_id'] = null;
 
             // Hash password
             $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
@@ -68,6 +66,64 @@ class UserController extends BaseApiController
         } catch (\Exception $e) {
             log_message('error', 'UserController::create: ' . $e->getMessage());
             return $this->apiError('Failed to create user: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * PUT /api/v1/users/{id} — Update user (admin only)
+     * 
+     * Can update: is_active, and other allowed fields
+     * Cannot update: email (must be unique), password (use reset endpoint)
+     */
+    public function update($id = null): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $user = $this->model->find($id);
+        if (!$user) {
+            return $this->apiError('User not found.', 404);
+        }
+
+        $data = $this->request->getJSON(true);
+        
+        // Only allow updating these fields
+        $allowedFields = ['is_active', 'name', 'role_id'];
+        $updateData = [];
+        
+        foreach ($allowedFields as $field) {
+            if (isset($data[$field])) {
+                $updateData[$field] = $data[$field];
+            }
+        }
+        
+        if (empty($updateData)) {
+            return $this->apiError('No valid fields to update.', 400);
+        }
+
+        try {
+            $this->model->update($id, $updateData);
+            $updatedUser = $this->model->find($id);
+            return $this->ok($updatedUser, 'User updated successfully.');
+        } catch (\Exception $e) {
+            log_message('error', 'UserController::update: ' . $e->getMessage());
+            return $this->apiError('Failed to update user: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * DELETE /api/v1/users/{id} — Delete user (soft delete, admin only)
+     */
+    public function delete($id = null): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $user = $this->model->find($id);
+        if (!$user) {
+            return $this->apiError('User not found.', 404);
+        }
+
+        try {
+            $this->model->delete($id);
+            return $this->ok(null, 'User deleted successfully.');
+        } catch (\Exception $e) {
+            log_message('error', 'UserController::delete: ' . $e->getMessage());
+            return $this->apiError('Failed to delete user: ' . $e->getMessage(), 500);
         }
     }
 
