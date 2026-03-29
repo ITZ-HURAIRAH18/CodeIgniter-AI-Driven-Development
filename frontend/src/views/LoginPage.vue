@@ -63,32 +63,32 @@
 
     <!-- Right Side - Login Form with Glass Effect -->
     <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
-      <!-- Glass Card -->
-      <div class="w-full max-w-sm backdrop-blur-xl bg-white/80 border border-white/20 rounded-2xl p-8 shadow-2xl">
+      <!-- Glass Card with Enhanced Glassmorphism -->
+      <div class="w-full max-w-sm backdrop-blur-2xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl" style="backdrop-filter: blur(16px);">
         
         <!-- Mobile Logo (visible only on mobile) -->
         <div class="lg:hidden flex items-center gap-3 mb-8 justify-center">
-          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-indigo-600 flex items-center justify-center">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-pink-500/30">
             <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M13 6.932V8.75h-2V6.932c-3.036.298-5.545 2.874-5.545 5.968 0 3.376 2.735 6.11 6.11 6.11.993 0 1.928-.232 2.76-.648V21h2v-2.638c.832.416 1.767.648 2.76.648 3.375 0 6.11-2.735 6.11-6.11 0-3.094-2.51-5.67-5.545-5.968V6.932h-2V8.75h-2V6.932zm.5 3.782c2.03 0 3.68 1.65 3.68 3.68s-1.65 3.68-3.68 3.68-3.68-1.65-3.68-3.68 1.65-3.68 3.68-3.68z" />
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-slate-900">InvenSync</h1>
-            <p class="text-pink-600 text-xs font-semibold">Enterprise</p>
+            <h1 class="text-2xl font-bold text-white">InvenSync</h1>
+            <p class="text-pink-300 text-xs font-semibold">Enterprise</p>
           </div>
         </div>
 
         <!-- Header -->
         <div class="mb-8">
-          <h2 class="text-2xl font-bold text-slate-900">Sign In</h2>
-          <p class="text-slate-500 text-sm mt-2">
+          <h2 class="text-3xl font-bold text-white tracking-tight">Sign In</h2>
+          <p class="text-white/60 text-sm mt-2 font-medium">
             Enter your credentials to access the system
           </p>
         </div>
 
         <!-- Error Message -->
-        <div v-if="error" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-start gap-3">
+        <div v-if="error" class="mb-6 p-4 bg-red-500/20 border border-red-400/30 rounded-xl text-red-200 text-sm flex items-start gap-3 backdrop-blur-sm">
           <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
           </svg>
@@ -99,7 +99,7 @@
         <form @submit.prevent="handleSubmit" class="space-y-5">
           <!-- Email Input -->
           <div>
-            <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">
+            <label for="email" class="block text-sm font-semibold text-white/90 mb-2">
               Email Address
             </label>
             <input
@@ -107,17 +107,17 @@
               type="email"
               v-model="email"
               placeholder="user@company.com"
-              class="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-white text-slate-900 placeholder-slate-400 transition-all duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+              class="w-full px-4 py-2.5 border border-white/10 rounded-lg bg-white/5 text-white placeholder-white/40 transition-all duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-white/20 backdrop-blur-sm"
             />
           </div>
 
           <!-- Password Input -->
           <div>
             <div class="flex items-center justify-between mb-2">
-              <label for="password" class="text-sm font-semibold text-slate-700">
+              <label for="password" class="text-sm font-semibold text-white/90">
                 Password
               </label>
-              <a href="#" class="text-xs text-slate-400 hover:text-pink-600 transition-colors font-medium">
+              <a href="#" class="text-xs text-pink-300 hover:text-pink-200 transition-colors font-semibold">
                 Forgot?
               </a>
             </div>
@@ -127,12 +127,12 @@
                 :type="showPassword ? 'text' : 'password'"
                 v-model="password"
                 placeholder="••••••••"
-                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-white text-slate-900 placeholder-slate-400 transition-all duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent pr-10"
+                class="w-full px-4 py-2.5 border border-white/10 rounded-lg bg-white/5 text-white placeholder-white/40 transition-all duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-white/20 pr-10 backdrop-blur-sm"
               />
               <button
                 type="button"
                 @click="showPassword = !showPassword"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
               >
                 <EyeOffIcon v-if="showPassword" :size="18" />
                 <EyeIcon v-else :size="18" />
@@ -140,41 +140,49 @@
             </div>
           </div>
 
-          <!-- Sign In Button -->
+          <!-- Sign In Button with Magenta-Purple Gradient and Glow -->
           <button
             type="submit"
             :disabled="isLoading"
-            class="w-full bg-gradient-to-r from-pink-600 to-pink-700 hover:from-pink-700 hover:to-pink-800 disabled:from-slate-300 disabled:to-slate-400 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-pink-600/30 hover:shadow-pink-600/50 text-sm mt-7"
+            class="gradient-glow-button w-full bg-gradient-to-r from-pink-500 via-pink-500 to-purple-600 hover:from-pink-600 hover:via-pink-600 hover:to-purple-700 disabled:from-slate-500 disabled:via-slate-500 disabled:to-slate-600 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm mt-7 tracking-wide"
           >
             <Loader2Icon v-if="isLoading" :size="18" class="animate-spin" />
             <span>{{ isLoading ? 'Signing in...' : 'Sign In' }}</span>
           </button>
         </form>
 
-        <!-- Quick Access Demo -->
-        <div class="mt-8 pt-6 border-t border-slate-200">
-          <p class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-3">Quick Access Demo</p>
-          <div class="grid grid-cols-3 gap-2">
+        <!-- Role Tiles Demo -->
+        <div class="mt-8 pt-6 border-t border-white/10">
+          <p class="text-xs font-bold text-white/70 uppercase tracking-widest mb-4">Demo Access</p>
+          <div class="grid grid-cols-3 gap-3">
+            <!-- Admin Tile -->
             <button
               type="button"
               @click="handleDemoLogin({email: 'admin@system.com', password: 'Admin@12345'})"
-              class="py-2 px-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 text-blue-700 hover:text-blue-800 rounded-lg transition-all text-xs font-semibold"
+              class="group relative py-4 px-3 rounded-xl backdrop-blur-sm border border-white/10 hover:border-white/20 bg-gradient-to-br from-slate-600/10 to-slate-700/10 hover:from-slate-600/20 hover:to-slate-700/20 transition-all duration-300 flex flex-col items-center gap-2"
             >
-              Admin
+              <ShieldIcon :size="24" class="text-blue-300 group-hover:text-blue-200 transition-colors" />
+              <span class="text-xs font-bold text-white/90 group-hover:text-white transition-colors">Admin</span>
             </button>
+
+            <!-- Manager Tile -->
             <button
               type="button"
               @click="handleDemoLogin({email: 'manager@branch1.com', password: 'Manager@12345'})"
-              class="py-2 px-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 hover:border-emerald-300 text-emerald-700 hover:text-emerald-800 rounded-lg transition-all text-xs font-semibold"
+              class="group relative py-4 px-3 rounded-xl backdrop-blur-sm border border-white/10 hover:border-white/20 bg-gradient-to-br from-slate-600/10 to-slate-700/10 hover:from-slate-600/20 hover:to-slate-700/20 transition-all duration-300 flex flex-col items-center gap-2"
             >
-              Manager
+              <BarChart3Icon :size="24" class="text-emerald-300 group-hover:text-emerald-200 transition-colors" />
+              <span class="text-xs font-bold text-white/90 group-hover:text-white transition-colors">Manager</span>
             </button>
+
+            <!-- Sales Tile -->
             <button
               type="button"
               @click="handleDemoLogin({email: 'sales@branch1.com', password: 'Sales@12345'})"
-              class="py-2 px-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 hover:border-amber-300 text-amber-700 hover:text-amber-800 rounded-lg transition-all text-xs font-semibold"
+              class="group relative py-4 px-3 rounded-xl backdrop-blur-sm border border-white/10 hover:border-white/20 bg-gradient-to-br from-slate-600/10 to-slate-700/10 hover:from-slate-600/20 hover:to-slate-700/20 transition-all duration-300 flex flex-col items-center gap-2"
             >
-              Sales
+              <TagIcon :size="24" class="text-amber-300 group-hover:text-amber-200 transition-colors" />
+              <span class="text-xs font-bold text-white/90 group-hover:text-white transition-colors">Sales</span>
             </button>
           </div>
         </div>
@@ -187,7 +195,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/auth.store';
-import { Eye as EyeIcon, EyeOff as EyeOffIcon, Loader2 as Loader2Icon } from 'lucide-vue-next';
+import { Eye as EyeIcon, EyeOff as EyeOffIcon, Loader2 as Loader2Icon, Shield as ShieldIcon, BarChart3 as BarChart3Icon, Tag as TagIcon } from 'lucide-vue-next';
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -264,38 +272,35 @@ const handleSubmit = async () => {
   }
 }
 
-.animate-blob {
-  animation: blob 7s infinite;
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(236, 72, 153, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(236, 72, 153, 0.8), 0 0 60px rgba(168, 85, 247, 0.5);
+  }
 }
 
-.animation-delay-2000 {
-  animation-delay: 2s;
+.animate-blob {
+  animation: blob 7s infinite;
 }
 
 .animate-blob-delay {
   animation: blob 7s infinite;
   animation-delay: 2s;
 }
-</style>
 
-<style scoped>
-@keyframes blob {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
+.gradient-glow-button {
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(236, 72, 153, 0.2);
+  transition: all 0.3s ease;
 }
 
-.animate-blob {
-  animation: blob 7s infinite;
+.gradient-glow-button:hover:not(:disabled) {
+  animation: glow 2s ease-in-out infinite;
 }
 
-.animation-delay-2000 {
-  animation-delay: 2s;
+.gradient-glow-button:focus {
+  outline: none;
+  box-shadow: 0 0 30px rgba(236, 72, 153, 0.8), 0 0 60px rgba(168, 85, 247, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
 }
 </style>

@@ -13,6 +13,18 @@ export const userService = {
     return response
   },
 
+  // Update user
+  async updateUser(userId, updateData) {
+    const response = await api.put(`/users/${userId}`, updateData)
+    return response
+  },
+
+  // Delete user
+  async deleteUser(userId) {
+    const response = await api.delete(`/users/${userId}`)
+    return response
+  },
+
   // Assign branch to user
   async assignBranch(userId, branchId) {
     const response = await api.put(`/users/${userId}/assign-branch`, {
