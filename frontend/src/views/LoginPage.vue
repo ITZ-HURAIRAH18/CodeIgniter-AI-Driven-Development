@@ -1,123 +1,66 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-black flex font-inter">
-    <!-- Left Side - Enterprise Branding Panel -->
-    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0f172a] via-[#1a2847] to-[#0f172a] relative overflow-hidden flex-col justify-between p-12">
-      <!-- Animated Pink Mesh Gradient -->
-      <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute top-0 right-0 w-96 h-96 bg-pink-500 rounded-full mix-blend-screen filter blur-3xl opacity-10 animate-blob"></div>
-        <div class="absolute bottom-20 left-10 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-blob-delay"></div>
-      </div>
-
-      <!-- Content -->
-      <div class="relative z-10">
-        <!-- Logo -->
-        <div class="mb-16">
-          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-500 to-indigo-600 flex items-center justify-center shadow-2xl shadow-pink-500/30 mb-4">
-            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M13 6.932V8.75h-2V6.932c-3.036.298-5.545 2.874-5.545 5.968 0 3.376 2.735 6.11 6.11 6.11.993 0 1.928-.232 2.76-.648V21h2v-2.638c.832.416 1.767.648 2.76.648 3.375 0 6.11-2.735 6.11-6.11 0-3.094-2.51-5.67-5.545-5.968V6.932h-2V8.75h-2V6.932zm.5 3.782c2.03 0 3.68 1.65 3.68 3.68s-1.65 3.68-3.68 3.68-3.68-1.65-3.68-3.68 1.65-3.68 3.68-3.68z" />
-            </svg>
-          </div>
-          <h1 class="text-4xl font-bold text-white tracking-tight">InvenSync</h1>
-          <p class="text-pink-400 text-sm font-medium mt-2">Enterprise Inventory Management</p>
-        </div>
-
-        <!-- Value Props -->
-        <div>
-          <h2 class="text-3xl font-bold text-white mb-4 leading-tight">
-            Unified Inventory Control
-          </h2>
-          <p class="text-slate-300 text-base leading-relaxed max-w-lg">
-            Real-time visibility across branches. Automated stock transfers. Intelligent demand forecasting. All in one powerful platform.
-          </p>
-
-          <!-- Feature List -->
-          <div class="mt-8 space-y-3">
-            <div class="flex items-center gap-3">
-              <svg class="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-              </svg>
-              <span class="text-slate-300 text-sm">Multi-branch synchronization</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <svg class="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-              </svg>
-              <span class="text-slate-300 text-sm">Role-based access control</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <svg class="w-5 h-5 text-pink-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-              </svg>
-              <span class="text-slate-300 text-sm">Real-time analytics & alerts</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="relative z-10">
-        <p class="text-slate-500 text-xs">Version 2.0.4 • Enterprise Edition</p>
-        <p class="text-slate-600 text-xs mt-2">© 2026 InvenSync. All rights reserved.</p>
-      </div>
+  <div class="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-inter relative overflow-hidden">
+    <!-- Subtle Background Gradient -->
+    <div class="absolute inset-0 opacity-40">
+      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-slate-800/20 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-pink-900/10 rounded-full blur-3xl"></div>
     </div>
 
-    <!-- Right Side - Login Form with Glass Effect -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
-      <!-- Glass Card with Enhanced Glassmorphism -->
-      <div class="w-full max-w-sm backdrop-blur-2xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl" style="backdrop-filter: blur(16px);">
-        
-        <!-- Mobile Logo (visible only on mobile) -->
-        <div class="lg:hidden flex items-center gap-3 mb-8 justify-center">
-          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-pink-500/30">
-            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M13 6.932V8.75h-2V6.932c-3.036.298-5.545 2.874-5.545 5.968 0 3.376 2.735 6.11 6.11 6.11.993 0 1.928-.232 2.76-.648V21h2v-2.638c.832.416 1.767.648 2.76.648 3.375 0 6.11-2.735 6.11-6.11 0-3.094-2.51-5.67-5.545-5.968V6.932h-2V8.75h-2V6.932zm.5 3.782c2.03 0 3.68 1.65 3.68 3.68s-1.65 3.68-3.68 3.68-3.68-1.65-3.68-3.68 1.65-3.68 3.68-3.68z" />
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-2xl font-bold text-white">InvenSync</h1>
-            <p class="text-pink-300 text-xs font-semibold">Enterprise</p>
-          </div>
-        </div>
-
-        <!-- Header -->
-        <div class="mb-8">
-          <h2 class="text-3xl font-bold text-white tracking-tight">Sign In</h2>
-          <p class="text-white/60 text-sm mt-2 font-medium">
-            Enter your credentials to access the system
-          </p>
-        </div>
-
-        <!-- Error Message -->
-        <div v-if="error" class="mb-6 p-4 bg-red-500/20 border border-red-400/30 rounded-xl text-red-200 text-sm flex items-start gap-3 backdrop-blur-sm">
-          <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+    <!-- Centered Login Card -->
+    <div class="relative z-10 w-full max-w-md">
+      <!-- Error Toast (Flat) -->
+      <transition name="slide-down">
+        <div v-if="error" class="mb-6 p-4 bg-red-900/20 border border-red-800/40 rounded-lg text-red-100 text-sm flex items-start gap-3">
+          <svg class="w-5 h-5 mt-0.5 flex-shrink-0 text-red-400" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
           </svg>
-          <span class="font-medium">{{ error }}</span>
+          <span>{{ error }}</span>
+        </div>
+      </transition>
+
+      <!-- Login Card with Subtle Glassmorphism -->
+      <div class="backdrop-blur-xl bg-slate-900/40 border border-slate-800 rounded-xl p-8 shadow-2xl shadow-black/20">
+        
+        <!-- Header -->
+        <div class="mb-8">
+          <!-- Logo -->
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-lg bg-pink-600 flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M13 6.932V8.75h-2V6.932c-3.036.298-5.545 2.874-5.545 5.968 0 3.376 2.735 6.11 6.11 6.11.993 0 1.928-.232 2.76-.648V21h2v-2.638c.832.416 1.767.648 2.76.648 3.375 0 6.11-2.735 6.11-6.11 0-3.094-2.51-5.67-5.545-5.968V6.932h-2V8.75h-2V6.932zm.5 3.782c2.03 0 3.68 1.65 3.68 3.68s-1.65 3.68-3.68 3.68-3.68-1.65-3.68-3.68 1.65-3.68 3.68-3.68z" />
+              </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-50">InvenSync</h1>
+          </div>
+
+          <!-- Title & Description -->
+          <h2 class="text-xl font-bold text-slate-50 mb-1">Sign In</h2>
+          <p class="text-sm text-slate-400 font-normal">Enter your credentials to access the system</p>
         </div>
 
         <!-- Form -->
-        <form @submit.prevent="handleSubmit" class="space-y-5">
+        <form @submit.prevent="handleSubmit" class="space-y-4 mb-6">
           <!-- Email Input -->
           <div>
-            <label for="email" class="block text-sm font-semibold text-white/90 mb-2">
-              Email Address
+            <label for="email" class="block text-sm font-semibold text-slate-200 mb-1.5">
+              Email
             </label>
             <input
               id="email"
               type="email"
               v-model="email"
               placeholder="user@company.com"
-              class="w-full px-4 py-2.5 border border-white/10 rounded-lg bg-white/5 text-white placeholder-white/40 transition-all duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-white/20 backdrop-blur-sm"
+              class="w-full px-3.5 py-2.5 border border-slate-700 rounded-lg bg-slate-800/50 text-slate-50 placeholder-slate-500 text-sm transition-all duration-200 focus:outline-none focus:border-pink-600 focus:ring-1 focus:ring-pink-600/50"
             />
           </div>
 
           <!-- Password Input -->
           <div>
-            <div class="flex items-center justify-between mb-2">
-              <label for="password" class="text-sm font-semibold text-white/90">
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="password" class="text-sm font-semibold text-slate-200">
                 Password
               </label>
-              <a href="#" class="text-xs text-pink-300 hover:text-pink-200 transition-colors font-semibold">
+              <a href="#" class="text-xs text-pink-500 hover:text-pink-400 transition-colors font-medium">
                 Forgot?
               </a>
             </div>
@@ -127,12 +70,12 @@
                 :type="showPassword ? 'text' : 'password'"
                 v-model="password"
                 placeholder="••••••••"
-                class="w-full px-4 py-2.5 border border-white/10 rounded-lg bg-white/5 text-white placeholder-white/40 transition-all duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-white/20 pr-10 backdrop-blur-sm"
+                class="w-full px-3.5 py-2.5 border border-slate-700 rounded-lg bg-slate-800/50 text-slate-50 placeholder-slate-500 text-sm transition-all duration-200 focus:outline-none focus:border-pink-600 focus:ring-1 focus:ring-pink-600/50 pr-10"
               />
               <button
                 type="button"
                 @click="showPassword = !showPassword"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300 transition-colors"
               >
                 <EyeOffIcon v-if="showPassword" :size="18" />
                 <EyeIcon v-else :size="18" />
@@ -140,52 +83,67 @@
             </div>
           </div>
 
-          <!-- Sign In Button with Magenta-Purple Gradient and Glow -->
+          <!-- Sign In Button -->
           <button
             type="submit"
             :disabled="isLoading"
-            class="gradient-glow-button w-full bg-gradient-to-r from-pink-500 via-pink-500 to-purple-600 hover:from-pink-600 hover:via-pink-600 hover:to-purple-700 disabled:from-slate-500 disabled:via-slate-500 disabled:to-slate-600 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm mt-7 tracking-wide"
+            class="w-full bg-pink-600 hover:bg-pink-700 disabled:bg-slate-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm mt-6"
           >
-            <Loader2Icon v-if="isLoading" :size="18" class="animate-spin" />
+            <Loader2Icon v-if="isLoading" :size="17" class="animate-spin" />
             <span>{{ isLoading ? 'Signing in...' : 'Sign In' }}</span>
           </button>
         </form>
 
-        <!-- Role Tiles Demo -->
-        <div class="mt-8 pt-6 border-t border-white/10">
-          <p class="text-xs font-bold text-white/70 uppercase tracking-widest mb-4">Demo Access</p>
-          <div class="grid grid-cols-3 gap-3">
-            <!-- Admin Tile -->
+        <!-- Divider -->
+        <div class="relative mb-6">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-slate-700"></div>
+          </div>
+          <div class="relative flex justify-center text-xs">
+            <span class="px-2 bg-slate-900/40 text-slate-500">or try</span>
+          </div>
+        </div>
+
+        <!-- Demo Access - Segmented Control -->
+        <div class="space-y-2">
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Demo Access</p>
+          <div class="grid grid-cols-3 gap-2">
+            <!-- Admin -->
             <button
               type="button"
               @click="handleDemoLogin({email: 'admin@system.com', password: 'Admin@12345'})"
-              class="group relative py-4 px-3 rounded-xl backdrop-blur-sm border border-white/10 hover:border-white/20 bg-gradient-to-br from-slate-600/10 to-slate-700/10 hover:from-slate-600/20 hover:to-slate-700/20 transition-all duration-300 flex flex-col items-center gap-2"
+              class="py-2.5 px-3 rounded-lg border border-slate-700 hover:border-slate-600 bg-slate-800/30 hover:bg-slate-800/50 text-slate-300 hover:text-slate-200 text-xs font-medium transition-all duration-200 flex flex-col items-center gap-1.5"
             >
-              <ShieldIcon :size="24" class="text-blue-300 group-hover:text-blue-200 transition-colors" />
-              <span class="text-xs font-bold text-white/90 group-hover:text-white transition-colors">Admin</span>
+              <ShieldIcon :size="18" class="text-slate-400" />
+              <span>Admin</span>
             </button>
 
-            <!-- Manager Tile -->
+            <!-- Manager -->
             <button
               type="button"
               @click="handleDemoLogin({email: 'manager@branch1.com', password: 'Manager@12345'})"
-              class="group relative py-4 px-3 rounded-xl backdrop-blur-sm border border-white/10 hover:border-white/20 bg-gradient-to-br from-slate-600/10 to-slate-700/10 hover:from-slate-600/20 hover:to-slate-700/20 transition-all duration-300 flex flex-col items-center gap-2"
+              class="py-2.5 px-3 rounded-lg border border-slate-700 hover:border-slate-600 bg-slate-800/30 hover:bg-slate-800/50 text-slate-300 hover:text-slate-200 text-xs font-medium transition-all duration-200 flex flex-col items-center gap-1.5"
             >
-              <BarChart3Icon :size="24" class="text-emerald-300 group-hover:text-emerald-200 transition-colors" />
-              <span class="text-xs font-bold text-white/90 group-hover:text-white transition-colors">Manager</span>
+              <BarChart3Icon :size="18" class="text-slate-400" />
+              <span>Manager</span>
             </button>
 
-            <!-- Sales Tile -->
+            <!-- Sales -->
             <button
               type="button"
               @click="handleDemoLogin({email: 'sales@branch1.com', password: 'Sales@12345'})"
-              class="group relative py-4 px-3 rounded-xl backdrop-blur-sm border border-white/10 hover:border-white/20 bg-gradient-to-br from-slate-600/10 to-slate-700/10 hover:from-slate-600/20 hover:to-slate-700/20 transition-all duration-300 flex flex-col items-center gap-2"
+              class="py-2.5 px-3 rounded-lg border border-slate-700 hover:border-slate-600 bg-slate-800/30 hover:bg-slate-800/50 text-slate-300 hover:text-slate-200 text-xs font-medium transition-all duration-200 flex flex-col items-center gap-1.5"
             >
-              <TagIcon :size="24" class="text-amber-300 group-hover:text-amber-200 transition-colors" />
-              <span class="text-xs font-bold text-white/90 group-hover:text-white transition-colors">Sales</span>
+              <TagIcon :size="18" class="text-slate-400" />
+              <span>Sales</span>
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="mt-6 text-center text-xs text-slate-500">
+        <p>Enterprise Edition v2.0.4</p>
       </div>
     </div>
   </div>
@@ -260,47 +218,20 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-@keyframes blob {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-}
-
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(236, 72, 153, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(236, 72, 153, 0.8), 0 0 60px rgba(168, 85, 247, 0.5);
-  }
-}
-
-.animate-blob {
-  animation: blob 7s infinite;
-}
-
-.animate-blob-delay {
-  animation: blob 7s infinite;
-  animation-delay: 2s;
-}
-
-.gradient-glow-button {
-  box-shadow: 0 0 20px rgba(236, 72, 153, 0.5), 0 0 40px rgba(236, 72, 153, 0.2);
+/* Slide down transition for error toast */
+.slide-down-enter-active,
+.slide-down-leave-active {
   transition: all 0.3s ease;
 }
 
-.gradient-glow-button:hover:not(:disabled) {
-  animation: glow 2s ease-in-out infinite;
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-1rem);
 }
 
-.gradient-glow-button:focus {
-  outline: none;
-  box-shadow: 0 0 30px rgba(236, 72, 153, 0.8), 0 0 60px rgba(168, 85, 247, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
+/* Focus states for better accessibility */
+input:focus {
+  box-shadow: 0 0 0 3px rgb(236 72 153 / 0.1);
 }
 </style>

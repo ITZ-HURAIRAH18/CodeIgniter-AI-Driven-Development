@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100">
+  <div class="min-h-screen bg-slate-50 font-inter">
     <div class="max-w-7xl mx-auto px-6 py-6">
       <!-- Page Header -->
       <div class="mb-8 pt-2">
@@ -7,84 +7,84 @@
         <p class="text-slate-500 text-sm mt-1">Monitor your inventory across all branches in real-time.</p>
       </div>
 
-      <!-- KPI Cards - Glasmomorphism Style -->
+      <!-- KPI Cards - Unified Pink & Slate Design -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       <!-- Total Inventory Value -->
-      <div class="group relative overflow-hidden rounded-2xl backdrop-blur-xl bg-white/30 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 p-4">
-        <div class="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div class="group relative overflow-hidden rounded-lg backdrop-blur-md bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 p-4">
+        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         <div class="relative flex items-start justify-between">
           <div class="flex-1">
-            <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Total Inventory Value</p>
-            <p class="text-2xl font-bold text-slate-900 mt-2">${{ dashboardStats.totalInventoryValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
-            <p class="text-rose-600 text-xs font-semibold mt-3 flex items-center gap-2">
+            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">Total Inventory Value</p>
+            <p class="text-2xl font-bold text-slate-950 mt-2">${{ dashboardStats.totalInventoryValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
+            <p class="text-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
               <span class="inline-flex items-center">
                 <TrendingUpIcon class="w-3.5 h-3.5" />
               </span>
               Across {{ branchData.length }} branch{{ branchData.length !== 1 ? 'es' : '' }}
             </p>
           </div>
-          <div class="w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-rose-500/15 transition-colors">
-            <DollarSignIcon class="w-6 h-6 text-rose-600" />
+          <div class="w-12 h-12 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0 group-hover:bg-pink-200 transition-colors">
+            <DollarSignIcon class="w-6 h-6 text-pink-600" />
           </div>
         </div>
       </div>
 
       <!-- Total Products -->
-      <div class="group relative overflow-hidden rounded-2xl backdrop-blur-xl bg-white/30 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 p-4">
-        <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div class="group relative overflow-hidden rounded-lg backdrop-blur-md bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 p-4">
+        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         <div class="relative flex items-start justify-between">
           <div class="flex-1">
-            <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Total Products</p>
-            <p class="text-2xl font-bold text-slate-900 mt-2">{{ dashboardStats.totalProducts }}</p>
-            <p class="text-green-600 text-xs font-semibold mt-3 flex items-center gap-2">
+            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">Total Products</p>
+            <p class="text-2xl font-bold text-slate-950 mt-2">{{ dashboardStats.totalProducts }}</p>
+            <p class="text-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
               <span class="inline-flex items-center">
                 <TrendingUpIcon class="w-3.5 h-3.5" />
               </span>
               In catalog
             </p>
           </div>
-          <div class="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-green-500/15 transition-colors">
-            <BoxIcon class="w-6 h-6 text-green-600" />
+          <div class="w-12 h-12 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0 group-hover:bg-pink-200 transition-colors">
+            <BoxIcon class="w-6 h-6 text-pink-600" />
           </div>
         </div>
       </div>
 
       <!-- Low Stock Items -->
-      <div class="group relative overflow-hidden rounded-2xl backdrop-blur-xl bg-white/30 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 p-4">
-        <div class="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div class="group relative overflow-hidden rounded-lg backdrop-blur-md bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 p-4">
+        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         <div class="relative flex items-start justify-between">
           <div class="flex-1">
-            <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Low Stock Items</p>
-            <p class="text-2xl font-bold text-slate-900 mt-2">{{ dashboardStats.lowStockItems }}</p>
-            <p class="text-orange-600 text-xs font-semibold mt-3 flex items-center gap-2">
+            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">Low Stock Items</p>
+            <p class="text-2xl font-bold text-slate-950 mt-2">{{ dashboardStats.lowStockItems }}</p>
+            <p class="text-rose-700 text-xs font-semibold mt-3 flex items-center gap-2">
               <span class="inline-flex items-center">
                 <AlertCircleIcon class="w-3.5 h-3.5" />
               </span>
               Requires attention
             </p>
           </div>
-          <div class="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-500/15 transition-colors">
-            <AlertTriangleIcon class="w-6 h-6 text-orange-600" />
+          <div class="w-12 h-12 rounded-lg bg-rose-50 flex items-center justify-center flex-shrink-0 group-hover:bg-rose-100 transition-colors">
+            <AlertTriangleIcon class="w-6 h-6 text-rose-700" />
           </div>
         </div>
       </div>
 
       <!-- Pending Orders -->
-      <div class="group relative overflow-hidden rounded-2xl backdrop-blur-xl bg-white/30 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 p-4">
-        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div class="group relative overflow-hidden rounded-lg backdrop-blur-md bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 p-4">
+        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         <div class="relative flex items-start justify-between">
           <div class="flex-1">
-            <p class="text-slate-500 text-xs font-medium uppercase tracking-wide">Pending Orders</p>
-            <p class="text-2xl font-bold text-slate-900 mt-2">{{ dashboardStats.pendingOrders }}</p>
-            <p class="text-cyan-600 text-xs font-semibold mt-3 flex items-center gap-2">
+            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">Pending Orders</p>
+            <p class="text-2xl font-bold text-slate-950 mt-2">{{ dashboardStats.pendingOrders }}</p>
+            <p class="text-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
               <span class="inline-flex items-center">
                 <ShoppingCartIcon class="w-3.5 h-3.5" />
               </span>
               {{ dashboardStats.totalOrders }} total orders
             </p>
           </div>
-          <div class="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-cyan-500/15 transition-colors">
-            <ShoppingCartIcon class="w-6 h-6 text-cyan-600" />
+          <div class="w-12 h-12 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0 group-hover:bg-pink-200 transition-colors">
+            <ShoppingCartIcon class="w-6 h-6 text-pink-600" />
           </div>
         </div>
       </div>
@@ -94,9 +94,9 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <!-- Inventory by Branch -->
         <div class="lg:col-span-2">
-          <div class="rounded-2xl bg-white/50 backdrop-blur-xl border border-white/20 shadow-lg overflow-hidden">
+          <div class="rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden">
             <!-- Header -->
-            <div class="px-6 py-4 border-b border-slate-100">
+            <div class="px-6 py-4 border-b border-slate-200">
               <h2 class="text-lg font-bold text-slate-900">Inventory by Branch</h2>
               <p class="text-slate-500 text-xs mt-0.5">Current stock levels and values</p>
             </div>
@@ -105,29 +105,29 @@
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
-                <tr class="bg-slate-50/50 border-b border-slate-200/50">
+                <tr class="bg-slate-50 border-b border-slate-200">
                   <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Branch</th>
                   <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Items</th>
                   <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Value</th>
                   <th class="px-6 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100/50">
-                <tr v-for="branch in branchData" :key="branch.id" class="hover:bg-slate-50/50 transition-colors duration-200">
+              <tbody class="divide-y divide-slate-200">
+                <tr v-for="branch in branchData" :key="branch.id" class="hover:bg-slate-50 transition-colors duration-200">
                   <td class="px-6 py-3 font-semibold text-slate-900">{{ branch.name }}</td>
                   <td class="px-6 py-3 text-slate-600 text-right font-medium">{{ branch.inventory_count }}</td>
                   <td class="px-6 py-3 text-slate-900 text-right font-bold">{{ branch.inventory_value }}</td>
                   <td class="px-6 py-3 text-center">
                     <span :class="[
-                      'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold transition-colors',
-                      branch.status === 'Optimal' ? 'bg-green-50 text-green-700' :
-                      branch.status === 'Low Stock' ? 'bg-orange-50 text-orange-700' :
-                      'bg-red-50 text-red-700'
+                      'inline-flex items-center px-2.5 py-1 rounded text-xs font-medium transition-colors',
+                      branch.status === 'Optimal' ? 'bg-slate-100 text-slate-700' :
+                      branch.status === 'Low Stock' ? 'bg-rose-100 text-rose-700' :
+                      'bg-slate-200 text-slate-800'
                     ]">
-                      <span class="w-2 h-2 rounded-full mr-2" :class="[
-                        branch.status === 'Optimal' ? 'bg-green-500' :
-                        branch.status === 'Low Stock' ? 'bg-orange-500' :
-                        'bg-red-500'
+                      <span class="w-1.5 h-1.5 rounded-full mr-2" :class="[
+                        branch.status === 'Optimal' ? 'bg-slate-600' :
+                        branch.status === 'Low Stock' ? 'bg-rose-600' :
+                        'bg-slate-700'
                       ]"></span>
                       {{ branch.status }}
                     </span>
@@ -140,9 +140,9 @@
       </div>
 
       <!-- Recent Activity Timeline -->
-      <div class="rounded-2xl bg-white/50 backdrop-blur-xl border border-white/20 shadow-lg overflow-hidden">
+      <div class="rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden">
         <!-- Header -->
-        <div class="px-6 py-4 border-b border-slate-100">
+        <div class="px-6 py-4 border-b border-slate-200">
           <h2 class="text-lg font-bold text-slate-900">Recent Activity</h2>
           <p class="text-slate-500 text-xs mt-0.5">Latest updates</p>
         </div>
@@ -160,7 +160,7 @@
             
             <!-- Icon -->
             <div :class="[
-              'flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center relative z-10 transition-all',
+              'flex-shrink-0 w-10 h-10 rounded flex items-center justify-center relative z-10 transition-all',
               getActivityColor(activity.type)
             ]">
               <component :is="getActivityIcon(activity.type)" class="w-4 h-4 text-white" />
@@ -179,9 +179,9 @@
       <!-- Bottom Section: Products & Stock Health -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <!-- Top Selling Products -->
-        <div class="rounded-2xl bg-white/50 backdrop-blur-xl border border-white/20 shadow-lg overflow-hidden">
+        <div class="rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden">
           <!-- Header -->
-          <div class="px-6 py-4 border-b border-slate-100">
+          <div class="px-6 py-4 border-b border-slate-200">
             <h2 class="text-lg font-bold text-slate-900">Top Selling Products</h2>
             <p class="text-slate-500 text-xs mt-0.5">By inventory value</p>
           </div>
@@ -197,24 +197,24 @@
           <div v-else class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
-                <tr class="bg-slate-50/50 border-b border-slate-200/50">
+                <tr class="bg-slate-50 border-b border-slate-200">
                   <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Product</th>
                   <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Units</th>
                   <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Revenue</th>
                   <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Trend</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100/50">
-                <tr v-for="product in topProducts" :key="product.id" class="hover:bg-slate-50/50 transition-colors duration-200">
+              <tbody class="divide-y divide-slate-200">
+                <tr v-for="product in topProducts" :key="product.id" class="hover:bg-slate-50 transition-colors duration-200">
                   <td class="px-6 py-3 font-semibold text-slate-900">{{ product.name }}</td>
                   <td class="px-6 py-3 text-slate-600 text-right font-medium">{{ product.units_sold }}</td>
                   <td class="px-6 py-3 text-slate-900 text-right font-bold">{{ product.revenue }}</td>
                   <td class="px-6 py-3 text-right">
                   <span :class="[
-                    'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold',
+                    'inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold',
                     product.trend > 0 
-                      ? 'bg-green-50 text-green-700' 
-                      : 'bg-red-50 text-red-700'
+                      ? 'bg-slate-100 text-slate-700' 
+                      : 'bg-rose-100 text-rose-700'
                   ]">
                     {{ product.trend > 0 ? '↗' : '↘' }} {{ Math.abs(product.trend) }}%
                   </span>
@@ -226,7 +226,7 @@
       </div>
 
       <!-- Stock Health Ring Chart -->
-      <div class="rounded-2xl bg-white/50 backdrop-blur-xl border border-white/20 shadow-lg overflow-hidden p-6">
+      <div class="rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden p-6">
         <!-- Header -->
         <div class="mb-6">
           <h2 class="text-lg font-bold text-slate-900">Stock Health</h2>
@@ -239,23 +239,23 @@
             <!-- Background circle -->
             <circle cx="100" cy="100" r="90" fill="none" stroke="#e2e8f0" stroke-width="20"></circle>
             
-            <!-- Optimal (Green) - starts at 0 degrees -->
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#10b981" stroke-width="20"
+            <!-- Optimal (Slate) - starts at 0 degrees -->
+            <circle cx="100" cy="100" r="90" fill="none" stroke="#94a3b8" stroke-width="20"
               stroke-dasharray="254.47 345.58" stroke-dashoffset="0"
               transform="rotate(-90 100 100)"
               stroke-linecap="round"></circle>
-            <!-- Low (Orange) - starts after optimal -->
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#f97316" stroke-width="20"
+            <!-- Low (Rose) - starts after optimal -->
+            <circle cx="100" cy="100" r="90" fill="none" stroke="#e11d48" stroke-width="20"
               stroke-dasharray="69.12 345.58" stroke-dashoffset="-254.47"
               transform="rotate(-90 100 100)"
               stroke-linecap="round"></circle>
-            <!-- Critical (Red) -->
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#ef4444" stroke-width="20"
+            <!-- Critical (Rose Dark) -->
+            <circle cx="100" cy="100" r="90" fill="none" stroke="#be123c" stroke-width="20"
               stroke-dasharray="17.28 345.58" stroke-dashoffset="-323.59"
               transform="rotate(-90 100 100)"
               stroke-linecap="round"></circle>
-            <!-- Out of Stock (Gray) -->
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#94a3b8" stroke-width="20"
+            <!-- Out of Stock (Slate Dark) -->
+            <circle cx="100" cy="100" r="90" fill="none" stroke="#64748b" stroke-width="20"
               stroke-dasharray="4.32 345.58" stroke-dashoffset="-340.87"
               transform="rotate(-90 100 100)"
               stroke-linecap="round"></circle>
@@ -271,30 +271,30 @@
         
         <!-- Legend -->
         <div class="space-y-2 text-sm">
-          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50/50">
+          <div class="flex items-center justify-between p-2 rounded bg-slate-50">
             <div class="flex items-center gap-3">
-              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+              <div class="w-3 h-3 rounded-full bg-slate-500"></div>
               <span class="text-slate-700 font-medium">Optimal Level</span>
             </div>
             <span class="font-bold text-slate-900">{{ stockHealth.optimal }}</span>
           </div>
-          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50/50">
+          <div class="flex items-center justify-between p-2 rounded bg-slate-50">
             <div class="flex items-center gap-3">
-              <div class="w-3 h-3 rounded-full bg-orange-500"></div>
+              <div class="w-3 h-3 rounded-full bg-rose-600"></div>
               <span class="text-slate-700 font-medium">Low Stock</span>
             </div>
             <span class="font-bold text-slate-900">{{ stockHealth.low }}</span>
           </div>
-          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50/50">
+          <div class="flex items-center justify-between p-2 rounded bg-slate-50">
             <div class="flex items-center gap-3">
-              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <div class="w-3 h-3 rounded-full bg-rose-800"></div>
               <span class="text-slate-700 font-medium">Critical</span>
             </div>
             <span class="font-bold text-slate-900">{{ stockHealth.critical }}</span>
           </div>
-          <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50/50">
+          <div class="flex items-center justify-between p-2 rounded bg-slate-50">
             <div class="flex items-center gap-3">
-              <div class="w-3 h-3 rounded-full bg-slate-400"></div>
+              <div class="w-3 h-3 rounded-full bg-slate-600"></div>
               <span class="text-slate-700 font-medium">Out of Stock</span>
             </div>
             <span class="font-bold text-slate-900">{{ stockHealth.outOfStock }}</span>
@@ -382,12 +382,12 @@ const getStatusVariant = (status) => {
 
 const getActivityColor = (type) => {
   const colors = {
-    'created': 'bg-gradient-to-br from-green-500 to-green-600 shadow-lg shadow-green-500/20',
-    'updated': 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/20',
-    'alert': 'bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg shadow-orange-500/20',
-    'completed': 'bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/20',
-    'transfer': 'bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg shadow-indigo-500/20',
-    'error': 'bg-gradient-to-br from-red-500 to-red-600 shadow-lg shadow-red-500/20'
+    'created': 'bg-pink-600 shadow-sm',
+    'updated': 'bg-slate-600 shadow-sm',
+    'alert': 'bg-rose-600 shadow-sm',
+    'completed': 'bg-pink-600 shadow-sm',
+    'transfer': 'bg-slate-700 shadow-sm',
+    'error': 'bg-rose-700 shadow-sm'
   }
   return colors[type] || colors['updated']
 }
