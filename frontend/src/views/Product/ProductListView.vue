@@ -12,7 +12,7 @@
           <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Product Catalog</h1>
           <p class="text-slate-500 text-sm mt-1">Manage your product inventory with pricing and tax</p>
         </div>
-        <button v-if="auth.isAdmin" @click="openCreate" class="inline-flex items-center gap-2 px-4 py-2.5 h-10 bg-rose-600 text-white rounded-lg font-medium hover:bg-rose-700 transition-colors shadow-sm">
+        <button v-if="auth.isAdmin" @click="openCreate" class="inline-flex items-center gap-2 px-4 py-2.5 h-10 bg-accent-pink-500 text-white rounded-lg font-medium hover:bg-accent-pink-600 transition-colors shadow-sm">
           <PlusIcon class="w-4 h-4" />
           <span>Add Product</span>
         </button>

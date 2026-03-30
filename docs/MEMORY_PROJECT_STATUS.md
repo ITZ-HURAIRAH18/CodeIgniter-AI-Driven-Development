@@ -96,11 +96,11 @@
 
 ## 🔍 Recent Changes (Last 5)
 
-1. Updated Architecture.agent.md to match CodeIgniter 4 + Vue 3 system
-2. Added weekly trend calculation for Top Selling Products (real-time, not random)
-3. Fixed low stock items count to match recent activity logs
-4. Added branch information to Top Selling Products table
-5. Removed inventory card from Sales User dashboard
+1. Changed "Add Product" button from rose-600 (red) to accent-pink-500 (pink) - ProductListView.vue
+2. Updated Architecture.agent.md to match CodeIgniter 4 + Vue 3 system
+3. Added weekly trend calculation for Top Selling Products (real-time, not random)
+4. Fixed low stock items count to match recent activity logs
+5. Added branch information to Top Selling Products table
 
 ## 📞 Quick Reference
 
