@@ -17,7 +17,7 @@
       <div class="flex items-center justify-between">
         <!-- Step 1: Select Branch -->
         <div class="flex items-center flex-1">
-          <div :class="['flex items-center justify-center w-8 h-8 rounded-full font-semibold text-xs', step >= 1 ? 'bg-rose-600 text-white' : 'bg-slate-200 text-slate-600']">
+          <div :class="['flex items-center justify-center w-8 h-8 rounded-full font-semibold text-xs', step >= 1 ? 'bg-accent-pink-600 text-white' : 'bg-slate-200 text-slate-600']">         
             1
           </div>
           <div class="ml-3">
@@ -27,11 +27,11 @@
         </div>
 
         <!-- Connector 1 -->
-        <div :class="['h-0.5 mx-4', step >= 2 ? 'bg-rose-600' : 'bg-slate-200']" style="flex:1;max-width:40px"></div>
+        <div :class="['h-0.5 mx-4', step >= 2 ? 'bg-accent-pink-600' : 'bg-slate-200']" style="flex:1;max-width:40px"></div>
 
         <!-- Step 2: Add Items -->
         <div class="flex items-center flex-1">
-          <div :class="['flex items-center justify-center w-8 h-8 rounded-full font-semibold text-xs', step >= 2 ? 'bg-rose-600 text-white' : 'bg-slate-200 text-slate-600']">
+          <div :class="['flex items-center justify-center w-8 h-8 rounded-full font-semibold text-xs', step >= 2 ? 'bg-accent-pink-600 text-white' : 'bg-slate-200 text-slate-600']">        
             2
           </div>
           <div class="ml-3">
@@ -41,11 +41,11 @@
         </div>
 
         <!-- Connector 2 -->
-        <div :class="['h-0.5 mx-4', step >= 3 ? 'bg-rose-600' : 'bg-slate-200']" style="flex:1;max-width:40px"></div>
+        <div :class="['h-0.5 mx-4', step >= 3 ? 'bg-accent-pink-600' : 'bg-slate-200']" style="flex:1;max-width:40px"></div>
 
         <!-- Step 3: Review & Place -->
         <div class="flex items-center flex-1">
-          <div :class="['flex items-center justify-center w-8 h-8 rounded-full font-semibold text-xs', step >= 3 ? 'bg-rose-600 text-white' : 'bg-slate-200 text-slate-600']">
+          <div :class="['flex items-center justify-center w-8 h-8 rounded-full font-semibold text-xs', step >= 3 ? 'bg-accent-pink-600 text-white' : 'bg-slate-200 text-slate-600']">        
             3
           </div>
           <div class="ml-3">
@@ -70,8 +70,8 @@
         <!-- Branch Selection Card -->
         <div v-if="auth.isAdmin || auth.isBranchManager || auth.isSalesUser" class="bg-white border border-slate-200 rounded-lg p-6">
           <div class="flex items-center gap-3 mb-4">
-            <div class="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center">
-              <CheckCircle2Icon class="w-4 h-4 text-rose-600" />
+            <div class="w-8 h-8 rounded-full bg-accent-pink-50 flex items-center justify-center">
+              <CheckCircle2Icon class="w-4 h-4 text-accent-pink-600" />
             </div>
             <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">Select Branch</h2>
           </div>
@@ -80,7 +80,7 @@
             <select 
               v-model="selectedBranchId" 
               @change="onBranchChange"
-              class="w-full px-3 py-2.5 h-10 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer"
+              class="w-full px-3 py-2.5 h-10 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500/20 cursor-pointer"
             >
               <option value="">— Select branch —</option>
               <option v-for="b in filteredBranches" :key="b.id" :value="b.id">{{ b.name }}</option>
@@ -91,8 +91,8 @@
         <!-- Add Products Card -->
         <div class="bg-white border border-slate-200 rounded-lg p-6">
           <div class="flex items-center gap-3 mb-6">
-            <div class="w-8 h-8 rounded-full" :class="selectedBranchId ? 'bg-rose-50' : 'bg-slate-100'">
-              <ShoppingCartIcon class="w-4 h-4" :class="selectedBranchId ? 'text-rose-600' : 'text-slate-400'" style="margin:2px auto" />
+            <div class="w-8 h-8 rounded-full" :class="selectedBranchId ? 'bg-accent-pink-50' : 'bg-slate-100'">
+              <ShoppingCartIcon class="w-4 h-4" :class="selectedBranchId ? 'text-accent-pink-600' : 'text-slate-400'" style="margin:2px auto" />
             </div>
             <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">Add Products</h2>
           </div>
@@ -110,7 +110,7 @@
                 <select 
                   v-model="picker.productId" 
                   @change="onProductSelect"
-                  class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer"
+                  class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500/20 cursor-pointer"
                 >
                   <option value="">— Choose product —</option>
                   <option
@@ -158,22 +158,22 @@
                     type="number" 
                     min="1" 
                     :max="availableQty"
-                    class="flex-1 px-3 py-2.5 h-10 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
+                    class="flex-1 px-3 py-2.5 h-10 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500/20"
                     :class="{ 'border-red-500 ring-1 ring-red-500/20': picker.qtyError }"
                     placeholder="0"
                   />
                   <button
                     @click="addToOrder"
                     :disabled="!canAddItem"
-                    class="px-4 h-10 bg-rose-600 text-white rounded-md font-medium text-sm hover:bg-rose-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="px-4 h-10 bg-accent-pink-600 text-white rounded-md font-medium text-sm hover:bg-accent-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <PlusIcon class="w-4 h-4" />
                   </button>
                 </div>
                 <p v-if="picker.qtyError" class="text-xs text-red-600 mt-2">{{ picker.qtyError }}</p>
-                <div v-else-if="picker.quantity > 0" class="flex items-center justify-between px-3 py-2.5 mt-2 bg-slate-50 border border-slate-200 rounded-md">
-                  <span class="text-sm text-slate-600">{{ picker.quantity }} × ${{ unitPrice }}</span>
-                  <span class="text-sm font-semibold text-slate-900">= ${{ lineTotal }}</span>
+                <div v-else-if="picker.quantity > 0" class="flex items-center justify-between px-3 py-2.5 mt-2 bg-accent-pink-50 border border-accent-pink-200 rounded-md">
+                  <span class="text-sm text-accent-pink-700">{{ picker.quantity }} × ${{ unitPrice }}</span>
+                  <span class="text-sm font-semibold text-accent-pink-900">= ${{ lineTotal }}</span>
                 </div>
               </div>
             </div>
@@ -231,7 +231,7 @@
               </div>
               <div class="pt-2.5 border-t border-slate-200 flex items-center justify-between">
                 <span class="font-semibold text-slate-900">Grand Total</span>
-                <span class="text-lg font-bold text-rose-600 font-mono">{{ grandTotal }}</span>
+                <span class="text-lg font-bold text-accent-pink-600 font-mono">{{ grandTotal }}</span>
               </div>
             </div>
 
@@ -241,7 +241,7 @@
               <textarea 
                 v-model="notes"
                 placeholder="Add order notes..."
-                class="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 resize-none"
+                class="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500/20 resize-none"
                 rows="2"
               ></textarea>
             </div>
@@ -250,10 +250,10 @@
             <button
               @click="placeOrder"
               :disabled="placing || orderItems.length === 0 || !selectedBranchId"
-              class="w-full mt-4 px-4 py-2.5 h-10 bg-rose-600 text-white rounded-lg font-medium text-sm hover:bg-rose-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              class="w-full mt-4 px-4 py-2.5 h-10 bg-accent-pink-600 text-white rounded-lg font-medium text-sm hover:bg-accent-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <CheckCircle2Icon v-if="!placing" class="w-4 h-4" />
-              <div v-else class="w-4 h-4 border-2 border-white border-t-rose-600 rounded-full animate-spin"></div>
+              <div v-else class="w-4 h-4 border-2 border-white border-t-accent-pink-600 rounded-full animate-spin"></div>
               {{ placing ? 'Placing Order...' : 'Place Order' }}
             </button>
           </div>

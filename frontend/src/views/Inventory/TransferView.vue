@@ -433,8 +433,11 @@ onMounted(async () => {
     ])
     transfers.value = transRes || []
     branches.value = branchRes || []
+    console.log('Transfers loaded:', transfers.value.length)
+    console.log('Branches loaded:', branches.value.length)
   } catch (err) {
     console.error('Failed to load data:', err)
+    alert('Failed to load transfers or branches. Please refresh the page.')
   } finally {
     loading.value = false
   }

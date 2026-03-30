@@ -56,9 +56,10 @@ class CorsFilter implements FilterInterface
             $responseOrigin = in_array('*', $allowedOrigins) ? '*' : $origin;
             return $response
                 ->setHeader('Access-Control-Allow-Origin',      $responseOrigin)
-                ->setHeader('Access-Control-Allow-Headers',     'Content-Type, Authorization, X-Requested-With')
-                ->setHeader('Access-Control-Allow-Methods',     'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-                ->setHeader('Access-Control-Allow-Credentials',  'false');
+                ->setHeader('Access-Control-Allow-Headers',     'Content-Type, Authorization, X-Requested-With, Accept')
+                ->setHeader('Access-Control-Allow-Methods',     'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD')
+                ->setHeader('Access-Control-Allow-Credentials',  'false')
+                ->setHeader('Access-Control-Max-Age',           '86400');
         }
 
         return $response;

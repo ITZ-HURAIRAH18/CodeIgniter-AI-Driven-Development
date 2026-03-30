@@ -26,25 +26,42 @@ class TransferController extends BaseApiController
     /** GET /api/v1/transfers */
     public function index(): \CodeIgniter\HTTP\ResponseInterface
     {
-        $actor    = $this->actor();
-        $branchId = $this->request->getGet('branch_id');
+        try {
+            $actor    = $this->actor();
+            $branchId = $this->request->getGet('branch_id');
 
-        if ((int) $actor->role_id === 2) {
-            $branchModel = model(\App\Models\BranchModel::class);
-            $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);
-
-            if ($branchId && !in_array((int)$branchId, $myBranchIds)) {
-                return $this->apiError('Access denied: You do not manage this branch.', 403);
+            // Admin: see all transfers
+            if ((int) $actor->role_id === 1) {
+                return $this->ok($this->model->listAll($branchId ? (int)$branchId : null));
             }
 
-            if (!$branchId) {
-                if (empty($myBranchIds)) return $this->ok([]);
+            // Branch Manager: see transfers for their managed branches
+            if ((int) $actor->role_id === 2) {
+                $branchModel = model(\App\Models\BranchModel::class);
+                $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);
+
+                if (empty($myBranchIds)) {
+                    return $this->ok([]);
+                }
+
+                if ($branchId && !in_array((int)$branchId, $myBranchIds)) {
+                    return $this->apiError('Access denied: You do not manage this branch.', 403);
+                }
+
+                if ($branchId) {
+                    return $this->ok($this->model->listAll((int)$branchId));
+                }
+
+                // Return transfers for all their managed branches
                 return $this->ok($this->model->listAllMultiBranch($myBranchIds));
             }
-        }
 
-        $targetBranchId = ($actor->role_id === 1) ? ($branchId ? (int)$branchId : null) : (int) $actor->branch_id;
-        return $this->ok($this->model->listAll($targetBranchId));
+            // Sales users: restricted access
+            return $this->ok([]);
+        } catch (\Exception $e) {
+            log_message('error', 'TransferController::index: ' . $e->getMessage());
+            return $this->apiError('Failed to retrieve transfers: ' . $e->getMessage(), 500);
+        }
     }
 
     /** GET /api/v1/transfers/{id} */
