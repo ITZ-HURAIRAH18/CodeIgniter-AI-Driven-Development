@@ -38,7 +38,7 @@ class OrderModel extends Model
     /**
      * Get orders with branch and user info.
      */
-    public function getWithDetails(int $branchId = null): array
+    public function getWithDetails(int $branchId = null, int $createdById = null): array
     {
         $builder = $this->db->table('orders o')
             ->select('o.*, b.name AS branch_name, u.name AS created_by')
@@ -49,6 +49,10 @@ class OrderModel extends Model
 
         if ($branchId) {
             $builder->where('o.branch_id', $branchId);
+        }
+
+        if ($createdById) {
+            $builder->where('o.user_id', $createdById);
         }
 
         return $builder->get()->getResultArray();

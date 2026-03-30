@@ -31,24 +31,39 @@ class OrderController extends BaseApiController
         try {
             $actor    = $this->actor();
             $branchId = $this->request->getGet('branch_id');
+            $createdById = $this->request->getGet('created_by_id');
 
-            // Managers can see all their branches' orders
+            // Admin: see all orders
+            if ((int) $actor->role_id === 1) {
+                return $this->ok($this->model->getWithDetails($branchId ? (int) $branchId : null));
+            }
+
+            // Branch Manager: see only orders from their managed branches
             if ((int) $actor->role_id === 2) {
                 $branchModel = model(\App\Models\BranchModel::class);
                 $myBranchIds = $branchModel->getManagerBranchIds((int)$actor->sub);
 
-                if ($branchId && !in_array((int)$branchId, $myBranchIds)) {
-                     return $this->apiError('Access denied for this branch.', 403);
+                // If manager has no branches assigned
+                if (empty($myBranchIds)) {
+                    return $this->ok([]);
                 }
 
-                if (!$branchId) {
-                    if (empty($myBranchIds)) return $this->ok([]);
-                    return $this->ok($this->model->getWithDetailsMultiBranch($myBranchIds));
+                // If a specific branch is requested, verify it's one of theirs
+                if ($branchId) {
+                    if (!in_array((int)$branchId, $myBranchIds)) {
+                        return $this->apiError('Access denied for this branch.', 403);
+                    }
+                    return $this->ok($this->model->getWithDetails((int) $branchId));
                 }
+                
+                // Return orders from all their managed branches
+                return $this->ok($this->model->getWithDetailsMultiBranch($myBranchIds));
             }
 
-            // Sales users can see orders from ALL branches
-            // No branch restriction for sales users
+            // Sales User: see only their own orders
+            if ((int) $actor->role_id === 3) {
+                return $this->ok($this->model->getWithDetails(null, (int) $actor->sub));
+            }
 
             return $this->ok($this->model->getWithDetails($branchId ? (int) $branchId : null));
         } catch (\Exception $e) {
@@ -99,7 +114,6 @@ class OrderController extends BaseApiController
         $actor = $this->actor();
 
         // Enforce branch based on role
-        // Sales users: can make sales on ALL branches (no restriction)
         if ((int) $actor->role_id === 2) {
             // Manager: must use one of their managed branches
             $branchModel = model(\App\Models\BranchModel::class);
@@ -109,6 +123,8 @@ class OrderController extends BaseApiController
                 return $this->apiError('Invalid branch selection. You do not manage this branch.', 403);
             }
         }
+        // Admin can create orders for any branch (no restrictions)
+        // Sales users can create orders for any branch
 
         try {
             $order = $this->service->createOrder($data, (int) $actor->sub);

@@ -103,12 +103,12 @@ $routes->group('api/v1', ['filter' => 'cors'], function ($routes) {
             $routes->post('(:num)/complete', 'Api\V1\TransferController::complete/$1');
         });
 
-        // Orders — read: all users; write: branch_manager + sales_user only (NOT admin)
+        // Orders — read: all users; write: admin + branch_manager + sales_user
         $routes->get('orders',        'Api\V1\OrderController::index');
         $routes->get('orders/(:num)', 'Api\V1\OrderController::show/$1');
 
-        // Order creation restricted: Manager + Sales User only (NOT Admin)
-        $routes->group('orders', ['filter' => 'role:branch_manager,sales_user'], function ($routes) {
+        // Order creation allowed for: Admin, Manager, and Sales User
+        $routes->group('orders', ['filter' => 'role:admin,branch_manager,sales_user'], function ($routes) {
             $routes->post('',                    'Api\V1\OrderController::create');
             $routes->post('(:num)/cancel',       'Api\V1\OrderController::cancel/$1');
         });

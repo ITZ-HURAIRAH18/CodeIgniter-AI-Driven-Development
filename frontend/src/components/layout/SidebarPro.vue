@@ -70,13 +70,7 @@
 
     <!-- Bottom Section -->
     <div class="border-t border-gray-100 px-3 py-4 space-y-2">
-      <button
-        @click="$router.push('/settings')"
-        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 transition-all duration-150"
-      >
-        <Settings :class="['w-5 h-5']" />
-        <span>Settings</span>
-      </button>
+      
       <button
         @click="handleLogout"
         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-gray-600 hover:bg-status-error/10 hover:text-status-error transition-all duration-150"

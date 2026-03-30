@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-slate-50 border-r border-slate-200 shadow-soft">
     <!-- Logo / Brand -->
     <div class="px-gutter py-section border-b border-slate-200 flex items-center gap-3">
@@ -41,7 +41,7 @@
 
     <!-- Bottom Section -->
     <div class="border-t border-slate-200 px-2 py-section space-y-2">
-      <button
+      <!-- <button
         @click="$emit('settings')"
         :class="[
           'w-full flex items-center gap-3 px-4 py-2 rounded-custom text-sm font-medium',
@@ -50,7 +50,7 @@
       >
         <Settings :class="['w-5 h-5']" />
         <span>Settings</span>
-      </button>
+      </button> -->
       <button
         @click="$emit('logout')"
         :class="[
@@ -96,4 +96,4 @@ defineProps({
 const isActive = (path) => route.path === path
 
 defineEmits(['settings', 'logout'])
-</script>
+</script> -->

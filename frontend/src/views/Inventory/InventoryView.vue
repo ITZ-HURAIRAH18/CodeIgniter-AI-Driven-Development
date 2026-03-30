@@ -7,10 +7,10 @@
           <h1 class="text-2xl font-semibold text-slate-900">Stock Management</h1>
           <p class="text-slate-600 text-sm mt-1">Real-time inventory tracking and stock allocation across all branches</p>
         </div>
-        <div class="text-right">
+        <!-- <div class="text-right">
           <p class="text-xs text-slate-500">Last updated</p>
           <p class="text-sm font-medium text-slate-900">{{ lastUpdated }}</p>
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -49,12 +49,12 @@
 
         <!-- Right: Action buttons -->
         <div v-if="canManage" class="flex items-center gap-2 flex-wrap">
-          <button @click="exportData" class="inline-flex items-center justify-center w-9 h-9 text-slate-600 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 transition-colors shadow-sm" title="Export data">
+          <!-- <button @click="exportData" class="inline-flex items-center justify-center w-9 h-9 text-slate-600 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 transition-colors shadow-sm" title="Export data">
             <DownloadIcon class="w-4 h-4" />
-          </button>
-          <button class="inline-flex items-center justify-center w-9 h-9 text-slate-600 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 transition-colors shadow-sm" title="Filter options">
+          </button> -->
+          <!-- <button class="inline-flex items-center justify-center w-9 h-9 text-slate-600 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 transition-colors shadow-sm" title="Filter options">
             <FilterIcon class="w-4 h-4" />
-          </button>
+          </button> -->
           <div class="w-px h-5 bg-slate-200"></div>
           <button @click="openAdjustModal" class="inline-flex items-center gap-2 px-3 py-2 h-9 text-sm font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 transition-colors shadow-sm">
             <Settings2Icon class="w-4 h-4" />
@@ -64,7 +64,7 @@
             <ArrowRightLeft class="w-4 h-4" />
             Transfer
           </button>
-          <button @click="showAddModal = true" class="inline-flex items-center gap-2 px-4 py-2 h-9 text-sm font-semibold text-white bg-rose-500 border border-rose-600 rounded-md hover:bg-rose-600 hover:border-rose-700 transition-colors shadow-sm">
+          <button @click="showAddModal = true" class="inline-flex items-center gap-2 px-4 py-2 h-9 text-sm font-semibold text-white bg-accent-pink-500 border border-accent-pink-600 rounded-md hover:bg-accent-pink-600 hover:border-accent-pink-700 transition-colors shadow-sm">
             <PlusIcon class="w-4 h-4" />
             Replenish
           </button>
@@ -221,7 +221,7 @@
           <button type="button" @click="showAddModal = false" class="px-4 py-2 text-slate-700 font-medium hover:bg-slate-50 rounded-md transition-colors">
             Cancel
           </button>
-          <button type="submit" :disabled="submitting" class="px-4 py-2 bg-rose-500 text-white font-medium rounded-md hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+          <button type="submit" :disabled="submitting" class="px-4 py-2 bg-accent-pink-500 text-white font-medium rounded-md hover:bg-accent-pink-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
             {{ submitting ? 'Processing...' : 'Replenish Stock' }}
           </button>
         </div>
@@ -231,12 +231,12 @@
     <!-- Adjust Stock Modal -->
     <Modal :show="showAdjustModal" :title="'Adjust Stock: ' + (editingItem?.product_name || 'Product')" maxWidth="md" @close="showAdjustModal = false">
       <form @submit.prevent="submitAdjustStock" class="space-y-6">
-        <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3">
+        <!-- <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3">
            <AlertTriangleIcon class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
            <div class="text-xs font-semibold text-amber-900 uppercase tracking-tight leading-relaxed">
               All stock adjustments are logged for audit purposes.
            </div>
-        </div>
+        </div> -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="space-y-1.5">
             <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Node *</label>
@@ -278,7 +278,7 @@
           <button type="button" @click="showAdjustModal = false" class="px-4 py-2 text-slate-700 font-medium hover:bg-slate-50 rounded-md transition-colors">
             Cancel
           </button>
-          <button type="submit" :disabled="submitting" class="px-4 py-2 bg-rose-500 text-white font-medium rounded-md hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+          <button type="submit" :disabled="submitting" class="px-4 py-2 bg-accent-pink-500 text-white font-medium rounded-md hover:bg-accent-pink-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
             {{ submitting ? 'Adjusting...' : 'Confirm Adjustment' }}
           </button>
         </div>
@@ -288,12 +288,12 @@
     <!-- Transfer Stock Modal -->
     <Modal :show="showTransferModal" title="Transfer Stock Between Nodes" maxWidth="md" @close="showTransferModal = false">
       <form @submit.prevent="submitTransferStock" class="space-y-6">
-        <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg flex items-start gap-3">
+        <!-- <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg flex items-start gap-3">
            <AlertTriangleIcon class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
            <div class="text-xs font-semibold text-blue-900 uppercase tracking-tight leading-relaxed">
               Transfer stock from one node to another. All transfers are logged.
            </div>
-        </div>
+        </div> -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="space-y-1.5">
             <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">From Node *</label>
@@ -341,7 +341,7 @@
           <button type="button" @click="showTransferModal = false" class="px-4 py-2 text-slate-700 font-medium hover:bg-slate-50 rounded-md transition-colors">
             Cancel
           </button>
-          <button type="submit" :disabled="submitting" class="px-4 py-2 bg-rose-500 text-white font-medium rounded-md hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+          <button type="submit" :disabled="submitting" class="px-4 py-2 bg-accent-pink-500 text-white font-medium rounded-md hover:bg-accent-pink-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
             {{ submitting ? 'Processing...' : 'Initiate Transfer' }}
           </button>
         </div>
@@ -501,6 +501,22 @@ watch(
   () => {
     loadInventory()
   }
+)
+
+// Auto-populate current stock level when branch and product are selected in adjust modal
+watch(
+  () => ({ branch_id: editingItem.value?.branch_id, product_id: editingItem.value?.product_id }),
+  ({ branch_id, product_id }) => {
+    if (branch_id && product_id) {
+      // Find the inventory item matching the selected branch and product
+      const currentItem = inventory.value.find(
+        item => item.branch_id === branch_id && item.product_id === product_id
+      )
+      // Set the current stock level in the form
+      adjustForm.quantity = currentItem?.quantity || 0
+    }
+  },
+  { deep: true }
 )
 
 onMounted(async () => {
@@ -664,14 +680,14 @@ const getStatusVariantClasses = (q, r) => {
   if (q === 0) return 'bg-red-50 text-red-700'
   if (q <= r * 0.2) return 'bg-red-50 text-red-700'
   if (q <= r) return 'bg-amber-50 text-amber-700'
-  return 'bg-rose-50 text-rose-700'
+  return 'bg-accent-pink-50 text-accent-pink-700'
 }
 
 const getStatusDotColor = (q, r) => {
   if (q === 0) return 'bg-red-500'
   if (q <= r * 0.2) return 'bg-red-500'
   if (q <= r) return 'bg-amber-500'
-  return 'bg-rose-500'
+  return 'bg-accent-pink-500'
 }
 
 const getStockBarColor = (q, r) => {
@@ -679,7 +695,7 @@ const getStockBarColor = (q, r) => {
   const percentage = (q / (r * 2)) * 100
   if (percentage < 5) return 'bg-red-500'
   if (percentage < 20) return 'bg-amber-500'
-  return 'bg-rose-500'
+  return 'bg-accent-pink-500'
 }
 
 async function openLogsModal(row) {
