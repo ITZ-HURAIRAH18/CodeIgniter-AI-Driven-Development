@@ -64,13 +64,6 @@
             <p class="text-slate-500 text-xs mt-1">All your orders</p>
           </router-link>
           
-          <!-- Inventory Overview -->
-          <router-link to="/inventory" class="group p-6 rounded-lg bg-white border-2 border-slate-300 hover:border-accent-pink-500 hover:bg-accent-pink-50 transition-all duration-200 text-center">
-            <BoxIcon class="w-6 h-6 text-accent-pink-600 mx-auto mb-2" />
-            <p class="font-semibold text-slate-900 text-sm">Inventory</p>
-            <p class="text-slate-500 text-xs mt-1">Stock levels</p>
-          </router-link>
-          
           <!-- Products -->
           <router-link to="/products" class="group p-6 rounded-lg bg-white border-2 border-slate-300 hover:border-accent-pink-500 hover:bg-accent-pink-50 transition-all duration-200 text-center">
             <TrendingUpIcon class="w-6 h-6 text-accent-pink-600 mx-auto mb-2" />
@@ -265,7 +258,7 @@
           <!-- Header -->
           <div class="px-6 py-4 border-b border-slate-200">
             <h2 class="text-lg font-bold text-slate-900">Top Selling Products</h2>
-            <p class="text-slate-500 text-xs mt-0.5">By inventory value</p>
+            <p class="text-slate-500 text-xs mt-0.5">By inventory value, grouped by branch • Trend: This week vs Last week</p>
           </div>
           
           <!-- Empty State -->
@@ -281,14 +274,18 @@
               <thead>
                 <tr class="bg-slate-50 border-b border-slate-200">
                   <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Product</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Branch</th>
                   <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Units</th>
                   <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Revenue</th>
                   <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Trend</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200">
-                <tr v-for="product in topProducts" :key="product.id" class="hover:bg-slate-50 transition-colors duration-200">
+                <tr v-for="product in topProducts" :key="`${product.id}-${product.branch_id}`" class="hover:bg-slate-50 transition-colors duration-200">
                   <td class="px-6 py-3 font-semibold text-slate-900">{{ product.name }}</td>
+                  <td class="px-6 py-3 text-slate-600 font-medium">
+                    <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded text-xs font-medium">{{ product.branch_name }}</span>
+                  </td>
                   <td class="px-6 py-3 text-slate-600 text-right font-medium">{{ product.units_sold }}</td>
                   <td class="px-6 py-3 text-slate-900 text-right font-bold">{{ product.revenue }}</td>
                   <td class="px-6 py-3 text-right">
@@ -566,7 +563,11 @@ const loadDashboardData = async () => {
     branchData.value = processedBranches
     
     // Calculate dashboard stats with CORRECT inventory value
-    const totalLowStock = processedBranches.reduce((sum, b) => sum + b.low_stock_count, 0)
+    const totalLowStock = inventoryData.filter(inv => {
+      const quantity = parseInt(inv.quantity || 0)
+      const reorderLevel = parseInt(inv.reorder_level || 10)
+      return quantity < reorderLevel || quantity <= 0
+    }).length
     const totalOrders = processedBranches.reduce((sum, b) => sum + b.order_count, 0)
     const totalInventoryValue = processedBranches.reduce((sum, b) => sum + b._value, 0)
     
@@ -596,24 +597,60 @@ const loadDashboardData = async () => {
       outOfStockPercent: Math.round((outOfStockCount / total) * 100)
     }
     
-    // Load top products (highest inventory value)
+    // Load top products (highest inventory value) with branch info and real trend
     const topProds = inventoryData
       .map(prod => {
         const salePrice = parseFloat(prod.sale_price || 0)
         const quantity = parseInt(prod.quantity || 0)
         const value = salePrice * quantity
+        
+        // Calculate real trend based on orders for this product (day-wise)
+        const ordersForProduct = orderData.filter(o => o.product_id === prod.product_id && o.branch_id === prod.branch_id)
+        
+        // Get current period (last 7 days) and previous period orders (7 days before that)
+        const now = new Date()
+        now.setHours(0, 0, 0, 0) // Start of today
+        
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+        const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000)
+        
+        const currentWeekOrders = ordersForProduct.filter(o => {
+          const orderDate = new Date(o.created_at)
+          orderDate.setHours(0, 0, 0, 0)
+          return orderDate >= sevenDaysAgo
+        }).reduce((sum, o) => sum + (o.quantity || 0), 0)
+        
+        const previousWeekOrders = ordersForProduct.filter(o => {
+          const orderDate = new Date(o.created_at)
+          orderDate.setHours(0, 0, 0, 0)
+          return orderDate >= fourteenDaysAgo && orderDate < sevenDaysAgo
+        }).reduce((sum, o) => sum + (o.quantity || 0), 0)
+        
+        // Calculate trend percentage (weekly comparison)
+        let trend = 0
+        if (previousWeekOrders > 0) {
+          trend = Math.round(((currentWeekOrders - previousWeekOrders) / previousWeekOrders) * 100)
+        } else if (currentWeekOrders > 0) {
+          trend = 100 // New sales this week
+        }
+        
+        const branchInfo = branches.find(b => b.id === prod.branch_id)
+        
         return {
           ...prod,
+          id: prod.id,
           name: (prod.product_name && prod.product_name !== 'Unknown Product') ? prod.product_name : `Product #${prod.product_id}`,
+          branch_id: prod.branch_id,
+          branch_name: branchInfo?.name || 'Unknown Branch',
           units_sold: quantity,
           revenue: `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-          trend: Math.floor(Math.random() * 30) - 15, // Random between -15 to +15
+          trend: trend,
           _value: value
         }
       })
       .filter(p => p._value > 0) // Only include products with actual value
       .sort((a, b) => b._value - a._value)
-      .slice(0, 4)
+      .slice(0, 5)
     
     topProducts.value = topProds
     

@@ -5,7 +5,7 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/LoginPage.vue'),
+    component: () => import('@/views/Auth/LoginPage.vue'),
     meta: { guest: true },
   },
   {
@@ -20,7 +20,7 @@ const routes = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: () => import('@/views/Dashboard.vue'),
+        component: () => import('@/views/Dashboard/Dashboard.vue'),
       },
       {
         path: 'users',
