@@ -5,8 +5,8 @@
       <div class="px-6 py-4 flex items-center justify-between">
         <!-- Left: Title -->
         <div>
-          <h1 class="text-lg font-semibold text-slate-900">User Management</h1>
-          <p class="text-xs text-slate-500 mt-0.5">{{ users.length }} user{{ users.length !== 1 ? 's' : '' }} total</p>
+          <h1 class="text-lg font-semibold text-slate-900">{{ t('users.title') }}</h1>
+          <p class="text-xs text-slate-500 mt-0.5">{{ users.length }} {{ t('common.user' + (users.length !== 1 ? 's' : '')) }} {{ t('users.total') }}</p>
         </div>
 
         <!-- Center: Global Search -->
@@ -18,7 +18,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search by name or email..."
+              :placeholder="t('users.searchPlaceholder')"
               class="w-full h-9 pl-9 pr-3 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-accent-pink-500 focus:border-transparent outline-none text-sm transition-all"
             />
           </div>
@@ -28,12 +28,12 @@
         <div class="flex items-center gap-2">
           <!-- Bulk Actions Menu -->
           <div v-if="selectedUsers.length > 0" class="flex items-center gap-2">
-            <span class="text-xs text-slate-600 font-medium">{{ selectedUsers.length }} selected</span>
+            <span class="text-xs text-slate-600 font-medium">{{ selectedUsers.length }} {{ t('common.selected') }}</span>
             <button
               @click="showBulkActionsMenu = !showBulkActionsMenu"
               class="px-3 h-9 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 transition-colors relative"
             >
-              Actions
+              {{ t('common.actions') }}
               <svg v-if="showBulkActionsMenu" class="absolute right-2 top-2.5 w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
               </svg>
@@ -50,7 +50,7 @@
                 <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                Activate Selected
+                {{ t('users.activateSelected') }}
               </button>
               <button
                 @click="bulkChangeStatus(false)"
@@ -59,7 +59,7 @@
                 <svg class="w-4 h-4 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                 </svg>
-                Deactivate Selected
+                {{ t('users.deactivateSelected') }}
               </button>
               <button
                 @click="bulkDelete"
@@ -68,7 +68,7 @@
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                 </svg>
-                Delete Selected
+                {{ t('common.deleteSelected') }}
               </button>
             </div>
           </div>
@@ -82,7 +82,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Add User
+            {{ t('users.addUser') }}
           </button>
         </div>
       </div>
@@ -93,7 +93,7 @@
       <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
       </svg>
-      <span>Only administrators can create and manage users.</span>
+      <span>{{ t('users.adminOnly') }}</span>
     </div>
 
     <!-- Main Content -->
@@ -107,7 +107,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </div>
-          <p class="text-slate-600 text-sm mt-2">Loading users...</p>
+          <p class="text-slate-600 text-sm mt-2">{{ t('common.loading') }}</p>
         </div>
 
         <!-- Table -->
@@ -124,10 +124,10 @@
                     class="w-4 h-4 rounded border-slate-300 text-accent-pink-600 focus:ring-accent-pink-500 cursor-pointer"
                   />
                 </th>
-                <th class="text-left py-3 px-4 font-semibold text-slate-700 text-xs">User</th>
-                <th class="text-left py-3 px-4 font-semibold text-slate-700 text-xs">Role</th>
-                <th class="text-left py-3 px-4 font-semibold text-slate-700 text-xs">Last Active</th>
-                <th class="text-center py-3 px-4 font-semibold text-slate-700 text-xs">Status</th>
+              <th class="text-left py-3 px-4 font-semibold text-slate-700 text-xs">{{ t('common.user') }}</th>
+              <th class="text-left py-3 px-4 font-semibold text-slate-700 text-xs">{{ t('common.role') }}</th>
+              <th class="text-left py-3 px-4 font-semibold text-slate-700 text-xs">{{ t('users.lastActive') }}</th>
+              <th class="text-center py-3 px-4 font-semibold text-slate-700 text-xs">{{ t('common.status') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200">
@@ -195,7 +195,7 @@
 
               <tr v-if="filteredUsers.length === 0">
                 <td colspan="5" class="py-8 text-center text-slate-500 text-sm">
-                  {{ searchQuery ? 'No users found matching your search.' : 'No users found.' }}
+                  {{ searchQuery ? t('users.noUsersSearching') : t('users.noUsers') }}
                 </td>
               </tr>
             </tbody>
@@ -213,7 +213,7 @@
       <div class="w-96 bg-white shadow-2xl flex flex-col animate-in slide-in-from-right">
         <!-- Header -->
         <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-slate-900">Create New User</h2>
+          <h2 class="text-lg font-semibold text-slate-900">{{ t('users.createDrawerTitle') }}</h2>
           <button
             @click="closeDrawer"
             class="text-slate-400 hover:text-slate-600"
@@ -229,7 +229,7 @@
           <form @submit.prevent="handleCreateUser" class="space-y-5">
             <!-- Full Name -->
             <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1.5">Full Name *</label>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">{{ t('users.fullName') }} *</label>
               <input
                 v-model="form.name"
                 type="text"
@@ -241,7 +241,7 @@
 
             <!-- Email -->
             <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1.5">Email *</label>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">{{ t('common.email') }} *</label>
               <input
                 v-model="form.email"
                 type="email"
@@ -253,7 +253,7 @@
 
             <!-- Password -->
             <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1.5">Password *</label>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">{{ t('common.password') }} *</label>
               <input
                 v-model="form.password"
                 type="password"
@@ -262,21 +262,21 @@
                 required
                 minlength="8"
               />
-              <p class="text-xs text-slate-500 mt-1">Minimum 8 characters</p>
+              <p class="text-xs text-slate-500 mt-1">{{ t('users.minPasswordChars') }}</p>
             </div>
 
             <!-- Role Selection -->
             <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1.5">Role *</label>
+              <label class="block text-xs font-semibold text-slate-700 mb-1.5">{{ t('common.role') }} *</label>
               <select
                 v-model="form.role_id"
                 class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent-pink-500 focus:border-transparent outline-none text-sm transition-all bg-white"
                 required
               >
-                <option value="">Select a role</option>
-                <option value="1">System Admin</option>
-                <option value="2">Branch Manager</option>
-                <option value="3">Sales User</option>
+                <option value="">{{ t('users.selectRole') }}</option>
+                <option value="1">{{ t('roles.systemAdmin') }}</option>
+                <option value="2">{{ t('roles.branchManager') }}</option>
+                <option value="3">{{ t('roles.salesUser') }}</option>
               </select>
             </div>
 
@@ -301,7 +301,7 @@
             @click="closeDrawer"
             class="flex-1 h-9 px-4 border border-slate-200 rounded-lg text-slate-700 font-semibold hover:bg-slate-50 transition-colors text-sm"
           >
-            Cancel
+            {{ t('common.cancel') }}
           </button>
           <button
             @click="handleCreateUser"
@@ -314,7 +314,7 @@
             <svg v-else class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            {{ creating ? 'Creating...' : 'Create User' }}
+            {{ creating ? t('users.creating') : t('users.createUser') }}
           </button>
         </div>
       </div>
@@ -324,8 +324,11 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useI18n } from '@/composables/useI18n'
 import { useAuthStore } from '@/store/auth.store'
 import { userService } from '@/api/user.service'
+
+const { t } = useI18n()
 
 // Store & Auth
 const auth = useAuthStore()
@@ -366,11 +369,11 @@ const filteredUsers = computed(() => {
 // Methods
 const getRoleName = (roleId) => {
   const roles = {
-    1: 'System Admin',
-    2: 'Branch Manager',
-    3: 'Sales User',
+    1: t('roles.systemAdmin'),
+    2: t('roles.branchManager'),
+    3: t('roles.salesUser'),
   }
-  return roles[roleId] || 'Unknown'
+  return roles[roleId] || t('roles.unknown')
 }
 
 const calculateAge = (dateString) => {
@@ -388,7 +391,7 @@ const calculateAge = (dateString) => {
 }
 
 const formatLastActive = (lastLogin) => {
-  if (!lastLogin) return 'Never'
+  if (!lastLogin) return t('time.never')
   
   const date = new Date(lastLogin)
   const now = new Date()
@@ -397,10 +400,10 @@ const formatLastActive = (lastLogin) => {
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
   
-  if (diffMins < 1) return 'Just now'
-  if (diffMins < 60) return `${diffMins}m ago`
-  if (diffHours < 24) return `${diffHours}h ago`
-  if (diffDays < 7) return `${diffDays}d ago`
+  if (diffMins < 1) return t('time.justNow')
+  if (diffMins < 60) return t('time.minutesAgo', { count: diffMins })
+  if (diffHours < 24) return t('time.hoursAgo', { count: diffHours })
+  if (diffDays < 7) return t('time.daysAgo', { count: diffDays })
   
   return date.toLocaleDateString()
 }
@@ -505,7 +508,7 @@ const handleCreateUser = async () => {
 
   // Validation
   if (!form.value.name || !form.value.email || !form.value.password || !form.value.role_id) {
-    formError.value = 'Please fill in all required fields'
+    formError.value = t('messages.fillAllRequiredFields')
     return
   }
 
@@ -542,7 +545,7 @@ const handleCreateUser = async () => {
     } else if (err?.response?.data?.errors) {
       formError.value = Object.values(err.response.data.errors).flat().join(', ')
     } else {
-      formError.value = err.message || 'Failed to create user'
+      formError.value = err.message || t('errors.failedCreateUser')
     }
   } finally {
     creating.value = false

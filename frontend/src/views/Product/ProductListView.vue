@@ -3,18 +3,18 @@
     <!-- Breadcrumb & Header -->
     <div>
       <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-2">
-        <span>Dashboard</span>
+        <span>{{ t('common.dashboard') }}</span>
         <span class="text-slate-300">/</span>
-        <span class="text-slate-900 font-semibold">Products</span>
+        <span class="text-slate-900 font-semibold">{{ t('common.products') }}</span>
       </div>
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Product Catalog</h1>
-          <p class="text-slate-500 text-sm mt-1">Manage your product inventory with pricing and tax</p>
+          <h1 class="text-3xl font-bold text-slate-900 tracking-tight">{{ t('products.title') }}</h1>
+          <p class="text-slate-500 text-sm mt-1">{{ t('products.subtitle') }}</p>
         </div>
         <button v-if="auth.isAdmin" @click="openCreate" class="inline-flex items-center gap-2 px-4 py-2.5 h-10 bg-accent-pink-500 text-white rounded-lg font-medium hover:bg-accent-pink-600 transition-colors shadow-sm">
           <PlusIcon class="w-4 h-4" />
-          <span>Add Product</span>
+          <span>{{ t('products.addProduct') }}</span>
         </button>
       </div>
     </div>
@@ -27,7 +27,7 @@
           <input
             v-model="search"
             type="text"
-            placeholder="Search by name or SKU..."
+            :placeholder="t('products.searchPlaceholder')"
             class="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
           />
         </div>
@@ -40,19 +40,19 @@
             @click="statusFilter = ''"
             :class="['px-3 py-1.5 rounded-full text-xs font-medium transition-colors', statusFilter === '' ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
           >
-            All
+            {{ t('products.all') }}
           </button>
           <button
             @click="statusFilter = 'active'"
             :class="['px-3 py-1.5 rounded-full text-xs font-medium transition-colors', statusFilter === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
           >
-            Active
+            {{ t('products.active') }}
           </button>
           <button
             @click="statusFilter = 'inactive'"
             :class="['px-3 py-1.5 rounded-full text-xs font-medium transition-colors', statusFilter === 'inactive' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
           >
-            Inactive
+            {{ t('products.inactive') }}
           </button>
         </div>
       </div>
@@ -64,7 +64,7 @@
       <div v-if="loading" class="flex items-center justify-center py-16">
         <div class="flex flex-col items-center gap-3">
           <div class="w-8 h-8 border-2 border-slate-200 border-t-rose-600 rounded-full animate-spin"></div>
-          <p class="text-slate-500 text-sm">Loading products...</p>
+          <p class="text-slate-500 text-sm">{{ t('common.loading') }}</p>
         </div>
       </div>
 
@@ -86,13 +86,13 @@
         <table class="w-full">
           <thead class="bg-slate-50/80 border-b border-slate-200">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Product</th>
-              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Cost</th>
-              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Sale Price</th>
-              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Tax</th>
-              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Margin</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"></th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.product') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('products.cost') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('products.salePrice') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('products.tax') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('products.margin') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.status') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200">
@@ -135,7 +135,7 @@
               <td class="px-6 py-3">
                 <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium', product.status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-700']">
                   <span :class="['w-1.5 h-1.5 rounded-full', product.status === 'active' ? 'bg-emerald-500' : 'bg-slate-400']"></span>
-                  {{ product.status === 'active' ? 'Active' : 'Inactive' }}
+                  {{ product.status === 'active' ? t('products.active') : t('products.inactive') }}
                 </span>
               </td>
 
@@ -145,14 +145,14 @@
                   <button
                     @click="openEdit(product)"
                     class="p-1.5 hover:bg-slate-200 rounded-md text-slate-600 hover:text-slate-900 transition-colors"
-                    title="Edit product"
+                    :title="t('products.editProduct')"
                   >
                     <Edit3Icon class="w-4 h-4" />
                   </button>
                   <button
                     @click="deleteProduct(product.id)"
                     class="p-1.5 hover:bg-red-100 rounded-md text-red-600 hover:text-red-700 transition-colors"
-                    title="Delete product"
+                    :title="t('products.deleteProduct')"
                   >
                     <TrashIcon class="w-4 h-4" />
                   </button>
@@ -193,8 +193,8 @@
             <!-- Modal Header -->
             <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
               <div>
-                <h2 class="text-lg font-bold text-slate-900">{{ editing ? 'Edit Product' : 'Create New Product' }}</h2>
-                <p class="text-sm text-slate-500 mt-1">{{ editing ? 'Update product information' : 'Add a new product to your catalog' }}</p>
+                <h2 class="text-lg font-bold text-slate-900">{{ editing ? t('products.editTitle') : t('products.createTitle') }}</h2>
+                <p class="text-sm text-slate-500 mt-1">{{ editing ? t('products.editSubtitle') : t('products.createSubtitle') }}</p>
               </div>
               <button @click="showModal = false" class="p-1 hover:bg-slate-100 rounded-md text-slate-600 transition-colors">
                 <XIcon class="w-5 h-5" />
@@ -211,10 +211,10 @@
               <form @submit.prevent="saveProduct" class="space-y-6">
                 <!-- Basic Info -->
                 <div class="space-y-4">
-                  <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Basic Information</h3>
+                  <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">{{ t('products.basicInfo') }}</h3>
                   <div class="grid grid-cols-2 gap-4">
                     <div>
-                      <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">SKU *</label>
+                      <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('common.sku') }} *</label>
                       <input
                         v-model="form.sku"
                         type="text"
@@ -225,7 +225,7 @@
                       />
                     </div>
                     <div>
-                      <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Unit</label>
+                      <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('common.unit') }}</label>
                       <input
                         v-model="form.unit"
                         type="text"
@@ -235,7 +235,7 @@
                     </div>
                   </div>
                   <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Product Name *</label>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('products.productName') }} *</label>
                     <input
                       v-model="form.name"
                       type="text"
@@ -245,7 +245,7 @@
                     />
                   </div>
                   <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Description</label>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('common.description') }}</label>
                     <textarea
                       v-model="form.description"
                       placeholder="Product description and details..."
@@ -257,10 +257,10 @@
 
                 <!-- Pricing & Tax -->
                 <div class="space-y-4">
-                  <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Pricing & Tax</h3>
+                  <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">{{ t('products.pricingTax') }}</h3>
                   <div class="grid grid-cols-3 gap-4">
                     <div>
-                      <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Cost Price *</label>
+                      <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('products.costPrice') }} *</label>
                       <input
                         v-model.number="form.cost_price"
                         type="number"
@@ -271,7 +271,7 @@
                       />
                     </div>
                     <div>
-                      <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Sale Price *</label>
+                      <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('products.salePrice') }} *</label>
                       <input
                         v-model.number="form.sale_price"
                         type="number"
@@ -282,7 +282,7 @@
                       />
                     </div>
                     <div>
-                      <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Tax % *</label>
+                      <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('products.tax') }} % *</label>
                       <input
                         v-model.number="form.tax_percentage"
                         type="number"
@@ -298,13 +298,13 @@
 
                 <!-- Status -->
                 <div class="space-y-4">
-                  <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Status</h3>
+                  <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">{{ t('common.status') }}</h3>
                   <select
-                    v-model="form.status"
-                    class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer"
+                    v-model="form.is_active"
+                    class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
                   >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option :value="1">{{ t('products.active') }}</option>
+                    <option :value="0">{{ t('products.inactive') }}</option>
                   </select>
                 </div>
               </form>
@@ -338,10 +338,12 @@
 <script setup>
 import { ref, computed, onMounted, reactive } from 'vue'
 import { useAuthStore } from '@/store/auth.store'
+import { useI18n } from '@/composables/useI18n'
 import { PlusIcon, SearchIcon, PackageIcon, XIcon, Edit3Icon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, CheckCircle2Icon } from 'lucide-vue-next'
 import api from '@/api/axios'
 
 const auth = useAuthStore()
+const { t } = useI18n()
 const products = ref([])
 const loading = ref(true)
 const search = ref('')

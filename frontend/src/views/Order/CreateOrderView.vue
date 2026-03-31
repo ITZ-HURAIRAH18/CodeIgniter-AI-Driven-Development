@@ -3,13 +3,13 @@
     <!-- Breadcrumb & Header -->
     <div>
       <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-2">
-        <span>Dashboard</span>
+        <span>{{ t('common.dashboard') }}</span>
         <span class="text-slate-300">/</span>
-        <router-link to="/orders" class="hover:text-slate-700 transition-colors">Orders</router-link>
+        <router-link to="/orders" class="hover:text-slate-700 transition-colors">{{ t('common.orders') }}</router-link>
         <span class="text-slate-300">/</span>
-        <span class="text-slate-900 font-semibold">Create Order</span>
+        <span class="text-slate-900 font-semibold">{{ t('orders.createOrder') }}</span>
       </div>
-      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Create New Order</h1>
+      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">{{ t('orders.createNewOrder') }}</h1>
     </div>
 
     <!-- Progress Stepper -->
@@ -21,8 +21,8 @@
             1
           </div>
           <div class="ml-3">
-            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Step 1</p>
-            <p class="text-sm font-medium text-slate-900">Select Branch</p>
+            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ t('orders.step1') }}</p>
+            <p class="text-sm font-medium text-slate-900">{{ t('orders.selectBranch') }}</p>
           </div>
         </div>
 
@@ -35,8 +35,8 @@
             2
           </div>
           <div class="ml-3">
-            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Step 2</p>
-            <p class="text-sm font-medium text-slate-900">Add Items</p>
+            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ t('orders.step2') }}</p>
+            <p class="text-sm font-medium text-slate-900">{{ t('orders.addItems') }}</p>
           </div>
         </div>
 
@@ -49,8 +49,8 @@
             3
           </div>
           <div class="ml-3">
-            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Step 3</p>
-            <p class="text-sm font-medium text-slate-900">Review & Place</p>
+            <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ t('orders.step3') }}</p>
+            <p class="text-sm font-medium text-slate-900">{{ t('orders.reviewPlace') }}</p>
           </div>
         </div>
       </div>
@@ -73,16 +73,16 @@
             <div class="w-8 h-8 rounded-full bg-accent-pink-50 flex items-center justify-center">
               <CheckCircle2Icon class="w-4 h-4 text-accent-pink-600" />
             </div>
-            <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">Select Branch</h2>
+            <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">{{ t('orders.selectBranch') }}</h2>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Branch *</label>
+            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">{{ t('common.branch') }} *</label>
             <select 
               v-model="selectedBranchId" 
               @change="onBranchChange"
               class="w-full px-3 py-2.5 h-10 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500/20 cursor-pointer"
             >
-              <option value="">— Select branch —</option>
+              <option value="">— {{ t('inventory.selectBranch') }} —</option>
               <option v-for="b in filteredBranches" :key="b.id" :value="b.id">{{ b.name }}</option>
             </select>
           </div>
@@ -94,25 +94,25 @@
             <div class="w-8 h-8 rounded-full" :class="selectedBranchId ? 'bg-accent-pink-50' : 'bg-slate-100'">
               <ShoppingCartIcon class="w-4 h-4" :class="selectedBranchId ? 'text-accent-pink-600' : 'text-slate-400'" style="margin:2px auto" />
             </div>
-            <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">Add Products</h2>
+            <h2 class="text-sm font-semibold text-slate-900 uppercase tracking-wide">{{ t('orders.addProducts') }}</h2>
           </div>
 
           <div v-if="!selectedBranchId" class="text-center py-8 px-4">
             <ShoppingCartIcon class="w-8 h-8 text-slate-300 mx-auto mb-2" />
-            <p class="text-slate-600 text-sm font-medium">Select a branch first to add products</p>
+            <p class="text-slate-600 text-sm font-medium">{{ t('orders.selectBranchFirst') }}</p>
           </div>
 
           <template v-else>
             <div class="space-y-4">
               <!-- Product Selection -->
               <div>
-                <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Product *</label>
+                <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">{{ t('common.product') }} *</label>
                 <select 
                   v-model="picker.productId" 
                   @change="onProductSelect"
                   class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500/20 cursor-pointer"
                 >
-                  <option value="">— Choose product —</option>
+                  <option value="">— {{ t('orders.selectProducts') }} —</option>
                   <option
                     v-for="item in inventoryOptions"
                     :key="item.product_id"
@@ -128,19 +128,19 @@
               <div v-if="selectedInvItem" class="bg-slate-50 border border-slate-200 rounded-md p-4">
                 <div class="grid grid-cols-2 gap-4">
                   <div>
-                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Product</p>
+                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ t('common.product') }}</p>
                     <p class="text-sm font-medium text-slate-900 mt-1">{{ selectedInvItem.product_name }}</p>
                   </div>
                   <div>
-                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">SKU</p>
+                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ t('common.sku') }}</p>
                     <p class="text-sm font-mono text-slate-900 mt-1">{{ selectedInvItem.sku }}</p>
                   </div>
                   <div>
-                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Stock Level</p>
-                    <p class="text-sm font-medium text-slate-900 mt-1">{{ selectedInvItem.quantity }} units</p>
+                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ t('inventory.stockLevel') }}</p>
+                    <p class="text-sm font-medium text-slate-900 mt-1">{{ selectedInvItem.quantity }} {{ t('common.units') }}</p>
                   </div>
                   <div>
-                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Unit Price</p>
+                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ t('inventory.unitPrice') }}</p>
                     <p class="text-sm font-mono font-medium text-slate-900 mt-1">${{ Number(selectedInvItem.sale_price).toFixed(2) }}</p>
                   </div>
                 </div>
@@ -149,8 +149,8 @@
               <!-- Quantity Input -->
               <div v-if="picker.productId">
                 <div class="flex items-end justify-between mb-2">
-                  <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide">Quantity *</label>
-                  <span class="text-xs text-slate-500">Max: {{ availableQty }} units</span>
+                  <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide">{{ t('inventory.quantity') }} *</label>
+                  <span class="text-xs text-slate-500">{{ t('inventory.maxUnits', { count: availableQty }) }}</span>
                 </div>
                 <div class="flex gap-2">
                   <input
@@ -185,13 +185,13 @@
       <!-- RIGHT: 1/3 - Sticky Summary Column -->
       <div class="col-span-1">
         <div class="sticky top-6 bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
-          <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wide mb-6">Order Summary</h3>
+          <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wide mb-6">{{ t('orders.orderSummary') }}</h3>
 
           <!-- Empty State -->
           <div v-if="orderItems.length === 0" class="text-center py-8">
             <ShoppingBagIcon class="w-8 h-8 text-slate-300 mx-auto mb-2" />
-            <p class="text-slate-600 text-sm font-medium">No items yet</p>
-            <p class="text-slate-500 text-xs mt-1">Add products to your order</p>
+            <p class="text-slate-600 text-sm font-medium">{{ t('orders.noItems') }}</p>
+            <p class="text-slate-500 text-xs mt-1">{{ t('orders.addNotesPlaceholder') }}</p>
           </div>
 
           <!-- Order Items List -->
@@ -222,25 +222,25 @@
             <!-- Breakdown -->
             <div class="space-y-2.5">
               <div class="flex items-center justify-between text-sm">
-                <span class="text-slate-600">Subtotal</span>
+                <span class="text-slate-600">{{ t('common.subtotal') }}</span>
                 <span class="font-mono text-slate-900">{{ subtotal }}</span>
               </div>
               <div class="flex items-center justify-between text-sm">
-                <span class="text-slate-600">Tax</span>
+                <span class="text-slate-600">{{ t('common.tax') }}</span>
                 <span class="font-mono text-slate-900">{{ taxTotal }}</span>
               </div>
               <div class="pt-2.5 border-t border-slate-200 flex items-center justify-between">
-                <span class="font-semibold text-slate-900">Grand Total</span>
+                <span class="font-semibold text-slate-900">{{ t('common.grandTotal') }}</span>
                 <span class="text-lg font-bold text-accent-pink-600 font-mono">{{ grandTotal }}</span>
               </div>
             </div>
 
             <!-- Notes -->
             <div class="mt-4 pt-4 border-t border-slate-200">
-              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Notes (optional)</label>
+              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">{{ t('common.notes') }} ({{ t('common.optional') }})</label>
               <textarea 
                 v-model="notes"
-                placeholder="Add order notes..."
+                :placeholder="t('orders.addNotesPlaceholder')"
                 class="w-full px-3 py-2 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500/20 resize-none"
                 rows="2"
               ></textarea>
@@ -254,7 +254,7 @@
             >
               <CheckCircle2Icon v-if="!placing" class="w-4 h-4" />
               <div v-else class="w-4 h-4 border-2 border-white border-t-accent-pink-600 rounded-full animate-spin"></div>
-              {{ placing ? 'Placing Order...' : 'Place Order' }}
+              {{ placing ? t('orders.placingOrder') : t('orders.placeOrder') }}
             </button>
           </div>
         </div>
@@ -268,11 +268,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth.store'
+import { useI18n } from '@/composables/useI18n'
 import { ShoppingCartIcon, ShoppingBagIcon, TrashIcon, PlusIcon, CheckCircle2Icon } from 'lucide-vue-next'
 import api from '@/api/axios'
 
 const auth   = useAuthStore()
 const router = useRouter()
+const { t } = useI18n()
 
 // State
 const branches      = ref([])

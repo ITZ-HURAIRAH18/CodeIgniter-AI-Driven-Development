@@ -4,8 +4,8 @@
     <div class="bg-white border-b border-slate-200 -mx-6 px-6 py-6">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900">Stock Management</h1>
-          <p class="text-slate-600 text-sm mt-1">Real-time inventory tracking and stock allocation across all branches</p>
+          <h1 class="text-2xl font-semibold text-slate-900">{{ t('inventory.title') }}</h1>
+          <p class="text-slate-600 text-sm mt-1">{{ t('inventory.subtitle') }}</p>
         </div>
         <!-- <div class="text-right">
           <p class="text-xs text-slate-500">Last updated</p>
@@ -21,7 +21,7 @@
         <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
           <!-- Branch Selector -->
           <div v-if="auth.isAdmin || (auth.isBranchManager && branches.length > 0)" class="w-full md:w-56">
-            <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">Node</label>
+            <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">{{ t('inventory.node') }}</label>
             <select 
               v-model="selectedBranchId"
               class="w-full px-3 py-2 h-9 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer appearance-none transition-all hover:border-slate-300 shadow-sm"
@@ -34,13 +34,13 @@
           
           <!-- Search -->
           <div class="w-full md:flex-1">
-            <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">Search</label>
+            <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">{{ t('common.search') }}</label>
             <div class="relative group">
               <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
               <input 
                 v-model="search" 
                 type="text"
-                placeholder="Product name, SKU..." 
+                :placeholder="t('inventory.searchPlaceholder')" 
                 class="w-full pl-10 pr-4 py-2 h-9 bg-white border border-slate-200 rounded-md text-sm text-slate-900 placeholder-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 transition-all shadow-sm"
               />
             </div>
@@ -58,15 +58,15 @@
           <div class="w-px h-5 bg-slate-200"></div>
           <button @click="openAdjustModal" class="inline-flex items-center gap-2 px-3 py-2 h-9 text-sm font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 transition-colors shadow-sm">
             <Settings2Icon class="w-4 h-4" />
-            Adjust
+            {{ t('inventory.adjust') }}
           </button>
           <button @click="showTransferModal = true" class="inline-flex items-center gap-2 px-3 py-2 h-9 text-sm font-medium text-slate-700 bg-slate-50 border border-slate-200 rounded-md hover:bg-slate-100 hover:border-slate-300 transition-colors shadow-sm">
             <ArrowRightLeft class="w-4 h-4" />
-            Transfer
+            {{ t('inventory.transfer') }}
           </button>
           <button @click="showAddModal = true" class="inline-flex items-center gap-2 px-4 py-2 h-9 text-sm font-semibold text-white bg-accent-pink-500 border border-accent-pink-600 rounded-md hover:bg-accent-pink-600 hover:border-accent-pink-700 transition-colors shadow-sm">
             <PlusIcon class="w-4 h-4" />
-            Replenish
+            {{ t('inventory.replenish') }}
           </button>
         </div>
       </div>
@@ -79,11 +79,11 @@
           <!-- Table Header -->
           <thead class="bg-slate-50 border-b border-slate-200 sticky top-0">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Product</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Stock Level</th>
-              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">Unit Price</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</th>
-              <th v-if="canManage" class="px-6 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">{{ t('inventory.product') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">{{ t('inventory.stockLevel') }}</th>
+              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">{{ t('inventory.unitPrice') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">{{ t('inventory.status') }}</th>
+              <th v-if="canManage" class="px-6 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">{{ t('common.actions') }}</th>
             </tr>
           </thead>
           
@@ -161,37 +161,37 @@
       <div v-else class="flex items-center justify-center py-16 px-4">
         <div class="text-center">
           <ActivityIcon class="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p class="text-slate-600 font-medium text-sm">No inventory items found</p>
-          <p class="text-slate-500 text-xs mt-1">Start by replenishing stock to add items</p>
+          <p class="text-slate-600 font-medium text-sm">{{ t('inventory.noItems') }}</p>
+          <p class="text-slate-500 text-xs mt-1">{{ t('inventory.startReplenish') }}</p>
         </div>
       </div>
       
       <!-- Table Footer -->
       <div v-if="filteredInventory.length > 0" class="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-sm text-slate-600">
         <div>
-          Showing <span class="font-medium text-slate-900">{{ filteredInventory.length }}</span> of <span class="font-medium text-slate-900">{{ inventory.length }}</span> items
+          {{ t('inventory.showing') }} <span class="font-medium text-slate-900">{{ filteredInventory.length }}</span> {{ t('inventory.of') }} <span class="font-medium text-slate-900">{{ inventory.length }}</span> {{ t('inventory.itemCount') }}
         </div>
       </div>
     </div>
 
       <!-- Replenish Stock Modal -->
-    <Modal :show="showAddModal" title="Replenish Cloud Stock" maxWidth="lg" @close="showAddModal = false">
+    <Modal :show="showAddModal" :title="t('inventory.replenishTitle')" maxWidth="lg" @close="showAddModal = false">
       <form @submit.prevent="submitAddStock" class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="space-y-1.5">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Target Node *</label>
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">{{ t('inventory.targetNode') }} *</label>
             <select 
               v-model="addForm.branch_id"
               required
               class="w-full px-4 py-2.5 rounded-md text-sm font-normal bg-white border border-gray-200 text-gray-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 cursor-pointer appearance-none"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
             >
-              <option value="" disabled selected>Select branch...</option>
+              <option value="" disabled selected>{{ t('inventory.selectBranch') }}</option>
               <option v-for="b in filteredBranches" :key="b.id" :value="b.id">{{ b.name }}</option>
             </select>
           </div>
           <div class="space-y-1.5">
-            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Resource Unit (SKU) *</label>
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">{{ t('inventory.resourceUnit') }} *</label>
             <select 
               v-model="addForm.product_id"
               :disabled="!addForm.branch_id"
@@ -199,37 +199,37 @@
               class="w-full px-4 py-2.5 rounded-md text-sm font-normal bg-white border border-gray-200 text-gray-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400 cursor-pointer appearance-none"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
             >
-              <option value="" disabled selected>Select product...</option>
+              <option value="" disabled selected>{{ t('inventory.selectProduct') }}</option>
               <option v-for="p in filteredProducts" :key="p.id" :value="p.id">{{ p.name }} ({{ p.sku }})</option>
             </select>
           </div>
         </div>
         <div v-if="addForm.branch_id && addForm.product_id">
           <div class="space-y-1.5 mb-4">
-            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Quantity *</label>
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">{{ t('inventory.quantity') }} *</label>
             <div class="relative">
               <PackagePlusIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input v-model.number="addForm.quantity" type="number" min="1" required placeholder="Enter quantity" class="w-full pl-10 pr-4 py-2 rounded-md text-lg font-semibold text-slate-900 bg-white border border-slate-200 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
+              <input v-model.number="addForm.quantity" type="number" min="1" required :placeholder="t('inventory.enterQuantity')" class="w-full pl-10 pr-4 py-2 rounded-md text-lg font-semibold text-slate-900 bg-white border border-slate-200 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
             </div>
           </div>
           <div class="space-y-1.5">
-            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Notes (Optional)</label>
-            <input v-model="addForm.notes" type="text" placeholder="Reason for replenishment..." class="w-full px-4 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">{{ t('common.notes') }} ({{ t('common.optional') }})</label>
+            <input v-model="addForm.notes" type="text" :placeholder="t('inventory.replenishReason')" class="w-full px-4 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
           </div>
         </div>
         <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
           <button type="button" @click="showAddModal = false" class="px-4 py-2 text-slate-700 font-medium hover:bg-slate-50 rounded-md transition-colors">
-            Cancel
+            {{ t('common.cancel') }}
           </button>
           <button type="submit" :disabled="submitting" class="px-4 py-2 bg-accent-pink-500 text-white font-medium rounded-md hover:bg-accent-pink-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
-            {{ submitting ? 'Processing...' : 'Replenish Stock' }}
+            {{ submitting ? t('common.processing') : t('inventory.replenishButton') }}
           </button>
         </div>
       </form>
     </Modal>
 
     <!-- Adjust Stock Modal -->
-    <Modal :show="showAdjustModal" :title="'Adjust Stock: ' + (editingItem?.product_name || 'Product')" maxWidth="md" @close="showAdjustModal = false">
+    <Modal :show="showAdjustModal" :title="t('inventory.adjustTitle') + ': ' + (editingItem?.product_name || t('common.product'))" maxWidth="md" @close="showAdjustModal = false">
       <form @submit.prevent="submitAdjustStock" class="space-y-6">
         <!-- <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg flex items-start gap-3">
            <AlertTriangleIcon class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
@@ -239,19 +239,19 @@
         </div> -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="space-y-1.5">
-            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Node *</label>
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">{{ t('inventory.node') }} *</label>
             <select 
               v-model="editingItem.branch_id"
               required
               class="w-full px-3 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer appearance-none transition-all shadow-sm"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
             >
-              <option value="" disabled selected>Select branch...</option>
+              <option value="" disabled selected>{{ t('inventory.selectBranch') }}</option>
               <option v-for="b in filteredBranches" :key="b.id" :value="b.id">{{ b.name }}</option>
             </select>
           </div>
           <div class="space-y-1.5">
-            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Product (SKU)</label>
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">{{ t('inventory.product') }} ({{ t('common.sku') }})</label>
             <select 
               v-model="editingItem.product_id"
               :disabled="!editingItem.branch_id"
@@ -259,34 +259,34 @@
               class="w-full px-3 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 disabled:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400 cursor-pointer appearance-none transition-all shadow-sm"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
             >
-              <option value="" disabled selected>Select product...</option>
+              <option value="" disabled selected>{{ t('inventory.selectProduct') }}</option>
               <option v-for="p in filteredProducts" :key="p.id" :value="p.id">{{ p.name }} ({{ p.sku }})</option>
             </select>
           </div>
         </div>
         <div v-if="editingItem.branch_id && editingItem.product_id">
           <div class="space-y-1.5 mb-4">
-            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Set Stock Level *</label>
-            <input v-model.number="adjustForm.quantity" type="number" min="0" required placeholder="Enter stock quantity" class="w-full px-4 py-3 rounded-md text-2xl font-bold text-rose-700 bg-rose-50 border border-rose-200 focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">{{ t('inventory.setStockLevel') }} *</label>
+            <input v-model.number="adjustForm.quantity" type="number" min="0" required :placeholder="t('inventory.enterQuantity')" class="w-full px-4 py-3 rounded-md text-2xl font-bold text-rose-700 bg-rose-50 border border-rose-200 focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
           </div>
           <div class="space-y-1.5">
-            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Reason *</label>
-            <input v-model="adjustForm.notes" type="text" placeholder="Damaged, Found, Inventory mismatch, etc." required class="w-full px-4 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">{{ t('inventory.reason') }} *</label>
+            <input v-model="adjustForm.notes" type="text" :placeholder="t('inventory.reasonPlaceholder')" required class="w-full px-4 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
           </div>
         </div>
         <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
           <button type="button" @click="showAdjustModal = false" class="px-4 py-2 text-slate-700 font-medium hover:bg-slate-50 rounded-md transition-colors">
-            Cancel
+            {{ t('common.cancel') }}
           </button>
           <button type="submit" :disabled="submitting" class="px-4 py-2 bg-accent-pink-500 text-white font-medium rounded-md hover:bg-accent-pink-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
-            {{ submitting ? 'Adjusting...' : 'Confirm Adjustment' }}
+            {{ submitting ? t('inventory.adjusting') : t('inventory.confirmAdjustment') }}
           </button>
         </div>
       </form>
     </Modal>
 
     <!-- Transfer Stock Modal -->
-    <Modal :show="showTransferModal" title="Transfer Stock Between Nodes" maxWidth="md" @close="showTransferModal = false">
+    <Modal :show="showTransferModal" :title="t('inventory.transferTitle')" maxWidth="md" @close="showTransferModal = false">
       <form @submit.prevent="submitTransferStock" class="space-y-6">
         <!-- <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg flex items-start gap-3">
            <AlertTriangleIcon class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
@@ -296,32 +296,32 @@
         </div> -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="space-y-1.5">
-            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">From Node *</label>
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">{{ t('inventory.fromNode') }} *</label>
             <select 
               v-model="transferForm.from_branch_id"
               required
               class="w-full px-3 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer appearance-none transition-all shadow-sm"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
             >
-              <option value="" disabled selected>Select source...</option>
+              <option value="" disabled selected>{{ t('inventory.selectSource') }}</option>
               <option v-for="b in filteredBranches" :key="b.id" :value="b.id">{{ b.name }}</option>
             </select>
           </div>
           <div class="space-y-1.5">
-            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">To Node *</label>
+            <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">{{ t('inventory.toNode') }} *</label>
             <select 
               v-model="transferForm.to_branch_id"
               required
               class="w-full px-3 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer appearance-none transition-all shadow-sm"
               style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
             >
-              <option value="" disabled selected>Select destination...</option>
+              <option value="" disabled selected>{{ t('inventory.selectDestination') }}</option>
               <option v-for="b in filteredBranches" :key="b.id" :value="b.id" :disabled="b.id == transferForm.from_branch_id">{{ b.name }}</option>
             </select>
           </div>
         </div>
         <div class="space-y-1.5">
-          <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Product (SKU) *</label>
+          <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">{{ t('inventory.product') }} ({{ t('common.sku') }}) *</label>
           <select 
             v-model="transferForm.product_id"
             :disabled="!transferForm.from_branch_id"
@@ -329,43 +329,43 @@
               class="w-full px-3 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 disabled:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400 cursor-pointer appearance-none transition-all shadow-sm"
             style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%234b5563%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2.5rem'"
           >
-            <option value="" disabled selected>Select product...</option>
+            <option value="" disabled selected>{{ t('inventory.selectProduct') }}</option>
             <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.name }} ({{ p.sku }})</option>
           </select>
         </div>
         <div class="space-y-1.5">
-          <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Quantity *</label>
-          <input v-model.number="transferForm.quantity" type="number" min="1" required placeholder="Enter quantity to transfer" class="w-full px-4 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
+          <label class="text-xs font-semibold text-slate-700 uppercase tracking-wide">{{ t('inventory.quantity') }} *</label>
+          <input v-model.number="transferForm.quantity" type="number" min="1" required :placeholder="t('inventory.quantityToTransfer')" class="w-full px-4 py-2 rounded-md text-sm bg-white border border-slate-200 text-slate-900 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 shadow-sm" />
         </div>
         <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
           <button type="button" @click="showTransferModal = false" class="px-4 py-2 text-slate-700 font-medium hover:bg-slate-50 rounded-md transition-colors">
-            Cancel
+            {{ t('common.cancel') }}
           </button>
           <button type="submit" :disabled="submitting" class="px-4 py-2 bg-accent-pink-500 text-white font-medium rounded-md hover:bg-accent-pink-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
-            {{ submitting ? 'Processing...' : 'Initiate Transfer' }}
+            {{ submitting ? t('common.processing') : t('inventory.initiateTransfer') }}
           </button>
         </div>
       </form>
     </Modal>
 
     <!-- Stock History Modal -->
-    <Modal :show="showLogsModal" :title="'Stock History: ' + (currentLogItem?.product_name || 'All')" maxWidth="lg" @close="showLogsModal = false">
+    <Modal :show="showLogsModal" :title="t('inventory.history') + ': ' + (currentLogItem?.product_name || t('common.all'))" maxWidth="lg" @close="showLogsModal = false">
       <div class="space-y-4">
         <div v-if="loadingLogs" class="flex justify-center py-8">
-          <div class="text-sm text-slate-600">Loading stock movement history...</div>
+          <div class="text-sm text-slate-600">{{ t('inventory.loadingStockHistory') }}</div>
         </div>
         <div v-else-if="stockLogs.length === 0" class="flex justify-center py-8">
-          <div class="text-sm text-slate-600">No stock movements recorded</div>
+          <div class="text-sm text-slate-600">{{ t('inventory.noStockMovements') }}</div>
         </div>
         <div v-else class="overflow-x-auto">
           <table class="w-full text-xs">
             <thead class="bg-slate-50 border-b-2 border-slate-200 sticky top-0">
               <tr>
-                <th class="px-4 py-3 text-left font-bold text-slate-600">Date/Time</th>
-                <th class="px-4 py-3 text-left font-bold text-slate-600">Type</th>
-                <th class="px-4 py-3 text-center font-bold text-slate-600 w-24">Qty</th>
-                <th class="px-4 py-3 text-left font-bold text-slate-600">Branch</th>
-                <th class="px-4 py-3 text-left font-bold text-slate-600">Notes</th>
+                <th class="px-4 py-3 text-left font-bold text-slate-600">{{ t('common.dateTime') }}</th>
+                <th class="px-4 py-3 text-left font-bold text-slate-600">{{ t('inventory.movementType') }}</th>
+                <th class="px-4 py-3 text-center font-bold text-slate-600 w-24">{{ t('inventory.change') }}</th>
+                <th class="px-4 py-3 text-left font-bold text-slate-600">{{ t('common.branch') }}</th>
+                <th class="px-4 py-3 text-left font-bold text-slate-600">{{ t('common.notes') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -395,6 +395,7 @@
 <script setup>
 import { ref, computed, onMounted, reactive, watch } from 'vue'
 import { useAuthStore } from '@/store/auth.store'
+import { useI18n } from '@/composables/useI18n'
 import api from '@/api/axios'
 import { 
   PlusIcon, SearchIcon, ActivityIcon, Edit3Icon, Settings2Icon, 
@@ -410,6 +411,7 @@ import Input from '@/components/ui/Input.vue'
 import Select from '@/components/ui/Select.vue'
 
 const auth = useAuthStore()
+const { t } = useI18n()
 const branches = ref([])
 const inventory = ref([])
 const allProducts = ref([])
@@ -670,10 +672,10 @@ async function submitAdjustStock() {
 
 // Helpers
 const getStatusLabel = (q, r) => {
-  if (q === 0) return 'Depleted'
-  if (q <= r * 0.2) return 'Critical'
-  if (q <= r) return 'Low Stock'
-  return 'Stable'
+  if (q === 0) return t('status.outOfStock')
+  if (q <= r * 0.2) return t('status.critical')
+  if (q <= r) return t('inventory.lowStock')
+  return t('status.stable')
 }
 
 const getStatusVariantClasses = (q, r) => {

@@ -3,18 +3,18 @@
     <!-- Breadcrumb & Header -->
     <div>
       <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-2">
-        <span>Dashboard</span>
+        <span>{{ t('common.dashboard') }}</span>
         <span class="text-slate-300">/</span>
-        <span class="text-slate-900 font-semibold">Orders</span>
+        <span class="text-slate-900 font-semibold">{{ t('common.orders') }}</span>
       </div>
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Orders</h1>
-          <p class="text-slate-500 text-sm mt-1">Manage and track all customer orders</p>
+          <h1 class="text-3xl font-bold text-slate-900 tracking-tight">{{ t('orders.title') }}</h1>
+          <p class="text-slate-500 text-sm mt-1">{{ t('orders.subtitle') }}</p>
         </div>
         <router-link to="/orders/create" class="inline-flex items-center gap-2 px-4 py-2.5 h-10 bg-accent-pink-500 text-white rounded-lg font-medium hover:bg-white hover:text-accent-pink-500 transition-colors shadow-sm">
           <PlusIcon class="w-4 h-4" />
-          <span>New Order</span>
+          <span>{{ t('orders.newOrder') }}</span>
         </router-link>
       </div>
     </div>
@@ -24,13 +24,13 @@
       <div class="flex flex-col md:flex-row gap-3 items-end md:items-center">
         <!-- Search -->
         <div class="flex-1">
-          <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">Search</label>
+          <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">{{ t('common.search') }}</label>
           <div class="relative group">
             <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-accent-pink-500 transition-colors" />
             <input 
               v-model="search" 
               type="text"
-              placeholder="Order number, branch..." 
+              :placeholder="t('orders.searchOrders')" 
               class="w-full pl-9 pr-4 py-2 h-10 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500/20"
             />
           </div>
@@ -38,16 +38,16 @@
 
         <!-- Status Filter -->
         <div class="w-full md:w-48">
-          <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">Status</label>
+          <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">{{ t('common.status') }}</label>
           <select 
             v-model="statusFilter"
             class="w-full px-3 py-2 h-10 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500/20 cursor-pointer appearance-none"
             style="backgroundImage: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2712%27 height=%278%27 viewBox=%220 0 12 8%22><path fill=%22%236b7280%22 d=%22M6 6L1 1h10z%22/></svg>'), backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1.2em 1.2em', paddingRight: '2rem'"
           >
-            <option value="">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="">{{ t('orders.allStatus') }}</option>
+            <option value="pending">{{ t('status.pending') }}</option>
+            <option value="completed">{{ t('status.completed') }}</option>
+            <option value="cancelled">{{ t('status.cancelled') }}</option>
           </select>
         </div>
       </div>
@@ -59,7 +59,7 @@
       <div v-if="loading" class="flex items-center justify-center py-16">
         <div class="flex flex-col items-center gap-3">
           <div class="w-8 h-8 border-2 border-slate-200 border-t-accent-pink-600 rounded-full animate-spin"></div>
-          <p class="text-slate-500 text-sm">Loading orders...</p>
+          <p class="text-slate-500 text-sm">{{ t('orders.loadingOrders') }}</p>
         </div>
       </div>
 
@@ -67,11 +67,11 @@
       <div v-else-if="filteredOrders.length === 0" class="flex items-center justify-center py-16 px-4">
         <div class="text-center">
           <ShoppingCartIcon class="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p class="text-slate-600 font-medium text-sm">No orders found</p>
-          <p class="text-slate-500 text-xs mt-1">Create your first order to get started</p>
+          <p class="text-slate-600 font-medium text-sm">{{ t('orders.noOrders') }}</p>
+          <p class="text-slate-500 text-xs mt-1">{{ t('orders.createFirstOrder') }}</p>
           <router-link to="/orders/create" class="inline-flex items-center gap-1 mt-4 px-3 py-2 text-sm font-medium text-accent-pink-600 hover:bg-accent-pink-50 rounded-md transition-colors">
             <PlusIcon class="w-4 h-4" />
-            Create Order
+            {{ t('orders.createOrder') }}
           </router-link>
         </div>
       </div>
@@ -81,12 +81,12 @@
         <table class="w-full">
           <thead class="bg-slate-50/80 border-b border-slate-200 sticky top-0">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Order</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Branch</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Created By</th>
-              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Total</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('orders.order') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.branch') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('orders.createdBy') }}</th>
+              <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.total') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.status') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.date') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200">
@@ -141,10 +141,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { SearchIcon, PlusIcon, ShoppingCartIcon } from 'lucide-vue-next'
 import { useAuthStore } from '@/store/auth.store'
+import { useI18n } from '@/composables/useI18n'
 import api from '@/api/axios'
 
 const router = useRouter()
 const auth = useAuthStore()
+const { t } = useI18n()
 const orders = ref([])
 const loading = ref(true)
 const search = ref('')
@@ -184,7 +186,12 @@ const getStatusDotColor = (status) => {
 }
 
 const formatStatus = (status) => {
-  const map = { completed: 'Completed', pending: 'Pending', cancelled: 'Cancelled', confirmed: 'Confirmed' }
+  const map = { 
+    completed: t('status.completed'), 
+    pending: t('status.pending'), 
+    cancelled: t('status.cancelled'), 
+    confirmed: t('status.confirmed') 
+  }
   return map[status] || status
 }
 

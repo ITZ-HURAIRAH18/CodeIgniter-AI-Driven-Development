@@ -3,18 +3,18 @@
     <!-- Breadcrumb & Header -->
     <div>
       <div class="flex items-center gap-2 text-sm text-slate-500 font-medium mb-2">
-        <span>Dashboard</span>
+        <span>{{ t('common.dashboard') }}</span>
         <span class="text-slate-300">/</span>
-        <span class="text-slate-900 font-semibold">Stock Transfers</span>
+        <span class="text-slate-900 font-semibold">{{ t('inventory.transfers') }}</span>
       </div>
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Stock Transfers</h1>
-          <p class="text-slate-500 text-sm mt-1">Manage inter-branch inventory transfers</p>
+          <h1 class="text-3xl font-bold text-slate-900 tracking-tight">{{ t('inventory.transfers') }}</h1>
+          <p class="text-slate-500 text-sm mt-1">{{ t('inventory.transfersSubtitle') }}</p>
         </div>
         <button @click="showModal = true" class="inline-flex items-center gap-2 px-4 py-2.5 h-10 bg-rose-600 text-white rounded-lg font-medium hover:bg-rose-700 transition-colors shadow-sm">
           <PlusIcon class="w-4 h-4" />
-          <span>New Transfer</span>
+          <span>{{ t('inventory.newTransfer') }}</span>
         </button>
       </div>
     </div>
@@ -23,16 +23,16 @@
     <div class="bg-white border border-slate-200 rounded-lg p-4">
       <div class="flex flex-col md:flex-row gap-3 items-end md:items-center">
         <div class="flex-1">
-          <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">Status</label>
+          <label class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 block">{{ t('common.status') }}</label>
           <select 
             v-model="statusFilter"
             class="w-full px-3 py-2 h-10 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer"
           >
-            <option value="">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="in_transit">In Transit</option>
-            <option value="received">Received</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="">{{ t('common.all') }} {{ t('common.status') }}</option>
+            <option value="pending">{{ t('status.pending') }}</option>
+            <option value="in_transit">{{ t('transfers.inTransit') }}</option>
+            <option value="received">{{ t('transfers.received') }}</option>
+            <option value="cancelled">{{ t('status.cancelled') }}</option>
           </select>
         </div>
       </div>
@@ -44,7 +44,7 @@
       <div v-if="loading" class="flex items-center justify-center py-16">
         <div class="flex flex-col items-center gap-3">
           <div class="w-8 h-8 border-2 border-slate-200 border-t-rose-600 rounded-full animate-spin"></div>
-          <p class="text-slate-500 text-sm">Loading transfers...</p>
+          <p class="text-slate-500 text-sm">{{ t('common.loading') }}</p>
         </div>
       </div>
 
@@ -52,11 +52,11 @@
       <div v-else-if="filteredTransfers.length === 0" class="flex items-center justify-center py-16 px-4">
         <div class="text-center">
           <TruckIcon class="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p class="text-slate-600 font-medium text-sm">No transfers found</p>
-          <p class="text-slate-500 text-xs mt-1">Create your first transfer to get started</p>
+          <p class="text-slate-600 font-medium text-sm">{{ t('inventory.noTransfers') }}</p>
+          <p class="text-slate-500 text-xs mt-1">{{ t('inventory.createFirstTransfer') }}</p>
           <button @click="showModal = true" class="inline-flex items-center gap-1 mt-4 px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-md transition-colors">
             <PlusIcon class="w-4 h-4" />
-            New Transfer
+            {{ t('inventory.newTransfer') }}
           </button>
         </div>
       </div>
@@ -66,13 +66,13 @@
         <table class="w-full">
           <thead class="bg-slate-50/80 border-b border-slate-200 sticky top-0">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Transfer ID</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Route</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Items</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Initiated By</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Actions</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('inventory.transferId') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('inventory.route') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.items') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('inventory.initiatedBy') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.status') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.date') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200">
@@ -98,7 +98,7 @@
               <!-- Items Count -->
               <td class="px-6 py-3 whitespace-nowrap">
                 <span class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                  {{ t.items?.length || 0 }} {{ t.items?.length === 1 ? 'item' : 'items' }}
+                  {{ t.items?.length || 0 }} {{ t.items?.length === 1 ? t('common.item') : t('common.items') }}
                 </span>
               </td>
 
@@ -169,7 +169,7 @@
           <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <!-- Modal Header -->
             <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-              <h2 class="text-lg font-bold text-slate-900">New Stock Transfer</h2>
+              <h2 class="text-lg font-bold text-slate-900">{{ t('inventory.newStockTransfer') }}</h2>
               <button @click="showModal = false" class="p-1 hover:bg-slate-100 rounded-md text-slate-600 transition-colors">
                 <XIcon class="w-5 h-5" />
               </button>
@@ -190,14 +190,14 @@
                 <!-- Visual Flow Indicator -->
                 <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
                   <div class="flex-1">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">From Branch</label>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('inventory.fromBranch') }}</label>
                     <select 
                       v-model="tform.from_branch_id"
                       @change="onFromBranchChange"
                       class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer"
                       required
                     >
-                      <option value="">— Select source —</option>
+                      <option value="">{{ t('inventory.selectSource') }}</option>
                       <option v-for="b in branches" :key="b.id" :value="b.id">{{ b.name }}</option>
                     </select>
                     <p v-if="tform.from_branch_id" class="text-xs text-slate-500 mt-2">
@@ -211,13 +211,13 @@
                   </div>
 
                   <div class="flex-1">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">To Branch</label>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('inventory.toBranch') }}</label>
                     <select 
                       v-model="tform.to_branch_id"
                       class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer"
                       required
                     >
-                      <option value="">— Select destination —</option>
+                      <option value="">{{ t('inventory.selectDestination') }}</option>
                       <option 
                         v-for="b in branches" 
                         :key="b.id" 
@@ -237,19 +237,19 @@
                 <div v-if="tform.from_branch_id" class="space-y-4">
                   <div class="flex items-center gap-2">
                     <ShoppingCartIcon class="w-5 h-5 text-rose-600" />
-                    <h3 class="text-sm font-bold text-slate-900">Select Products</h3>
+                    <h3 class="text-sm font-bold text-slate-900">{{ t('inventory.selectProducts') }}</h3>
                   </div>
 
                   <!-- Product Picker -->
                   <div class="space-y-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
                     <div>
-                      <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Product *</label>
+                      <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('common.product') }} *</label>
                       <select 
                         v-model="itemPicker.productId"
                         @change="onProductSelect"
                         class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 cursor-pointer"
                       >
-                        <option value="">— Choose product —</option>
+                        <option value="">— {{ t('inventory.selectProduct') }} —</option>
                         <option
                           v-for="inv in sourceInventory"
                           :key="inv.product_id"
@@ -263,16 +263,16 @@
 
                     <div v-if="itemPicker.productId" class="grid grid-cols-2 gap-3">
                       <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Quantity *</label>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('common.quantity') }} *</label>
                         <input
                           v-model.number="itemPicker.quantity"
                           type="number"
                           min="1"
                           :max="sourceAvailableQty"
                           class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
-                          placeholder="Enter quantity"
+                          :placeholder="t('inventory.enterQuantity')"
                         />
-                        <p class="text-[10px] text-slate-500 mt-1">Max: {{ sourceAvailableQty }} units</p>
+                        <p class="text-[10px] text-slate-500 mt-1">{{ t('inventory.maxUnits').replace('{count}', sourceAvailableQty) }}</p>
                       </div>
                       <div class="flex items-end">
                         <button
@@ -281,7 +281,7 @@
                           class="w-full px-4 py-2.5 bg-rose-600 text-white rounded-md font-medium text-sm hover:bg-rose-700 transition-colors"
                         >
                           <PlusIcon class="w-4 h-4 inline mr-1" />
-                          Add Item
+                          {{ t('common.add') }} {{ t('common.item') }}
                         </button>
                       </div>
                     </div>
@@ -293,7 +293,7 @@
 
                   <!-- Selected Items List -->
                   <div v-if="tform.items.length > 0" class="space-y-2">
-                    <div class="text-xs font-bold text-slate-600 uppercase tracking-widest">Items in Transfer</div>
+                    <div class="text-xs font-bold text-slate-600 uppercase tracking-widest">{{ t('inventory.itemsInTransfer') }}</div>
                     <div class="space-y-2">
                       <div 
                         v-for="(item, idx) in tform.items" 
@@ -318,10 +318,10 @@
 
                 <!-- Notes -->
                 <div v-if="tform.from_branch_id && tform.to_branch_id" class="space-y-2">
-                  <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Notes (Optional)</label>
+                  <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ t('common.notes') }} ({{ t('common.optional') }})</label>
                   <textarea
                     v-model="tform.notes"
-                    placeholder="Reason for transfer, special instructions..."
+                    :placeholder="t('inventory.reason')"
                     class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 resize-none"
                     rows="3"
                   ></textarea>
@@ -334,7 +334,7 @@
                     @click="showModal = false"
                     class="px-4 py-2.5 h-10 bg-white border border-slate-300 text-slate-700 rounded-lg font-medium text-sm hover:bg-slate-50 transition-colors"
                   >
-                    Cancel
+                    {{ t('common.cancel') }}
                   </button>
                   <button
                     type="submit"
@@ -343,7 +343,7 @@
                   >
                     <CheckCircle2Icon v-if="!submitting" class="w-4 h-4" />
                     <div v-else class="w-4 h-4 border-2 border-white border-t-rose-600 rounded-full animate-spin"></div>
-                    {{ submitting ? 'Creating...' : 'Start Transfer' }}
+                    {{ submitting ? t('common.saving') : t('inventory.initiateTransfer') }}
                   </button>
                 </div>
 
@@ -359,7 +359,10 @@
 <script setup>
 import { ref, computed, onMounted, reactive } from 'vue'
 import { PlusIcon, ArrowRightIcon, TruckIcon, EyeIcon, CheckIcon, CheckCircle2Icon, XIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next'
+import { useI18n } from '@/composables/useI18n'
 import api from '@/api/axios'
+
+const { t } = useI18n()
 
 const transfers = ref([])
 const branches = ref([])
@@ -413,10 +416,10 @@ const getStatusDotColor = (status) => {
 
 const formatStatus = (status) => {
   const map = {
-    pending: 'Pending',
-    in_transit: 'In Transit',
-    received: 'Received',
-    cancelled: 'Cancelled',
+    pending: t('status.pending'),
+    in_transit: t('transfers.inTransit'),
+    received: t('transfers.received'),
+    cancelled: t('status.cancelled'),
   }
   return map[status] || status
 }
@@ -512,7 +515,7 @@ async function submitTransfer() {
 
   try {
     await api.post('/transfers', tform)
-    modalSuccess.value = 'Transfer request created successfully!'
+    modalSuccess.value = t('messages.transferCreated')
 
     const res = await api.get('/transfers')
     transfers.value = res || []
@@ -527,7 +530,7 @@ async function submitTransfer() {
       modalSuccess.value = ''
     }, 1500)
   } catch (err) {
-    modalError.value = err?.message || 'Failed to create transfer request.'
+    modalError.value = err?.message || t('messages.transferFailed')
   } finally {
     submitting.value = false
   }
