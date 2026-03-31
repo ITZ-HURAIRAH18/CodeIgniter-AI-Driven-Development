@@ -52,16 +52,5 @@ class UserModel extends Model
     /**
      * Calculate age from date_of_birth
      */
-    public function calculateAge(?string $dateOfBirth): ?int
-    {
-        if (!$dateOfBirth) {
-            return null;
-        }
-
-        $birthDate = new \DateTime($dateOfBirth);
-        $today = new \DateTime();
-        $age = $today->diff($birthDate)->y;
-        
-        return $age;
-    }
+    
 }
