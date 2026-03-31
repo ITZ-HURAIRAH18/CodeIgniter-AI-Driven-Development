@@ -257,8 +257,8 @@
         <div class="lg:col-span-2 rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden flex flex-col">
           <!-- Header -->
           <div class="px-6 py-4 border-b border-slate-200 flex-shrink-0">
-            <h2 class="text-lg font-bold text-slate-900">Top Selling Products</h2>
-            <p class="text-slate-500 text-xs mt-0.5">By inventory value, grouped by branch • Trend: This week vs Last week</p>
+            <h2 class="text-lg font-bold text-slate-900">{{ t('dashboard.topSellingProducts') }}</h2>
+            <p class="text-slate-500 text-xs mt-0.5">{{ t('dashboard.topSellingProductsSubtitle') }}</p>
           </div>
           
           <!-- Empty State -->
@@ -273,11 +273,11 @@
             <table class="w-full text-sm">
               <thead class="sticky top-0 bg-slate-50">
                 <tr class="border-b border-slate-200">
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Product</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Branch</th>
-                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Units</th>
-                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Revenue</th>
-                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Trend</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.product') }}</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.branch') }}</th>
+                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.units') }}</th>
+                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('dashboard.revenue') }}</th>
+                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('dashboard.trend') }}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200">
@@ -308,8 +308,8 @@
         <div class="rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden p-4">
         <!-- Stock Health Header -->
           <div class="mb-4">
-            <h2 class="text-base font-bold text-slate-900">Stock Health</h2>
-            <p class="text-slate-500 text-xs mt-0.5">Distribution overview</p>
+            <h2 class="text-base font-bold text-slate-900">{{ t('dashboard.stockHealth') }}</h2>
+            <p class="text-slate-500 text-xs mt-0.5">{{ t('dashboard.stockHealthSubtitle') }}</p>
           </div>
           
           <!-- Ring Chart Using SVG - Readable Size -->
@@ -353,28 +353,28 @@
             <div class="flex items-center justify-between p-1.5 rounded bg-slate-50">
               <div class="flex items-center gap-2">
                 <div class="w-2 h-2 rounded-full bg-slate-500"></div>
-                <span class="text-slate-700 font-medium">Optimal</span>
+                <span class="text-slate-700 font-medium">{{ t('dashboard.optimal') }}</span>
               </div>
               <span class="font-bold text-slate-900">{{ stockHealth.optimal }}</span>
             </div>
             <div class="flex items-center justify-between p-1.5 rounded bg-slate-50">
               <div class="flex items-center gap-2">
                 <div class="w-2 h-2 rounded-full bg-rose-600"></div>
-                <span class="text-slate-700 font-medium">Low</span>
+                <span class="text-slate-700 font-medium">{{ t('dashboard.low') }}</span>
               </div>
               <span class="font-bold text-slate-900">{{ stockHealth.low }}</span>
             </div>
             <div class="flex items-center justify-between p-1.5 rounded bg-slate-50">
               <div class="flex items-center gap-2">
                 <div class="w-2 h-2 rounded-full bg-rose-800"></div>
-                <span class="text-slate-700 font-medium">Critical</span>
+                <span class="text-slate-700 font-medium">{{ t('dashboard.critical') }}</span>
               </div>
               <span class="font-bold text-slate-900">{{ stockHealth.critical }}</span>
             </div>
             <div class="flex items-center justify-between p-1.5 rounded bg-slate-50">
               <div class="flex items-center gap-2">
                 <div class="w-2 h-2 rounded-full bg-slate-600"></div>
-                <span class="text-slate-700 font-medium">OOS</span>
+                <span class="text-slate-700 font-medium">{{ t('dashboard.outOfStock') }}</span>
               </div>
               <span class="font-bold text-slate-900">{{ stockHealth.outOfStock }}</span>
             </div>
@@ -589,35 +589,61 @@ const loadDashboardData = async () => {
       totalInventoryValue: totalInventoryValue
     }
     
-    // Calculate stock health metrics
-    const optimalCount = inventoryData.filter(i => {
+    // Calculate stock health metrics with mutually exclusive categories
+    const stockHealthStats = {
+      outOfStock: 0,
+      critical: 0,
+      low: 0,
+      optimal: 0
+    }
+    
+    inventoryData.forEach(i => {
+      const quantity = parseInt(i.quantity || 0)
       const reorderLevel = (i.reorder_level && i.reorder_level > 0) ? parseInt(i.reorder_level) : 10
-      return i.quantity > reorderLevel * 1.5
-    }).length
-    const lowCount = inventoryData.filter(i => {
-      const reorderLevel = (i.reorder_level && i.reorder_level > 0) ? parseInt(i.reorder_level) : 10
-      return i.quantity < reorderLevel && i.quantity > 0
-    }).length
-    const criticalCount = inventoryData.filter(i => i.quantity > 0 && i.quantity <= 5).length
-    const outOfStockCount = inventoryData.filter(i => i.quantity === 0 || i.quantity < 0).length
+      
+      if (quantity === 0) {
+        stockHealthStats.outOfStock++
+      } else if (quantity < reorderLevel) {
+        // Between 1 and below reorder level
+        if (quantity <= 5) {
+          // Critical if in danger zone (<=5 or <reorder for LOW reorder levels)
+          stockHealthStats.critical++
+        } else {
+          stockHealthStats.low++
+        }
+      } else if (quantity >= reorderLevel * 1.5) {
+        // Above optimal threshold
+        stockHealthStats.optimal++
+      } else {
+        // Between reorder level and optimal (reorder <= qty < reorder*1.5)
+        stockHealthStats.low++
+      }
+    })
+    
+    const optimalCount = stockHealthStats.optimal
+    const lowCount = stockHealthStats.low
+    const criticalCount = stockHealthStats.critical
+    const outOfStockCount = stockHealthStats.outOfStock
     const total = inventoryData.length || 1
     
     // Detailed logging for debugging
-    console.log(`📊 Stock Health Distribution:`)
-    console.log(`   Optimal (qty > reorder*1.5): ${optimalCount}`)
-    console.log(`   Low (qty < reorder & > 0): ${lowCount}`)
-    console.log(`   Critical (qty <= 5 & > 0): ${criticalCount}`)
+    console.log(`📊 Stock Health Distribution (Fixed Logic):`)
+    console.log(`   Optimal (qty >= reorder*1.5): ${optimalCount}`)
+    console.log(`   Low (qty < reorder*1.5 & qty >= reorder, or 5 < qty < reorder): ${lowCount}`)
+    console.log(`   Critical (qty < reorder & qty <= 5): ${criticalCount}`)
     console.log(`   Out of Stock (qty = 0): ${outOfStockCount}`)
     console.log(`   Total items: ${total}`)
+    console.log(`✅ Total checked: ${optimalCount + lowCount + criticalCount + outOfStockCount}`)
     inventoryData.forEach(i => {
+      const quantity = parseInt(i.quantity || 0)
       const rl = (i.reorder_level && i.reorder_level > 0) ? parseInt(i.reorder_level) : 10
       let category = 'Unknown'
-      if (i.quantity === 0) category = 'OOS'
-      else if (i.quantity <= 5) category = 'Critical'
-      else if (i.quantity < rl) category = 'Low'
-      else if (i.quantity > rl * 1.5) category = 'Optimal'
-      else category = 'Medium'
-      console.log(`   - ${i.product_name}: qty=${i.quantity}, reorder=${rl}, category=${category}`)
+      if (quantity === 0) category = 'OOS'
+      else if (quantity < rl && quantity <= 5) category = 'Critical'
+      else if (quantity < rl) category = 'Low'
+      else if (quantity >= rl * 1.5) category = 'Optimal'
+      else category = 'Low' // Between reorder and optimal
+      console.log(`   - ${i.product_name || 'Unknown'}: qty=${quantity}, reorder=${rl}, category=${category}`)
     })
     
     stockHealth.value = {
