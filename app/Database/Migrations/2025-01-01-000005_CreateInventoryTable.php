@@ -28,7 +28,7 @@ class CreateInventoryTable extends Migration
             ],
             'reorder_level' => [
                 'type'    => 'INT',
-                'default' => 0,
+                'default' => 10,
             ],
             'updated_at' => [
                 'type' => 'DATETIME',

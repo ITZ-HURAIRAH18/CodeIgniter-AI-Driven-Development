@@ -141,7 +141,7 @@
 
               <!-- Quick Actions -->
               <td class="px-6 py-3">
-                <div v-if="auth.isAdmin" class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div v-if="auth.isAdmin" class="flex items-center gap-1 opacity-100">
                   <button
                     @click="openEdit(product)"
                     class="p-1.5 hover:bg-slate-200 rounded-md text-slate-600 hover:text-slate-900 transition-colors"

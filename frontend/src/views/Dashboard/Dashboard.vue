@@ -343,8 +343,8 @@
               <circle cx="100" cy="100" r="50" fill="white" stroke="none"></circle>
               
               <!-- Center text - Larger for readability -->
-              <text x="100" y="98" text-anchor="middle" font-size="24" font-weight="bold" fill="#1e293b">{{ (stockHealth.optimal + stockHealth.low) }}</text>
-              <text x="100" y="118" text-anchor="middle" font-size="12" fill="#64748b">Healthy</text>
+              <text x="100" y="98" text-anchor="middle" font-size="24" font-weight="bold" fill="#1e293b">{{ stockHealth.optimal }}</text>
+              <text x="100" y="118" text-anchor="middle" font-size="12" fill="#64748b">Optimal</text>
             </svg>
           </div>
           
@@ -542,7 +542,10 @@ const loadDashboardData = async () => {
         return total + (salePrice * quantity)
       }, 0)
       
-      const lowStockCount = branchInventory.filter(inv => inv.quantity < (inv.reorder_level || 10)).length
+      const lowStockCount = branchInventory.filter(inv => {
+        const reorderLevel = (inv.reorder_level && inv.reorder_level > 0) ? parseInt(inv.reorder_level) : 10
+        return inv.quantity < reorderLevel
+      }).length
       
       // Determine status
       let status = 'Optimal'
@@ -566,8 +569,9 @@ const loadDashboardData = async () => {
     // Calculate dashboard stats with CORRECT inventory value
     const totalLowStock = inventoryData.filter(inv => {
       const quantity = parseInt(inv.quantity || 0)
-      const reorderLevel = parseInt(inv.reorder_level || 10)
-      const isLow = quantity <= reorderLevel
+      // Use reorder_level if set and > 0, otherwise default to 10
+      const reorderLevel = (inv.reorder_level && inv.reorder_level > 0) ? parseInt(inv.reorder_level) : 10
+      const isLow = quantity < reorderLevel
       console.log(`📊 ${inv.product_name || 'Product'} (ID: ${inv.product_id}): Qty=${quantity}, Reorder=${reorderLevel}, IsLow=${isLow}`)
       return isLow
     }).length
@@ -584,11 +588,35 @@ const loadDashboardData = async () => {
     }
     
     // Calculate stock health metrics
-    const optimalCount = inventoryData.filter(i => i.quantity > (i.reorder_level || 10) * 1.5).length
-    const lowCount = inventoryData.filter(i => i.quantity <= (i.reorder_level || 10) && i.quantity > 0).length
-    const criticalCount = inventoryData.filter(i => i.quantity <= 5 && i.quantity > 0).length
+    const optimalCount = inventoryData.filter(i => {
+      const reorderLevel = (i.reorder_level && i.reorder_level > 0) ? parseInt(i.reorder_level) : 10
+      return i.quantity > reorderLevel * 1.5
+    }).length
+    const lowCount = inventoryData.filter(i => {
+      const reorderLevel = (i.reorder_level && i.reorder_level > 0) ? parseInt(i.reorder_level) : 10
+      return i.quantity < reorderLevel && i.quantity > 0
+    }).length
+    const criticalCount = inventoryData.filter(i => i.quantity > 0 && i.quantity <= 5).length
     const outOfStockCount = inventoryData.filter(i => i.quantity === 0 || i.quantity < 0).length
     const total = inventoryData.length || 1
+    
+    // Detailed logging for debugging
+    console.log(`📊 Stock Health Distribution:`)
+    console.log(`   Optimal (qty > reorder*1.5): ${optimalCount}`)
+    console.log(`   Low (qty < reorder & > 0): ${lowCount}`)
+    console.log(`   Critical (qty <= 5 & > 0): ${criticalCount}`)
+    console.log(`   Out of Stock (qty = 0): ${outOfStockCount}`)
+    console.log(`   Total items: ${total}`)
+    inventoryData.forEach(i => {
+      const rl = (i.reorder_level && i.reorder_level > 0) ? parseInt(i.reorder_level) : 10
+      let category = 'Unknown'
+      if (i.quantity === 0) category = 'OOS'
+      else if (i.quantity <= 5) category = 'Critical'
+      else if (i.quantity < rl) category = 'Low'
+      else if (i.quantity > rl * 1.5) category = 'Optimal'
+      else category = 'Medium'
+      console.log(`   - ${i.product_name}: qty=${i.quantity}, reorder=${rl}, category=${category}`)
+    })
     
     stockHealth.value = {
       optimal: optimalCount,

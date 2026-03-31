@@ -89,10 +89,11 @@ class InventoryModel extends Model
         }
 
         return (bool) $this->insert([
-            'branch_id'  => $branchId,
-            'product_id' => $productId,
-            'quantity'   => $additional,
-            'updated_at' => date('Y-m-d H:i:s'),
+            'branch_id'    => $branchId,
+            'product_id'   => $productId,
+            'quantity'     => $additional,
+            'reorder_level' => 10,
+            'updated_at'   => date('Y-m-d H:i:s'),
         ]);
     }
 }
