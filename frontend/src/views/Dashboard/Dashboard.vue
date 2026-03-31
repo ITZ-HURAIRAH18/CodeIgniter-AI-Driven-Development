@@ -252,27 +252,27 @@
     </div>
 
       <!-- Bottom Section: Products & Stock Health -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <!-- Top Selling Products -->
-        <div class="rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Top Selling Products (2/3 width) -->
+        <div class="lg:col-span-2 rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden flex flex-col">
           <!-- Header -->
-          <div class="px-6 py-4 border-b border-slate-200">
+          <div class="px-6 py-4 border-b border-slate-200 flex-shrink-0">
             <h2 class="text-lg font-bold text-slate-900">Top Selling Products</h2>
             <p class="text-slate-500 text-xs mt-0.5">By inventory value, grouped by branch • Trend: This week vs Last week</p>
           </div>
           
           <!-- Empty State -->
-          <div v-if="topProducts.length === 0" class="flex flex-col items-center justify-center py-12 px-6">
+          <div v-if="topProducts.length === 0" class="flex flex-col items-center justify-center py-12 px-6 flex-grow">
             <BoxIcon class="w-10 h-10 text-slate-300 mb-3" />
             <p class="text-slate-600 font-medium">No top sales</p>
             <p class="text-slate-500 text-sm mt-1">Products with inventory value will appear here</p>
           </div>
         
-          <!-- Table -->
-          <div v-else class="overflow-x-auto">
+          <!-- Scrollable Table -->
+          <div v-else class="overflow-y-auto flex-grow" style="max-height: 320px">
             <table class="w-full text-sm">
-              <thead>
-                <tr class="bg-slate-50 border-b border-slate-200">
+              <thead class="sticky top-0 bg-slate-50">
+                <tr class="border-b border-slate-200">
                   <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Product</th>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Branch</th>
                   <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Units</th>
@@ -281,7 +281,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200">
-                <tr v-for="product in topProducts" :key="`${product.id}-${product.branch_id}`" class="hover:bg-slate-50 transition-colors duration-200">
+                <tr v-for="product in topProducts" :key="`${product.id}-${product.branch_id}`" class="hover:bg-slate-50 transition-colors duration-150">
                   <td class="px-6 py-3 font-semibold text-slate-900">{{ product.name }}</td>
                   <td class="px-6 py-3 text-slate-600 font-medium">
                     <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded text-xs font-medium">{{ product.branch_name }}</span>
@@ -289,98 +289,98 @@
                   <td class="px-6 py-3 text-slate-600 text-right font-medium">{{ product.units_sold }}</td>
                   <td class="px-6 py-3 text-slate-900 text-right font-bold">{{ product.revenue }}</td>
                   <td class="px-6 py-3 text-right">
-                  <span :class="[
-                    'inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold',
-                    product.trend > 0 
-                      ? 'bg-slate-100 text-slate-700' 
-                      : 'bg-rose-100 text-rose-700'
-                  ]">
-                    {{ product.trend > 0 ? '↗' : '↘' }} {{ Math.abs(product.trend) }}%
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                    <span :class="[
+                      'inline-flex items-center px-2.5 py-1 rounded text-xs font-semibold',
+                      product.trend > 0 
+                        ? 'bg-slate-100 text-slate-700' 
+                        : 'bg-rose-100 text-rose-700'
+                    ]">
+                      {{ product.trend > 0 ? '↗' : '↘' }} {{ Math.abs(product.trend) }}%
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      <!-- Stock Health Ring Chart -->
-      <div class="rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden p-6">
-        <!-- Header -->
-        <div class="mb-6">
-          <h2 class="text-lg font-bold text-slate-900">Stock Health</h2>
-          <p class="text-slate-500 text-xs mt-0.5">Distribution across all items</p>
-        </div>
-        
-        <!-- Ring Chart Using SVG -->
-        <div class="flex items-center justify-center mb-6">
-          <svg class="w-40 h-40" viewBox="0 0 200 200">
-            <!-- Background circle -->
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#e2e8f0" stroke-width="20"></circle>
-            
-            <!-- Optimal (Slate) - starts at 0 degrees -->
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#94a3b8" stroke-width="20"
-              stroke-dasharray="254.47 345.58" stroke-dashoffset="0"
-              transform="rotate(-90 100 100)"
-              stroke-linecap="round"></circle>
-            <!-- Low (Rose) - starts after optimal -->
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#e11d48" stroke-width="20"
-              stroke-dasharray="69.12 345.58" stroke-dashoffset="-254.47"
-              transform="rotate(-90 100 100)"
-              stroke-linecap="round"></circle>
-            <!-- Critical (Rose Dark) -->
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#be123c" stroke-width="20"
-              stroke-dasharray="17.28 345.58" stroke-dashoffset="-323.59"
-              transform="rotate(-90 100 100)"
-              stroke-linecap="round"></circle>
-            <!-- Out of Stock (Slate Dark) -->
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#64748b" stroke-width="20"
-              stroke-dasharray="4.32 345.58" stroke-dashoffset="-340.87"
-              transform="rotate(-90 100 100)"
-              stroke-linecap="round"></circle>
-            
-            <!-- Center circle -->
-            <circle cx="100" cy="100" r="50" fill="white" stroke="none"></circle>
-            
-            <!-- Center text -->
-            <text x="100" y="95" text-anchor="middle" font-size="20" font-weight="bold" fill="#1e293b">{{ (stockHealth.optimal + stockHealth.low) }}</text>
-            <text x="100" y="115" text-anchor="middle" font-size="10" fill="#64748b">Healthy</text>
-          </svg>
-        </div>
-        
-        <!-- Legend -->
-        <div class="space-y-2 text-sm">
-          <div class="flex items-center justify-between p-2 rounded bg-slate-50">
-            <div class="flex items-center gap-3">
-              <div class="w-3 h-3 rounded-full bg-slate-500"></div>
-              <span class="text-slate-700 font-medium">Optimal Level</span>
-            </div>
-            <span class="font-bold text-slate-900">{{ stockHealth.optimal }}</span>
+        <!-- Stock Health Ring Chart (1/3 width) -->
+        <div class="rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden p-4">
+        <!-- Stock Health Header -->
+          <div class="mb-4">
+            <h2 class="text-base font-bold text-slate-900">Stock Health</h2>
+            <p class="text-slate-500 text-xs mt-0.5">Distribution overview</p>
           </div>
-          <div class="flex items-center justify-between p-2 rounded bg-slate-50">
-            <div class="flex items-center gap-3">
-              <div class="w-3 h-3 rounded-full bg-rose-600"></div>
-              <span class="text-slate-700 font-medium">Low Stock</span>
-            </div>
-            <span class="font-bold text-slate-900">{{ stockHealth.low }}</span>
+          
+          <!-- Ring Chart Using SVG - Readable Size -->
+          <div class="flex items-center justify-center mb-4">
+            <svg class="w-36 h-36" viewBox="0 0 200 200">
+              <!-- Background circle -->
+              <circle cx="100" cy="100" r="90" fill="none" stroke="#e2e8f0" stroke-width="20"></circle>
+              
+              <!-- Optimal (Slate) - starts at 0 degrees -->
+              <circle cx="100" cy="100" r="90" fill="none" stroke="#94a3b8" stroke-width="20"
+                stroke-dasharray="254.47 345.58" stroke-dashoffset="0"
+                transform="rotate(-90 100 100)"
+                stroke-linecap="round"></circle>
+              <!-- Low (Rose) - starts after optimal -->
+              <circle cx="100" cy="100" r="90" fill="none" stroke="#e11d48" stroke-width="20"
+                stroke-dasharray="69.12 345.58" stroke-dashoffset="-254.47"
+                transform="rotate(-90 100 100)"
+                stroke-linecap="round"></circle>
+              <!-- Critical (Rose Dark) -->
+              <circle cx="100" cy="100" r="90" fill="none" stroke="#be123c" stroke-width="20"
+                stroke-dasharray="17.28 345.58" stroke-dashoffset="-323.59"
+                transform="rotate(-90 100 100)"
+                stroke-linecap="round"></circle>
+              <!-- Out of Stock (Slate Dark) -->
+              <circle cx="100" cy="100" r="90" fill="none" stroke="#64748b" stroke-width="20"
+                stroke-dasharray="4.32 345.58" stroke-dashoffset="-340.87"
+                transform="rotate(-90 100 100)"
+                stroke-linecap="round"></circle>
+              
+              <!-- Center circle -->
+              <circle cx="100" cy="100" r="50" fill="white" stroke="none"></circle>
+              
+              <!-- Center text - Larger for readability -->
+              <text x="100" y="98" text-anchor="middle" font-size="24" font-weight="bold" fill="#1e293b">{{ (stockHealth.optimal + stockHealth.low) }}</text>
+              <text x="100" y="118" text-anchor="middle" font-size="12" fill="#64748b">Healthy</text>
+            </svg>
           </div>
-          <div class="flex items-center justify-between p-2 rounded bg-slate-50">
-            <div class="flex items-center gap-3">
-              <div class="w-3 h-3 rounded-full bg-rose-800"></div>
-              <span class="text-slate-700 font-medium">Critical</span>
+          
+          <!-- Compact Legend -->
+          <div class="space-y-1.5 text-xs">
+            <div class="flex items-center justify-between p-1.5 rounded bg-slate-50">
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-slate-500"></div>
+                <span class="text-slate-700 font-medium">Optimal</span>
+              </div>
+              <span class="font-bold text-slate-900">{{ stockHealth.optimal }}</span>
             </div>
-            <span class="font-bold text-slate-900">{{ stockHealth.critical }}</span>
-          </div>
-          <div class="flex items-center justify-between p-2 rounded bg-slate-50">
-            <div class="flex items-center gap-3">
-              <div class="w-3 h-3 rounded-full bg-slate-600"></div>
-              <span class="text-slate-700 font-medium">Out of Stock</span>
+            <div class="flex items-center justify-between p-1.5 rounded bg-slate-50">
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-rose-600"></div>
+                <span class="text-slate-700 font-medium">Low</span>
+              </div>
+              <span class="font-bold text-slate-900">{{ stockHealth.low }}</span>
             </div>
-            <span class="font-bold text-slate-900">{{ stockHealth.outOfStock }}</span>
+            <div class="flex items-center justify-between p-1.5 rounded bg-slate-50">
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-rose-800"></div>
+                <span class="text-slate-700 font-medium">Critical</span>
+              </div>
+              <span class="font-bold text-slate-900">{{ stockHealth.critical }}</span>
+            </div>
+            <div class="flex items-center justify-between p-1.5 rounded bg-slate-50">
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-slate-600"></div>
+                <span class="text-slate-700 font-medium">OOS</span>
+              </div>
+              <span class="font-bold text-slate-900">{{ stockHealth.outOfStock }}</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   </div>
 </template>

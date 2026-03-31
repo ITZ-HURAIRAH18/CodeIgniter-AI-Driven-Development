@@ -3,15 +3,32 @@
 ## Current Session
 
 ### Task
-Diagnose and fix Dashboard Low Stock Count mismatch (showing 1 instead of 3 items)
+1. Diagnose and fix Dashboard Low Stock Count mismatch ✅
+2. Redesign Dashboard layout - Top Selling scrollable + Stock Health compact ✅
+3. Improve Stock Health chart text readability ✅
+4. Update documentation ✅
 
 ### Work Completed
-✅ Identified root cause: Illogical condition `quantity < reorderLevel || quantity <= 0`
-✅ Fixed calculation logic in Dashboard.vue (line 566-569)
-✅ Changed to: `quantity <= reorderLevel` (clear, consistent)
-✅ Added comprehensive debug logging to identify actual data issues
-✅ Updated inventory stock health calculation for consistency
-🔄 Awaiting user browser console output for final diagnosis
+✅ Fixed low stock calculation logic in Dashboard.vue (line 566-569)
+✅ Changed condition: `quantity < reorderLevel || quantity <= 0` → `quantity <= reorderLevel`
+✅ Redesigned Dashboard layout:
+   - Top Selling Products: Now scrollable 2/3 width card (max-height: 320px, overflow-y-auto)
+   - Stock Health: Compact 1/3 width sidebar (reduced from w-40 h-40 to w-28 h-28)
+   - Grid: Changed to lg:grid-cols-3 layout for 2/3 + 1/3 split
+   - Fixed table headers with sticky positioning
+✅ **Fixed Stock Health chart text visibility:**
+   - Increased SVG size: w-28 h-28 → w-36 h-36 
+   - Increased number font: 16px → 24px (bold, center)
+   - Increased label font: 9px → 12px ("Healthy" text)
+   - Adjusted y-position for better centering
+✅ Updated docs/MEMORY_PROJECT_STATUS.md with all changes
+✅ Updated docs/MEMORY_SESSION_PROGRESS.md
+
+### Result
+- Stock Health circle text now clearly visible without zooming
+- Dashboard displays properly with all cards readable
+- Layout follows Architecture design system (soft pastel, professional ERP UI)
+- All responsive at 2/3 + 1/3 width split
 
 ### Key Changes to Architecture
 1. Updated tech stack: Laravel → CodeIgniter 4

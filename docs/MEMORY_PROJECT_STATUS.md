@@ -28,10 +28,12 @@
 
 ### UI/UX Refinements
 - ✅ Dashboard: KPI cards, Branch inventory table, Stock health chart, Recent activity feed
-- ✅ Top Selling Products: Shows branch location + real-time weekly trend
-- ✅ Low stock detection: KPI card aligned with recent activity logs
+- ✅ Top Selling Products: Scrollable table (max-height 320px) with sticky header + branch location + weekly trend
+- ✅ Stock Health: Readable ring chart (36x36) with large center text (24px number + 12px label) + compact legend sidebar
+- ✅ Dashboard Layout: Optimized grid (2/3 + 1/3 split) for balanced product visibility
+- ✅ Low stock detection: KPI card aligned with dashboard calculation logic
 - ✅ Sales user dashboard: Simplified view (no inventory access)
-- ✅ Card borders: visible borders (border-2 with slate-300 or gray-200)
+- ✅ Card borders: Visible borders (border-2 with slate-300 or gray-200)
 
 ## 🔄 In Progress / Needs Attention
 
@@ -101,14 +103,22 @@
 
 ## 🔍 Recent Changes (Last 5)
 
-1. Fixed Dashboard low stock calculation logic (Dashboard.vue line 566-569)
+1. **Stock Health Chart Text Readability Fix** (Dashboard.vue)
+   - Increased SVG size: w-28 h-28 → w-36 h-36 for better visibility
+   - Increased number font-size: 16px → 24px (bold center text)
+   - Increased label font-size: 9px → 12px ("Healthy" text)
+   - Adjusted y-position for optimal centering
+2. **Dashboard Layout Redesign** (Dashboard.vue)
+   - Top Selling Products: Now scrollable (max-height: 320px, overflow-y-auto)
+   - Stock Health: Reduced size (w-28 h-28) and compact legend
+   - Grid structure: Changed from lg:grid-cols-2 to lg:grid-cols-3 (2/3 + 1/3 split)
+   - Top Selling now occupies 2/3 width, Stock Health 1/3 for proper proportions
+   - Fixed table header sticky while scrolling (sticky top-0)
+3. Fixed Dashboard low stock calculation logic (Dashboard.vue line 566-569)
    - Changed from: `quantity < reorderLevel || quantity <= 0` (illogical OR operator)
    - Changed to: `quantity <= reorderLevel` (clear and consistent)
-   - Added console debugging for diagnosis
-2. Changed "Add Product" button from rose-600 (red) to accent-pink-500 (pink) - ProductListView.vue
-3. Updated Architecture.agent.md to match CodeIgniter 4 + Vue 3 system
-4. Added weekly trend calculation for Top Selling Products (real-time, not random)
-5. Added branch information to Top Selling Products table
+4. Changed "Add Product" button from rose-600 (red) to accent-pink-500 (pink) - ProductListView.vue
+5. Updated Architecture.agent.md to match CodeIgniter 4 + Vue 3 system
 
 ## 📞 Quick Reference
 
