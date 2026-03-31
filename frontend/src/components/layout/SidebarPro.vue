@@ -18,7 +18,7 @@
       <!-- Main Section -->
       <div class="mb-6">
         <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-          Main
+          {{ t('navigation.main') }}
         </div>
         <div class="space-y-1">
           <router-link
@@ -33,7 +33,7 @@
             ]"
           >
             <component :is="item.icon" :class="['w-5 h-5 flex-shrink-0']" />
-            <span class="flex-1">{{ item.label }}</span>
+            <span class="flex-1">{{ t(item.labelKey) }}</span>
             <span
               v-if="item.badge"
               class="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-accent-pink-100 text-accent-pink-600"
@@ -47,7 +47,7 @@
       <!-- Management Section -->
       <div>
         <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-          Management
+          {{ t('navigation.management') }}
         </div>
         <div class="space-y-1">
           <router-link
@@ -62,7 +62,7 @@
             ]"
           >
             <component :is="item.icon" :class="['w-5 h-5 flex-shrink-0']" />
-            <span>{{ item.label }}</span>
+            <span>{{ t(item.labelKey) }}</span>
           </router-link>
         </div>
       </div>
@@ -70,13 +70,13 @@
 
     <!-- Bottom Section -->
     <div class="border-t border-gray-100 px-3 py-4 space-y-2">
-      
+
       <button
         @click="handleLogout"
         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-gray-600 hover:bg-status-error/10 hover:text-status-error transition-all duration-150"
       >
         <LogOutIcon :class="['w-5 h-5']" />
-        <span>Logout</span>
+        <span>{{ t('common.logout') }}</span>
       </button>
     </div>
 
@@ -99,6 +99,7 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth.store'
+import { useI18n } from '@/composables/useI18n'
 import {
   LayoutDashboard,
   Package,
@@ -113,6 +114,7 @@ import {
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
+const { t } = useI18n()
 
 // ─── Role Constants ───
 const ROLES = {
@@ -128,18 +130,21 @@ const allMenuItems = {
     {
       to: '/dashboard',
       label: 'Dashboard',
+      labelKey: 'navigation.dashboard',
       icon: LayoutDashboard,
       roles: [ROLES.SUPER_ADMIN, ROLES.BRANCH_MANAGER, ROLES.SALES_USER], // visible to all
     },
     {
       to: '/inventory',
       label: 'Inventory',
+      labelKey: 'navigation.inventory',
       icon: Package,
       roles: [ROLES.SUPER_ADMIN, ROLES.BRANCH_MANAGER], // Admin & Manager only
     },
     {
       to: '/orders',
       label: 'Orders',
+      labelKey: 'navigation.orders',
       icon: ShoppingCart,
       roles: [ROLES.SUPER_ADMIN, ROLES.BRANCH_MANAGER, ROLES.SALES_USER], // visible to all
     },
@@ -149,24 +154,28 @@ const allMenuItems = {
     {
       to: '/users',
       label: 'Users',
+      labelKey: 'navigation.users',
       icon: Users,
       roles: [ROLES.SUPER_ADMIN], // Admin only
     },
     {
       to: '/products',
       label: 'Products',
+      labelKey: 'navigation.products',
       icon: ShoppingCart,
       roles: [ROLES.SUPER_ADMIN, ROLES.BRANCH_MANAGER, ROLES.SALES_USER], // visible to all (read-only for manager & sales)
     },
     {
       to: '/transfers',
       label: 'Transfers',
+      labelKey: 'navigation.transfers',
       icon: Truck,
       roles: [ROLES.SUPER_ADMIN, ROLES.BRANCH_MANAGER], // Admin & Manager only
     },
     {
       to: '/branches',
       label: 'Branches',
+      labelKey: 'navigation.branches',
       icon: Building2,
       roles: [ROLES.SUPER_ADMIN], // Admin only
     },
@@ -179,12 +188,13 @@ const userRole = computed(() => auth.user?.role)
 const userName = computed(() => auth.user?.name || 'User')
 
 const userRoleLabel = computed(() => {
-  const roles = {
-    [ROLES.SUPER_ADMIN]: 'Super Admin',
-    [ROLES.BRANCH_MANAGER]: 'Branch Manager',
-    [ROLES.SALES_USER]: 'Sales User',
+  const roleMap = {
+    [ROLES.SUPER_ADMIN]: 'roles.superAdmin',
+    [ROLES.BRANCH_MANAGER]: 'roles.branchManager',
+    [ROLES.SALES_USER]: 'roles.salesUser',
   }
-  return roles[userRole.value] || 'Member'
+  const roleKey = roleMap[userRole.value]
+  return roleKey ? t(roleKey) : t('roles.member')
 })
 
 const userInitials = computed(() => 

@@ -18,9 +18,10 @@ const setLanguage = (lang) => {
   if (LANGUAGES[lang]) {
     currentLanguage.value = lang
     localStorage.setItem('app_language', lang)
+    
     // Update document lang attribute for accessibility
     document.documentElement.lang = lang
-    // Keep layout LTR (no RTL direction)
+    // Keep layout LTR (no RTL direction changes)
     document.documentElement.dir = 'ltr'
     document.body.dir = 'ltr'
   }
@@ -77,10 +78,21 @@ const getCurrentLanguageFlag = () => {
   return LANGUAGES[currentLanguage.value]?.flag || '🇺🇸'
 }
 
+// Get current language direction (ltr or rtl)
+const getCurrentLanguageDir = () => {
+  return LANGUAGES[currentLanguage.value]?.dir || 'ltr'
+}
+
+// Check if current language is RTL
+const isRTL = computed(() => {
+  return getCurrentLanguageDir() === 'rtl'
+})
+
 // Computed for reactive language updates
 const language = computed(() => currentLanguage.value)
 const languageName = computed(() => getCurrentLanguageName())
 const languageFlag = computed(() => getCurrentLanguageFlag())
+const languageDir = computed(() => getCurrentLanguageDir())
 
 // Initialize language on load
 setLanguage(currentLanguage.value)
@@ -92,6 +104,8 @@ export function useI18n() {
     language,
     languageName,
     languageFlag,
+    languageDir,
+    isRTL,
     getAvailableLanguages,
     getCurrentLanguage: () => currentLanguage.value,
     LANGUAGES

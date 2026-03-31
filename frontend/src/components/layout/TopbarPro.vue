@@ -6,7 +6,7 @@
         <div class="relative w-full max-w-xs">
           <input
             type="text"
-            placeholder="Search..."
+            :placeholder="t('common.search')"
             class="w-full h-10 px-3.5 py-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
           />
           <span class="absolute right-3 top-3 text-gray-400">
@@ -51,19 +51,19 @@
               @click.stop="isUserMenuOpen = false; $router.push('/profile')"
               class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-50 first:rounded-t-lg border-b border-gray-100"
             >
-              Profile
+              {{ t('navigation.profile') }}
             </button>
             <button
               @click.stop="isUserMenuOpen = false; $router.push('/settings')"
               class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-50 border-b border-gray-100"
             >
-              Settings
+              {{ t('navigation.settings') }}
             </button>
             <button
               @click.stop="handleLogout"
               class="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 last:rounded-b-lg"
             >
-              Logout
+              {{ t('common.logout') }}
             </button>
           </div>
         </div>
@@ -76,17 +76,24 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth.store'
+import { useI18n } from '@/composables/useI18n'
 import { SearchIcon, BellIcon, ChevronDownIcon } from 'lucide-vue-next'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
+const { t } = useI18n()
 const isUserMenuOpen = ref(false)
 
 const userName = computed(() => auth.user?.name || 'User')
 const userRole = computed(() => {
-  const roles = { 1: 'Admin', 2: 'Manager', 3: 'Staff' }
-  return roles[auth.user?.role] || 'Member'
+  const roleMap = { 
+    1: 'roles.superAdmin',    // Super Admin
+    2: 'roles.branchManager', // Branch Manager
+    3: 'roles.salesUser'      // Sales User
+  }
+  const roleKey = roleMap[auth.user?.role]
+  return roleKey ? t(roleKey) : t('roles.member')
 })
 const userInitials = computed(() =>
   userName.value.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)

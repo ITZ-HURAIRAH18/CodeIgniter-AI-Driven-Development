@@ -189,6 +189,67 @@ a:focus-visible {
   color: var(--color-rose-900);
 }
 
+/* RTL (Right-to-Left) Support for Urdu */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+[dir="rtl"] .flex {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row;
+}
+
+/* RTL margin and padding adjustments */
+[dir="rtl"] .ml- {
+  margin-left: 0;
+  margin-right: var(--spacing-base);
+}
+
+[dir="rtl"] .mr- {
+  margin-right: 0;
+  margin-left: var(--spacing-base);
+}
+
+[dir="rtl"] .pl- {
+  padding-left: 0;
+  padding-right: var(--spacing-base);
+}
+
+[dir="rtl"] .pr- {
+  padding-right: 0;
+  padding-left: var(--spacing-base);
+}
+
+/* RTL border adjustments */
+[dir="rtl"] .border-l-2 {
+  border-left-width: 0;
+  border-right-width: 2px;
+}
+
+/* RTL float adjustments */
+[dir="rtl"] .float-left {
+  float: right;
+}
+
+[dir="rtl"] .float-right {
+  float: left;
+}
+
 /* Professional Tables */
 table {
   border-collapse: collapse;

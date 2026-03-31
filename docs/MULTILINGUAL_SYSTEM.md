@@ -1,11 +1,11 @@
-# 🌍 Multilingual System (i18n)
+# 🌍 Multilingual System (i18n) - Implementation Guide
 
 ## Overview
 
 Complete multilingual support with 3 languages:
-- 🇺🇸 **English** (Default) - Left-to-right (LTR)
-- 🇵🇰 **Urdu** - Right-to-left (RTL) 
-- 🇨🇳 **Chinese** (Simplified) - Left-to-right (LTR)
+- 🇺🇸 **English** (Default) - Left-to-Right (LTR)
+- 🇵🇰 **Urdu** - Right-to-Left (RTL)
+- 🇨🇳 **Chinese** (Simplified) - Left-to-Right (LTR)
 
 ## Architecture
 
@@ -13,33 +13,44 @@ Complete multilingual support with 3 languages:
 ```
 frontend/src/
 ├── locales/
-│   ├── en.json          # English translations
+│   ├── en.json          # English translations (250+ keys)
 │   ├── ur.json          # Urdu translations (RTL)
 │   └── zh.json          # Chinese translations
 ├── composables/
 │   └── useI18n.js       # i18n logic and translation function
-└── components/
-    └── LanguageSwitcher.vue  # Language selector dropdown
+├── components/
+│   └── LanguageSwitcher.vue  # Language selector dropdown
+└── assets/
+    └── global.css       # RTL support CSS
 ```
 
-### How It Works
+### Key Features
 
 1. **Custom Composable** (`useI18n.js`):
    - Manages language state
    - Provides `t()` function for translations
    - Auto-detects RTL for Urdu
    - Persists choice to localStorage
+   - Updates document direction dynamically
 
 2. **Locale Files** (JSON):
-   - ~80+ translation keys each
+   - 250+ translation keys each
    - Nested structure: `section.key`
-   - Support for parameter interpolation
+   - Support for parameter interpolation: `{count}`
+   - Comprehensive coverage: common, navigation, dashboard, inventory, orders, products, auth, roles, messages, validation
 
 3. **LanguageSwitcher Component**:
    - Dropdown in header (TopbarPro.vue)
    - Shows flag emoji (🇺🇸 🇵🇰 🇨🇳)
-   - Active language indicator
+   - Active language indicator with checkmark
    - Mobile responsive
+
+4. **RTL Support**:
+   - Automatic direction switching for Urdu
+   - CSS rules in `global.css`
+   - Flex-direction reversal
+   - Text alignment flipping
+   - Margin/padding adjustments
 
 ## Usage
 
@@ -60,7 +71,7 @@ const { t } = useI18n()
 ```vue
 <template>
   <p>{{ t('dashboard.acrossBranches', { count: 5 }) }}</p>
-  <!-- Output: "Total Inventory Value Across 5 Branches" -->
+  <!-- Output: "Across 5 branches" -->
 </template>
 ```
 
@@ -68,11 +79,13 @@ const { t } = useI18n()
 ```vue
 <script setup>
 import { useI18n } from '@/composables/useI18n'
-const { language, languageName, languageFlag } = useI18n()
+const { language, languageName, languageFlag, languageDir, isRTL } = useI18n()
 </script>
 
 <template>
   <p>Current: {{ languageName }} {{ languageFlag }}</p>
+  <p>Direction: {{ languageDir }}</p>
+  <p v-if="isRTL">RTL Layout Active</p>
 </template>
 ```
 
@@ -82,7 +95,7 @@ import { useI18n } from '@/composables/useI18n'
 
 const { setLanguage } = useI18n()
 
-// Switch to Urdu
+// Switch to Urdu (RTL)
 setLanguage('ur')
 
 // Switch to Chinese
@@ -94,139 +107,149 @@ setLanguage('en')
 
 ## Available Translation Keys
 
-### Dashboard Section
-- `dashboard.title` - "Dashboard"
-- `dashboard.acrossBranches` - "Total Inventory Value Across X Branches"
-- `dashboard.totalInventoryValue` - "Total Inventory Value"
-- `dashboard.totalProducts` - "Total Products"
-- `dashboard.lowStockItems` - "Low Stock Items"
-- `dashboard.outOfStock` - "Out of Stock"
-- `dashboard.inventoryByBranch` - "Inventory by Branch"
-- `dashboard.topProducts` - "Top Products by Revenue"
-- `dashboard.stockHealth` - "Stock Health"
-- `dashboard.optimal` - "Optimal"
-- `dashboard.low` - "Low"
-- `dashboard.critical` - "Critical"
-- `dashboard.outOfStock` - "Out of Stock"
-
-### Common Section
-- `common.save` - "Save"
-- `common.cancel` - "Cancel"
-- `common.edit` - "Edit"
-- `common.delete` - "Delete"
-- `common.add` - "Add"
-- `common.search` - "Search"
-- `common.loading` - "Loading..."
-- `common.error` - "Error"
-- `common.success` - "Success"
-- `common.close` - "Close"
+### Common Section (60+ keys)
+- `common.dashboard`, `common.inventory`, `common.orders`, `common.products`
+- `common.add`, `common.edit`, `common.delete`, `common.save`, `common.cancel`
+- `common.search`, `common.filter`, `common.export`, `common.history`
+- `common.status`, `common.actions`, `common.details`, `common.description`
+- `common.quantity`, `common.price`, `common.total`, `common.subtotal`, `common.tax`
+- `common.loading`, `common.error`, `common.success`, `common.warning`
+- `common.confirmDelete`, `common.noData`, `common.noItemsFound`
+- And many more...
 
 ### Navigation Section
-- `navigation.dashboard` - "Dashboard"
-- `navigation.inventory` - "Inventory"
-- `navigation.orders` - "Orders"
-- `navigation.products` - "Products"
-- `navigation.branches` - "Branches"
-- `navigation.users` - "Users"
-- `navigation.settings` - "Settings"
-- `navigation.admin` - "Admin"
+- `navigation.main`, `navigation.management`
+- `navigation.dashboard`, `navigation.inventory`, `navigation.orders`
+- `navigation.products`, `navigation.transfers`, `navigation.branches`
+- `navigation.users`, `navigation.settings`, `navigation.profile`
 
-### Inventory Section
-- `inventory.title` - "Inventory Management"
-- `inventory.branch` - "Branch"
-- `inventory.product` - "Product"
-- `inventory.quantity` - "Quantity"
-- `inventory.reorderLevel` - "Reorder Level"
-- `inventory.replenish` - "Replenish"
-- `inventory.transfer` - "Transfer Stock"
-- `inventory.stable` - "Stable"
-- `inventory.low` - "Low Stock"
-- `inventory.critical` - "Critical"
-- `inventory.outOfStock` - "Out of Stock"
+### Dashboard Section (35+ keys)
+- `dashboard.title`, `dashboard.subtitle`
+- `dashboard.totalInventoryValue`, `dashboard.totalProducts`
+- `dashboard.lowStockItems`, `dashboard.pendingOrders`
+- `dashboard.inventoryByBranch`, `dashboard.recentActivity`
+- `dashboard.topSellingProducts`, `dashboard.stockHealth`
+- `dashboard.welcome`, `dashboard.browseProducts`, `dashboard.createOrder`
+- `dashboard.branch`, `dashboard.items`, `dashboard.value`, `dashboard.revenue`
 
-### Orders Section
-- `orders.title` - "Orders"
-- `orders.newOrder` - "New Order"
-- `orders.orderNumber` - "Order #"
-- `orders.branch` - "Branch"
-- `orders.total` - "Total"
-- `orders.status` - "Status"
-- `orders.pending` - "Pending"
-- `orders.completed` - "Completed"
-- `orders.cancelled` - "Cancelled"
-- `orders.date` - "Date"
+### Inventory Section (40+ keys)
+- `inventory.title`, `inventory.stockLevel`, `inventory.unitPrice`
+- `inventory.adjust`, `inventory.transfer`, `inventory.replenish`
+- `inventory.node`, `inventory.product`, `inventory.quantity`
+- `inventory.fromNode`, `inventory.toNode`, `inventory.setStockLevel`
+- `inventory.stockMovementHistory`, `inventory.movementType`
 
-### Products Section
-- `products.title` - "Products"
-- `products.addProduct` - "Add Product"
-- `products.name` - "Product Name"
-- `products.sku` - "SKU"
-- `products.category` - "Category"
-- `products.cost` - "Cost"
-- `products.price` - "Price"
-- `products.margin` - "Profit Margin"
-- `products.stock` - "Stock"
+### Orders Section (35+ keys)
+- `orders.title`, `orders.newOrder`, `orders.orderNumber`
+- `orders.branch`, `orders.total`, `orders.date`
+- `orders.pending`, `orders.completed`, `orders.cancelled`
+- `orders.orderDetails`, `orders.orderItems`, `orders.paymentStatus`
 
-### Auth Section
-- `auth.login` - "Login"
-- `auth.logout` - "Logout"
-- `auth.email` - "Email"
-- `auth.password` - "Password"
-- `auth.rememberMe` - "Remember Me"
-- `auth.forgotPassword` - "Forgot Password?"
+### Products Section (40+ keys)
+- `products.title`, `products.addProduct`, `products.name`
+- `products.sku`, `products.cost`, `products.salePrice`
+- `products.tax`, `products.margin`, `products.status`
+- `products.create`, `products.edit`, `products.delete`
+- `products.basicInformation`, `products.pricingTax`
+
+### Auth Section (20+ keys)
+- `auth.login`, `auth.logout`, `auth.email`, `auth.password`
+- `auth.signIn`, `auth.signOut`, `auth.signingIn`
+- `auth.rememberMe`, `auth.forgotPassword`
+- `auth.demoAccess`, `auth.admin`, `auth.manager`, `auth.sales`
 
 ### Roles Section
-- `roles.admin` - "Administrator"
-- `roles.manager` - "Manager"
-- `roles.staff` - "Staff Member"
-- `roles.viewer` - "Viewer"
+- `roles.admin`, `roles.manager`, `roles.salesUser`
+- `roles.superAdmin`, `roles.branchManager`, `roles.staff`
 
 ### Messages Section
-- `messages.confirmDelete` - "Are you sure you want to delete this item?"
-- `messages.success` - "Operation successful"
-- `messages.error` - "An error occurred"
-- `messages.loading` - "Loading..."
-- `messages.noData` - "No data available"
+- `messages.loading`, `messages.saved`, `messages.deleted`
+- `messages.error`, `messages.confirmDelete`, `messages.success`
+
+### Validation Section
+- `validation.required`, `validation.email`
+- `validation.minLength`, `validation.maxLength`
+- `validation.number`, `validation.date`, `validation.url`
 
 ## RTL Support (Urdu)
 
 When Urdu is selected:
-- Document direction automatically switches to RTL: `document.dir = 'rtl'`
-- Layout automatically flips (flexbox columns reverse)
-- Text flows right-to-left
+1. **Document direction** automatically switches to RTL: `document.dir = 'rtl'`
+2. **Body class** `rtl` is added for CSS targeting
+3. **Layout automatically flips**:
+   - Text flows right-to-left
+   - Flex-direction reverses
+   - Margins and padding adjust
+   - Borders flip (left becomes right)
 
-**Note**: Custom CSS may need RTL adjustments:
+**CSS Rules** (in `global.css`):
 ```css
-/* LTR (Default) */
-.my-element {
-  margin-left: 1rem;
+[dir="rtl"] {
+  text-align: right;
 }
 
-/* RTL Override */
-[dir="rtl"] .my-element {
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+/* RTL margin adjustments */
+[dir="rtl"] .ml- {
   margin-left: 0;
-  margin-right: 1rem;
+  margin-right: var(--spacing-base);
+}
+
+/* RTL border adjustments */
+[dir="rtl"] .border-l-2 {
+  border-left-width: 0;
+  border-right-width: 2px;
 }
 ```
 
 ## Persistence
 
 Language preference is saved to browser's localStorage:
-- Key: `app_language`
-- Persists across browser sessions
-- Restored automatically on app load
+- **Key**: `app_language`
+- **Persists** across browser sessions
+- **Restored** automatically on app load
 
 To clear stored preference:
 ```javascript
 localStorage.removeItem('app_language')
 ```
 
+## Components Refactored
+
+The following components have been updated to use i18n:
+
+### Layout Components
+- ✅ `TopbarPro.vue` - Search placeholder, user menu items
+- ✅ `SidebarPro.vue` - Navigation menu items, section headers
+- ✅ `LanguageSwitcher.vue` - Language selector
+
+### View Components
+- ✅ `Dashboard.vue` - KPI cards, headers, tables, sales user view
+- ⏳ `InventoryView.vue` - (Partially refactored)
+- ⏳ `OrderListView.vue` - (Partially refactored)
+- ⏳ `ProductListView.vue` - (Partially refactored)
+- ⏳ `LoginPage.vue` - (Ready for refactoring)
+- ⏳ `TransferView.vue` - (Ready for refactoring)
+- ⏳ `BranchListView.vue` - (Ready for refactoring)
+- ⏳ `UserManagement.vue` - (Ready for refactoring)
+
 ## Performance
 
-- Bundle size: ~50KB (all 3 locales)
-- Translation lookup: <1ms per key
-- Language switch: <100ms
-- No external dependencies
+- **Bundle size**: ~80KB (all 3 locales combined)
+- **Translation lookup**: <1ms per key
+- **Language switch**: <100ms
+- **No external dependencies** (custom implementation)
 
 ## Adding New Translations
 
@@ -242,7 +265,19 @@ localStorage.removeItem('app_language')
 
 2. **Use in component**:
    ```vue
-   <h1>{{ t('myFeature.title') }}</h1>
+   <script setup>
+   import { useI18n } from '@/composables/useI18n'
+   const { t } = useI18n()
+   </script>
+
+   <template>
+     <h1>{{ t('myFeature.title') }}</h1>
+   </template>
+   ```
+
+3. **For dynamic values**, use interpolation:
+   ```javascript
+   t('myFeature.count', { count: 5 })
    ```
 
 ## Debugging
@@ -255,6 +290,7 @@ console.log(localStorage.getItem('app_language'))
 ### Check Document Direction
 ```javascript
 console.log(document.dir) // 'ltr' or 'rtl'
+console.log(document.body.classList.contains('rtl')) // true if Urdu
 ```
 
 ### List All Available Languages
@@ -262,7 +298,7 @@ console.log(document.dir) // 'ltr' or 'rtl'
 import { useI18n } from '@/composables/useI18n'
 const { getAvailableLanguages } = useI18n()
 console.log(getAvailableLanguages())
-// Output: ['en', 'ur', 'zh']
+// Output: [{code: 'en', name: 'English', flag: '🇺🇸'}, ...]
 ```
 
 ### Test Translation Lookup
@@ -270,6 +306,14 @@ console.log(getAvailableLanguages())
 import { useI18n } from '@/composables/useI18n'
 const { t } = useI18n()
 console.log(t('dashboard.title')) // Should output translated title
+```
+
+### Check if RTL is Active
+```javascript
+import { useI18n } from '@/composables/useI18n'
+const { isRTL, languageDir } = useI18n()
+console.log('Is RTL:', isRTL.value)
+console.log('Direction:', languageDir.value)
 ```
 
 ## Browser Support
@@ -280,6 +324,53 @@ console.log(t('dashboard.title')) // Should output translated title
 - ✅ Mobile browsers
 - ℹ️ RTL rendering best tested on modern browsers
 
+## Migration Guide
+
+### For Existing Components
+
+1. **Import useI18n**:
+   ```javascript
+   import { useI18n } from '@/composables/useI18n'
+   const { t } = useI18n()
+   ```
+
+2. **Replace hardcoded strings**:
+   ```vue
+   <!-- Before -->
+   <h1>Dashboard</h1>
+
+   <!-- After -->
+   <h1>{{ t('dashboard.title') }}</h1>
+   ```
+
+3. **Update placeholders**:
+   ```vue
+   <!-- Before -->
+   <input placeholder="Search..." />
+
+   <!-- After -->
+   <input :placeholder="t('common.search')" />
+   ```
+
+4. **Update buttons**:
+   ```vue
+   <!-- Before -->
+   <button>Save</button>
+
+   <!-- After -->
+   <button>{{ t('common.save') }}</button>
+   ```
+
+## Best Practices
+
+1. **Always use translation keys** - Never hardcode UI text
+2. **Keep keys descriptive** - Use `section.key` format
+3. **Update all locale files** - Add translations to en, ur, and zh simultaneously
+4. **Test RTL layout** - Switch to Urdu and verify layout flips correctly
+5. **Use interpolation** - For dynamic values, use `{param}` syntax
+6. **Keep translations concise** - Especially for buttons and labels
+7. **Context matters** - Provide different keys for same word in different contexts
+
 ## Future Enhancements
 
 - [ ] API-based translations for dynamic content
@@ -288,13 +379,48 @@ console.log(t('dashboard.title')) // Should output translated title
 - [ ] Pluralization rules
 - [ ] Translation management UI
 - [ ] Auto-detection of browser language
+- [ ] Language-specific font loading
+- [ ] Complete view component refactoring
 
 ## Implementation Status
 
-- ✅ 3 locale files (en, ur, zh)
-- ✅ useI18n() composable
+### Completed ✅
+- ✅ 3 locale files (en, ur, zh) with 250+ keys each
+- ✅ useI18n() composable with RTL support
 - ✅ LanguageSwitcher component
 - ✅ Integration in TopbarPro.vue
+- ✅ Integration in SidebarPro.vue
+- ✅ Dashboard.vue (Sales user view + KPI cards)
 - ✅ localStorage persistence
-- ✅ RTL support
-- ⏳ View integration (in progress)
+- ✅ RTL support with CSS rules
+- ✅ Documentation
+
+### In Progress ⏳
+- ⏳ InventoryView.vue refactoring
+- ⏳ OrderListView.vue refactoring
+- ⏳ ProductListView.vue refactoring
+- ⏳ LoginPage.vue refactoring
+- ⏳ Other view components
+
+### Pending 📋
+- 📋 Date/time localization
+- 📋 Number formatting by locale
+- 📋 Pluralization support
+- 📋 Translation completeness tests
+
+## Troubleshooting
+
+### Issue: Translation shows key instead of text
+**Solution**: Check if the key exists in all locale files
+
+### Issue: RTL layout not working
+**Solution**: 
+1. Verify Urdu is selected
+2. Check `document.dir === 'rtl'`
+3. Ensure `global.css` is imported
+
+### Issue: Language not persisting
+**Solution**: Check localStorage permissions in browser
+
+### Issue: Interpolation not working
+**Solution**: Ensure params object matches the placeholder: `t('key', { name: 'John' })`

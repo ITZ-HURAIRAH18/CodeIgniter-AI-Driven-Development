@@ -10,8 +10,8 @@
               <ShoppingCartIcon class="w-6 h-6 text-accent-pink-600" />
             </div>
             <div>
-              <h1 class="text-3xl font-bold text-slate-900">Welcome, {{ auth.user?.name || 'Sales Representative' }}</h1>
-              <p class="text-slate-600 text-sm mt-1">Manage your sales and track inventory</p>
+              <h1 class="text-3xl font-bold text-slate-900">{{ t('dashboard.welcome') }}, {{ auth.user?.name || t('roles.salesUser') }}</h1>
+              <p class="text-slate-600 text-sm mt-1">{{ t('dashboard.manageSales') }}</p>
             </div>
           </div>
         </div>
@@ -26,16 +26,16 @@
                   <BoxIcon class="w-6 h-6 text-accent-pink-600" />
                 </div>
                 <div class="flex-1">
-                  <h3 class="font-bold text-slate-900 text-lg">Browse Products</h3>
-                  <p class="text-slate-600 text-sm mt-1">Check available inventory and stock levels</p>
+                  <h3 class="font-bold text-slate-900 text-lg">{{ t('dashboard.browseProducts') }}</h3>
+                  <p class="text-slate-600 text-sm mt-1">{{ t('dashboard.checkInventory') }}</p>
                 </div>
               </div>
               <div class="mt-6 inline-flex items-center gap-2 text-accent-pink-600 font-medium text-sm group-hover:gap-3 transition-all">
-                View Catalog <span>→</span>
+                {{ t('dashboard.viewCatalog') }} <span>→</span>
               </div>
             </div>
           </router-link>
-          
+
           <!-- Create Order Card -->
           <router-link to="/orders/create" class="group relative rounded-xl bg-white border-2 border-slate-300 shadow-sm hover:shadow-lg hover:border-accent-pink-500 transition-all duration-200 overflow-hidden">
             <div class="p-8">
@@ -44,12 +44,12 @@
                   <ShoppingCartIcon class="w-6 h-6 text-accent-pink-600" />
                 </div>
                 <div class="flex-1">
-                  <h3 class="font-bold text-slate-900 text-lg">Create Order</h3>
-                  <p class="text-slate-600 text-sm mt-1">Start a new order and process sales</p>
+                  <h3 class="font-bold text-slate-900 text-lg">{{ t('dashboard.createOrder') }}</h3>
+                  <p class="text-slate-600 text-sm mt-1">{{ t('dashboard.startNewOrder') }}</p>
                 </div>
               </div>
               <div class="mt-6 inline-flex items-center gap-2 text-accent-pink-600 font-medium text-sm group-hover:gap-3 transition-all">
-                New Order <span>→</span>
+                {{ t('dashboard.newOrder') }} <span>→</span>
               </div>
             </div>
           </router-link>
@@ -60,15 +60,15 @@
           <!-- View All Orders -->
           <router-link to="/orders" class="group p-6 rounded-lg bg-white border-2 border-slate-300 hover:border-accent-pink-500 hover:bg-accent-pink-50 transition-all duration-200 text-center">
             <CheckCircleIcon class="w-6 h-6 text-accent-pink-600 mx-auto mb-2" />
-            <p class="font-semibold text-slate-900 text-sm">View Orders</p>
-            <p class="text-slate-500 text-xs mt-1">All your orders</p>
+            <p class="font-semibold text-slate-900 text-sm">{{ t('dashboard.viewOrders') }}</p>
+            <p class="text-slate-500 text-xs mt-1">{{ t('dashboard.allYourOrders') }}</p>
           </router-link>
-          
+
           <!-- Products -->
           <router-link to="/products" class="group p-6 rounded-lg bg-white border-2 border-slate-300 hover:border-accent-pink-500 hover:bg-accent-pink-50 transition-all duration-200 text-center">
             <TrendingUpIcon class="w-6 h-6 text-accent-pink-600 mx-auto mb-2" />
-            <p class="font-semibold text-slate-900 text-sm">Products</p>
-            <p class="text-slate-500 text-xs mt-1">All items</p>
+            <p class="font-semibold text-slate-900 text-sm">{{ t('dashboard.products') }}</p>
+            <p class="text-slate-500 text-xs mt-1">{{ t('dashboard.allItems') }}</p>
           </router-link>
         </div>
       </div>
@@ -175,16 +175,16 @@
               <h2 class="text-lg font-bold text-slate-900">{{ t('dashboard.inventoryByBranch') }}</h2>
               <p class="text-slate-500 text-xs mt-0.5">{{ t('dashboard.currentStockLevels') }}</p>
             </div>
-          
+
           <!-- Table -->
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
                 <tr class="bg-slate-50 border-b border-slate-200">
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Branch</th>
-                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Items</th>
-                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Value</th>
-                  <th class="px-6 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('dashboard.branch') }}</th>
+                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('dashboard.items') }}</th>
+                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('dashboard.value') }}</th>
+                  <th class="px-6 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.status') }}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200">
