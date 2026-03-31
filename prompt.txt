@@ -1,0 +1,35 @@
+The Multi-Branch i18n "God Prompt"
+Role: You are a Senior Full-Stack Developer and Localization Expert.
+
+Project Context: I am building a Multi-Branch Inventory System (using React/React Native). I need to transition the entire UI from static text to a dynamic, multi-language system supporting English (EN), Urdu (UR), and Chinese (ZH).
+
+The Mission:
+
+Static Data Extraction: Scan my provided code files. Identify every hardcoded string in labels, buttons, placeholders, table headers, and toast notifications.
+
+Translation Schema: Create three separate JSON objects (en.json, ur.json, zh.json). Use a nested naming convention (e.g., dashboard.stats.totalStock).
+
+Refactor Code: Replace all identified static strings with the t('key') function using the react-i18next hook (useTranslation).
+
+Topbar Implementation: Create a professional Topbar Language Switcher component.
+
+Use icons or clean text buttons for "English", "اردو", and "中文".
+
+Implement logic to switch the language globally using i18n.changeLanguage().
+
+RTL Logic (CRITICAL): For Urdu, ensure the layout flips to Right-to-Left (RTL). Provide the CSS/Style logic to change the flex-direction and text-align globally when Urdu is active.
+
+Multi-Branch Context: Ensure that branch names and dynamic data coming from the database remain untouched, only refactor the UI framework strings.
+
+Deliverables:
+
+The updated i18n.js configuration file.
+
+The three JSON translation files.
+
+The refactored Topbar component code.
+
+A guide on how to wrap the app in the I18nextProvider.
+
+
+what you do anychange upadte Docs file and folo archtitectur file

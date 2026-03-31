@@ -46,7 +46,7 @@
     "pendingOrders": "Pending Orders",
     "requiresAttention": "Requires attention",
     "inCatalog": "In catalog",
-    "acrossBranches": "Across {count} branch{plural}",
+    "acrossBranches": "Across {count} branches",
     "totalOrdersCount": "{count} total orders",
     "inventoryByBranch": "Inventory by Branch",
     "currentStockLevels": "Current stock levels and values",
