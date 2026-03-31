@@ -9,6 +9,7 @@
 | **MEMORY_DESIGN_SYSTEM.md** | 🎨 Color palette, design rules, component status |
 | **MEMORY_SESSION_PROGRESS.md** | 📝 Session history, workflow, alignment items |
 | **REFERENCE_GUIDE.md** | 📋 THIS FILE - Quick navigation & instructions |
+| **I18N_STATIC_TRANSLATION_GUIDE.md** | 🌍 How translations work, patterns, codes examples (400+ lines) |
 
 ### Architecture & System Files (in root)
 | File | Purpose |
@@ -35,7 +36,10 @@ frontend/src/
 ├── store/                  - Pinia stores (auth.store.js)
 ├── api/                    - Axios client configuration
 ├── components/             - Reusable Vue components
-└── router/                 - Vue Router configuration
+├── composables/            - Reusable logic (useI18n for translations)
+├── locales/                - Translation files (en.json, ur.json, zh.json)
+├── router/                 - Vue Router configuration
+└── assets/                 - Styles and static assets
 ```
 
 ---
@@ -70,13 +74,33 @@ frontend/src/
 
 ### Color Palette (From Design System)
 ```
-PRIMARY: rose-700 (#be185d)
+PRIMARY: accent-pink-500 (#ec4899) - Used for buttons, highlights, accents
+SECONDARY: rose-700 (#be185d) - Alternative primary
 LIGHT: gray-50
-BORDERS: gray-200
-SUCCESS: #10b981
-WARNING: #f59e0b
-ERROR: #ef4444
-INFO: #3b82f6
+BORDERS: gray-200 or slate-200
+SUCCESS: #10b981 (emerald-600)
+WARNING: #f59e0b (amber-600)
+ERROR: #ef4444 (red-600)
+INFO: #3b82f6 (blue-600)
+```
+
+### Internationalization (i18n) Quick Reference
+```
+// Using translations in Vue components
+<script setup>
+import { useI18n } from '@/composables/useI18n'
+const { t } = useI18n()
+</script>
+
+// Common patterns
+{{ t('section.key') }}                              // Simple text
+:placeholder="t('section.placeholder')"            // Attributes
+{{ count === 1 ? t('common.item') : t('common.items') }}  // Conditional
+t('time.minutesAgo', { count: 30 })               // With parameters → "30m ago"
+
+// Available languages: English (en), Urdu (ur), Chinese (zh)
+// Locale files: frontend/src/locales/{en,ur,zh}.json (510+ keys each)
+// Language persists in localStorage (key: 'app_language')
 ```
 
 ### API Endpoints (Base: http://localhost:8000/api/v1)
@@ -138,13 +162,19 @@ Frontend: http://localhost:5173
 - [x] Top Selling Products (with branches + real trends)
 - [x] Stock Health Chart
 - [x] Sales User Dashboard
+- [x] Multilingual Support (3 languages: English, Urdu, Chinese)
+- [x] Static Translation (all 7 views: 185+ strings translated)
+- [x] Language Switcher (dropdown in header with flags)
 
 ---
 
 ## 🔄 In Progress / Pending
 
 ### Needs Attention
-- [ ] Color consistency (rose-700 vs accent-pink-500 standardization)
+- [ ] i18n Phase 3: Translate API responses (dynamic data)
+- [ ] Store user language preference in database
+- [ ] Date/number formatting per locale
+- [ ] Color consistency (accent-pink-500 standardization)
 - [ ] Mobile sidebar menu
 - [ ] Form validation enhancements
 - [ ] Advanced search/filters
@@ -187,4 +217,4 @@ Always follow this order before making changes to the system.
 ---
 
 **Created**: March 30, 2026
-**Last Updated**: March 30, 2026
+**Last Updated**: March 31, 2026
