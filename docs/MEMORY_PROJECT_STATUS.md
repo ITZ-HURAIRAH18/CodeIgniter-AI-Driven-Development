@@ -36,6 +36,11 @@
 ## 🔄 In Progress / Needs Attention
 
 ### Known Issues
+- ⚠️ Dashboard Low Stock Count: Fixed calculation logic but still showing 1 instead of 3
+  - Changed: `quantity < reorderLevel || quantity <= 0` → `quantity <= reorderLevel`
+  - Added debug logging to diagnose API response data
+  - Possible cause: Backend not returning `reorder_level` field or products have custom reorder levels
+  - Status: Awaiting debug console output from user
 - Some Dashboard card colors need alignment with soft pink design system
 - May need to convert accent-pink to use rose-700 for consistency
 
@@ -96,10 +101,13 @@
 
 ## 🔍 Recent Changes (Last 5)
 
-1. Changed "Add Product" button from rose-600 (red) to accent-pink-500 (pink) - ProductListView.vue
-2. Updated Architecture.agent.md to match CodeIgniter 4 + Vue 3 system
-3. Added weekly trend calculation for Top Selling Products (real-time, not random)
-4. Fixed low stock items count to match recent activity logs
+1. Fixed Dashboard low stock calculation logic (Dashboard.vue line 566-569)
+   - Changed from: `quantity < reorderLevel || quantity <= 0` (illogical OR operator)
+   - Changed to: `quantity <= reorderLevel` (clear and consistent)
+   - Added console debugging for diagnosis
+2. Changed "Add Product" button from rose-600 (red) to accent-pink-500 (pink) - ProductListView.vue
+3. Updated Architecture.agent.md to match CodeIgniter 4 + Vue 3 system
+4. Added weekly trend calculation for Top Selling Products (real-time, not random)
 5. Added branch information to Top Selling Products table
 
 ## 📞 Quick Reference

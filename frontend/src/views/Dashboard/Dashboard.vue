@@ -518,6 +518,7 @@ const loadDashboardData = async () => {
     const inventoryRes = await api.get('/inventory')
     const inventoryData = Array.isArray(inventoryRes) ? inventoryRes : (inventoryRes.data || [])
     console.log('📦 Loaded inventory items:', inventoryData.length)
+    console.log('🔍 First inventory item:', inventoryData[0]) // Debug: Check if reorder_level exists
     
     // Load orders
     const ordersRes = await api.get('/orders')
@@ -566,8 +567,11 @@ const loadDashboardData = async () => {
     const totalLowStock = inventoryData.filter(inv => {
       const quantity = parseInt(inv.quantity || 0)
       const reorderLevel = parseInt(inv.reorder_level || 10)
-      return quantity < reorderLevel || quantity <= 0
+      const isLow = quantity <= reorderLevel
+      console.log(`📊 ${inv.product_name || 'Product'} (ID: ${inv.product_id}): Qty=${quantity}, Reorder=${reorderLevel}, IsLow=${isLow}`)
+      return isLow
     }).length
+    console.log(`✅ Total Low Stock Count: ${totalLowStock} out of ${inventoryData.length} items`)
     const totalOrders = processedBranches.reduce((sum, b) => sum + b.order_count, 0)
     const totalInventoryValue = processedBranches.reduce((sum, b) => sum + b._value, 0)
     
@@ -583,7 +587,7 @@ const loadDashboardData = async () => {
     const optimalCount = inventoryData.filter(i => i.quantity > (i.reorder_level || 10) * 1.5).length
     const lowCount = inventoryData.filter(i => i.quantity <= (i.reorder_level || 10) && i.quantity > 0).length
     const criticalCount = inventoryData.filter(i => i.quantity <= 5 && i.quantity > 0).length
-    const outOfStockCount = inventoryData.filter(i => i.quantity === 0).length
+    const outOfStockCount = inventoryData.filter(i => i.quantity === 0 || i.quantity < 0).length
     const total = inventoryData.length || 1
     
     stockHealth.value = {
