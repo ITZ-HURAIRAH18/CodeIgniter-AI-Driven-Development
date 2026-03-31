@@ -15,8 +15,10 @@
         </div>
       </div>
 
-      <!-- Right: Notifications & User Menu -->
+      <!-- Right: Language Switcher, Notifications & User Menu -->
       <div class="flex items-center gap-4">
+        <!-- Language Switcher -->
+        <LanguageSwitcher />
         <!-- Notifications -->
         <button class="relative p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors duration-150">
           <BellIcon class="w-5 h-5" />
@@ -75,6 +77,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth.store'
 import { SearchIcon, BellIcon, ChevronDownIcon } from 'lucide-vue-next'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const router = useRouter()
 const auth = useAuthStore()

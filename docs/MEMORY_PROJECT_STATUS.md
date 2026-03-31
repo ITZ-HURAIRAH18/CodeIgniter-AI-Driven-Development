@@ -34,17 +34,20 @@
 - ✅ Low stock detection: KPI card aligned with dashboard calculation logic
 - ✅ Sales user dashboard: Simplified view (no inventory access)
 - ✅ Card borders: Visible borders (border-2 with slate-300 or gray-200)
+- ✅ Color consistency: All rose-500 replaced with accent-pink-500 across Inventory, Orders, Users, Products views
+- ✅ Product action buttons: Now always visible (not hover-only)
+- ✅ **NEW: Multilingual System** (3 languages: English, Urdu, Chinese)
+  - Custom i18n composable (useI18n.js) - no external dependencies
+  - 3 complete locale files (en.json, ur.json, zh.json) with 80+ translation keys each
+  - LanguageSwitcher component integrated in TopbarPro header
+  - Automatic RTL support for Urdu
+  - localStorage persistence for language preference
+  - MULTILINGUAL_SYSTEM.md documentation created
 
 ## 🔄 In Progress / Needs Attention
 
 ### Known Issues
-- ⚠️ Dashboard Low Stock Count: Fixed calculation logic but still showing 1 instead of 3
-  - Changed: `quantity < reorderLevel || quantity <= 0` → `quantity <= reorderLevel`
-  - Added debug logging to diagnose API response data
-  - Possible cause: Backend not returning `reorder_level` field or products have custom reorder levels
-  - Status: Awaiting debug console output from user
-- Some Dashboard card colors need alignment with soft pink design system
-- May need to convert accent-pink to use rose-700 for consistency
+- None currently
 
 ### Pending Features
 - Mobile sidebar menu

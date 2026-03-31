@@ -78,8 +78,8 @@
     <div v-else class="max-w-7xl mx-auto px-6 py-6">
       <!-- Page Header -->
       <div class="mb-8 pt-2">
-        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
-        <p class="text-slate-500 text-sm mt-1">Monitor your inventory across all branches in real-time.</p>
+        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">{{ t('dashboard.title') }}</h1>
+        <p class="text-slate-500 text-sm mt-1">{{ t('dashboard.subtitle') }}</p>
       </div>
 
       <!-- KPI Cards - Unified Pink & Slate Design -->
@@ -89,13 +89,13 @@
         <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         <div class="relative flex items-start justify-between">
           <div class="flex-1">
-            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">Total Inventory Value</p>
-            <p class="text-2xl font-bold text-slate-950 mt-2">${{ dashboardStats.totalInventoryValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
-            <p class="text-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
-              <span class="inline-flex items-center">
-                <TrendingUpIcon class="w-3.5 h-3.5" />
-              </span>
-              Across {{ branchData.length }} branch{{ branchData.length !== 1 ? 'es' : '' }}
+              <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">{{ t('dashboard.totalInventoryValue') }}</p>
+              <p class="text-2xl font-bold text-slate-950 mt-2">${{ dashboardStats.totalInventoryValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
+              <p class="text-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
+                <span class="inline-flex items-center">
+                  <TrendingUpIcon class="w-3.5 h-3.5" />
+                </span>
+                {{ t('dashboard.acrossBranches', { count: branchData.length }) }}
             </p>
           </div>
           <div class="w-12 h-12 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0 group-hover:bg-pink-200 transition-colors">
@@ -109,13 +109,13 @@
         <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         <div class="relative flex items-start justify-between">
           <div class="flex-1">
-            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">Total Products</p>
+            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">{{ t('dashboard.totalProducts') }}</p>
             <p class="text-2xl font-bold text-slate-950 mt-2">{{ dashboardStats.totalProducts }}</p>
             <p class="text-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
               <span class="inline-flex items-center">
                 <TrendingUpIcon class="w-3.5 h-3.5" />
               </span>
-              In catalog
+              {{ t('dashboard.inCatalog') }}
             </p>
           </div>
           <div class="w-12 h-12 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0 group-hover:bg-pink-200 transition-colors">
@@ -129,13 +129,13 @@
         <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         <div class="relative flex items-start justify-between">
           <div class="flex-1">
-            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">Low Stock Items</p>
+            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">{{ t('dashboard.lowStockItems') }}</p>
             <p class="text-2xl font-bold text-slate-950 mt-2">{{ dashboardStats.lowStockItems }}</p>
             <p class="text-rose-700 text-xs font-semibold mt-3 flex items-center gap-2">
               <span class="inline-flex items-center">
                 <AlertCircleIcon class="w-3.5 h-3.5" />
               </span>
-              Requires attention
+              {{ t('dashboard.requiresAttention') }}
             </p>
           </div>
           <div class="w-12 h-12 rounded-lg bg-rose-50 flex items-center justify-center flex-shrink-0 group-hover:bg-rose-100 transition-colors">
@@ -149,13 +149,13 @@
         <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         <div class="relative flex items-start justify-between">
           <div class="flex-1">
-            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">Pending Orders</p>
+            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">{{ t('dashboard.pendingOrders') }}</p>
             <p class="text-2xl font-bold text-slate-950 mt-2">{{ dashboardStats.pendingOrders }}</p>
             <p class="text-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
               <span class="inline-flex items-center">
                 <ShoppingCartIcon class="w-3.5 h-3.5" />
               </span>
-              {{ dashboardStats.totalOrders }} total orders
+              {{ t('dashboard.totalOrdersCount', { count: dashboardStats.totalOrders }) }}
             </p>
           </div>
           <div class="w-12 h-12 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0 group-hover:bg-pink-200 transition-colors">
@@ -172,8 +172,8 @@
           <div class="rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden">
             <!-- Header -->
             <div class="px-6 py-4 border-b border-slate-200">
-              <h2 class="text-lg font-bold text-slate-900">Inventory by Branch</h2>
-              <p class="text-slate-500 text-xs mt-0.5">Current stock levels and values</p>
+              <h2 class="text-lg font-bold text-slate-900">{{ t('dashboard.inventoryByBranch') }}</h2>
+              <p class="text-slate-500 text-xs mt-0.5">{{ t('dashboard.currentStockLevels') }}</p>
             </div>
           
           <!-- Table -->
@@ -218,15 +218,15 @@
       <div class="rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden">
         <!-- Header -->
         <div class="px-6 py-4 border-b border-slate-200">
-          <h2 class="text-lg font-bold text-slate-900">Recent Activity</h2>
-          <p class="text-slate-500 text-xs mt-0.5">Latest updates</p>
+          <h2 class="text-lg font-bold text-slate-900">{{ t('dashboard.recentActivity') }}</h2>
+          <p class="text-slate-500 text-xs mt-0.5">{{ t('dashboard.latestUpdates') }}</p>
         </div>
         
         <!-- Timeline -->
         <div class="p-4 space-y-4">
           <div v-if="recentActivities.length === 0" class="flex flex-col items-center justify-center py-8 text-center">
             <ClockIcon class="w-8 h-8 text-slate-300 mb-2" />
-            <p class="text-slate-600 text-sm font-medium">No recent activity</p>
+            <p class="text-slate-600 text-sm font-medium">{{ t('dashboard.noRecentActivity') }}</p>
           </div>
           
           <div v-for="(activity, idx) in recentActivities" :key="idx" class="flex gap-4 relative">
@@ -388,6 +388,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/store/auth.store'
+import { useI18n } from '@/composables/useI18n'
 import api from '@/api/axios'
 import {
   TrendingUpIcon,
@@ -407,6 +408,7 @@ import {
 } from 'lucide-vue-next'
 
 const auth = useAuthStore()
+const { t } = useI18n()
 
 // KPI Data
 const branchColumns = [
