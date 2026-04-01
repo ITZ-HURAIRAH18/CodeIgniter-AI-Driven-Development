@@ -108,7 +108,7 @@
 
               <!-- Created By -->
               <td class="px-6 py-3 whitespace-nowrap">
-                <span class="text-slate-600 text-sm">{{ order.created_by }}</span>
+                <span class="text-slate-600 text-sm">{{ order.created_by_name }}</span>
               </td>
 
               <!-- Total -->

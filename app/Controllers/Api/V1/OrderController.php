@@ -179,16 +179,20 @@ class OrderController extends BaseApiController
             return [];
         }
 
-        // Get all branch IDs
-        $branchIds = array_unique(array_column($orders, 'branch_id'));
+        // Get all branch IDs and user IDs (filter out nulls/empty)
+        $branchIds = array_unique(array_filter(array_column($orders, 'branch_id')));
+        $userIds = array_unique(array_filter(array_column($orders, 'user_id')));
         
-        // Get translations for all branches
+        // Get translations for branches and users
         $translationsByBranch = $this->getBranchTranslationsByIds($branchIds, $language);
+        $translationsByUser = $this->getUserTranslationsByIds($userIds, $language);
 
-        // Apply localized branch names to each order
-        return array_map(function (array $order) use ($translationsByBranch) {
+        // Apply localized branch and user names to each order
+        return array_map(function (array $order) use ($translationsByBranch, $translationsByUser) {
             $branchId = (int) $order['branch_id'];
+            $userId = (int) ($order['user_id'] ?? 0);
             $order['branch_name'] = $translationsByBranch[$branchId] ?? $order['branch_name'] ?? '';
+            $order['created_by_name'] = ($userId > 0) ? ($translationsByUser[$userId] ?? $order['created_by'] ?? '') : ($order['created_by'] ?? '');
             return $order;
         }, $orders);
     }
@@ -222,6 +226,41 @@ class OrderController extends BaseApiController
 
             foreach ($fallbackRows as $row) {
                 $indexed[(int) $row['branch_id']] = $row['name'];
+            }
+        }
+
+        return $indexed;
+    }
+
+    private function getUserTranslationsByIds(array $userIds, string $language): array
+    {
+        if (empty($userIds)) {
+            return [];
+        }
+
+        $translationModel = model(\App\Models\UserTranslationModel::class);
+        
+        // First try to get the requested language
+        $rows = $translationModel
+            ->whereIn('user_id', $userIds)
+            ->where('language', $language)
+            ->findAll();
+
+        $indexed = [];
+        foreach ($rows as $row) {
+            $indexed[(int) $row['user_id']] = $row['name'];
+        }
+
+        // For missing users, fallback to English
+        $missingIds = array_diff($userIds, array_keys($indexed));
+        if (!empty($missingIds)) {
+            $fallbackRows = $translationModel
+                ->whereIn('user_id', $missingIds)
+                ->where('language', 'en')
+                ->findAll();
+
+            foreach ($fallbackRows as $row) {
+                $indexed[(int) $row['user_id']] = $row['name'];
             }
         }
 

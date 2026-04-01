@@ -8,7 +8,7 @@ class UserTranslationModel extends Model
 {
     protected $table         = 'user_translations';
     protected $primaryKey    = 'id';
-    protected $returnType    = 'object';
+    protected $returnType    = 'array';
     protected $useTimestamps = true;
 
     protected $allowedFields = [
