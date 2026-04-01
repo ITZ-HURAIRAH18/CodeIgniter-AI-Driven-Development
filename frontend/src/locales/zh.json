@@ -222,7 +222,11 @@
     "trendThisWeek": "趋势：本周 vs 上周",
     "noTopSales": "没有热销产品",
     "productsWillAppear": "具有库存价值的产品将显示在这里",
-    "loadingActivities": "正在加载活动..."
+    "loadingActivities": "正在加载活动...",
+    "stockAdjusted": "库存已调整",
+    "stockAdded": "库存已添加",
+    "stockTransferred": "库存已转移",
+    "lowStockAlert": "库存不足"
   },
   "inventory": {
     "title": "库存管理",

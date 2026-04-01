@@ -5,6 +5,7 @@ namespace App\Controllers\Api\V1;
 use App\Models\InventoryModel;
 use App\Models\InventoryLogModel;
 use App\Models\ProductTranslationModel;
+use App\Models\BranchTranslationModel;
 use App\Services\InventoryService;
 
 class InventoryController extends BaseApiController
@@ -166,12 +167,15 @@ class InventoryController extends BaseApiController
     {
         $branchId  = (int) $this->request->getGet('branch_id');
         $productId = (int) $this->request->getGet('product_id');
+        $lang      = $this->resolveLanguage($this->request->getGet('lang'));
 
         $logModel = model(InventoryLogModel::class);
         
         // If both parameters provided, get history for specific branch/product
         if ($branchId > 0 && $productId > 0) {
             $history = $logModel->getHistory($branchId, $productId);
+            // Apply translations to history
+            $history = $this->applyLogTranslations($history, $lang);
             return $this->ok($history);
         }
         
@@ -186,7 +190,10 @@ class InventoryController extends BaseApiController
             $logs = array_filter($logs, fn($log) => in_array($log['branch_id'], $myBranchIds));
         }
         
-        return $this->ok(array_values($logs));
+        // Apply translations to logs
+        $logs = $this->applyLogTranslations(array_values($logs), $lang);
+        
+        return $this->ok($logs);
     }
 
     /**
@@ -255,5 +262,85 @@ class InventoryController extends BaseApiController
     private function resolveLanguage(?string $language): string
     {
         return in_array($language, self::SUPPORTED_LANGUAGES, true) ? $language : 'en';
+    }
+
+    /**
+     * Apply translations to inventory logs (product names and branch names)
+     */
+    private function applyLogTranslations(array $logs, string $language): array
+    {
+        if (empty($logs)) {
+            return [];
+        }
+
+        // Get all product IDs from logs
+        $productIds = array_unique(array_column($logs, 'product_id'));
+        $branchIds = array_unique(array_column($logs, 'branch_id'));
+        
+        // Get product translations
+        $productTranslations = $this->getTranslationsByProductIds($productIds);
+        
+        // Get branch translations
+        $branchTranslations = $this->getTranslationsByBranchIds($branchIds);
+
+        // Apply localized fields to each log item
+        return array_map(function (array $log) use ($language, $productTranslations, $branchTranslations) {
+            $productId = (int) ($log['product_id'] ?? 0);
+            $branchId = (int) ($log['branch_id'] ?? 0);
+            
+            // Get translated product name
+            $productTranslation = $productTranslations[$productId] ?? [];
+            $selected = $productTranslation[$language] ?? null;
+            $english = $productTranslation['en'] ?? null;
+            $fallback = $selected ?? $english;
+            
+            if ($fallback === null && !empty($productTranslation)) {
+                $fallback = reset($productTranslation);
+            }
+            
+            $log['product_name'] = $fallback['name'] ?? $log['product_name'] ?? '';
+            
+            // Get translated branch name
+            $branchTranslation = $branchTranslations[$branchId] ?? [];
+            $selected = $branchTranslation[$language] ?? null;
+            $english = $branchTranslation['en'] ?? null;
+            $fallback = $selected ?? $english;
+            
+            if ($fallback === null && !empty($branchTranslation)) {
+                $fallback = reset($branchTranslation);
+            }
+            
+            $log['branch_name'] = $fallback['name'] ?? $log['branch_name'] ?? '';
+            
+            return $log;
+        }, $logs);
+    }
+
+    /**
+     * Get translations for branches by their IDs
+     */
+    private function getTranslationsByBranchIds(array $branchIds): array
+    {
+        if (empty($branchIds)) {
+            return [];
+        }
+
+        $branchTranslationModel = model(BranchTranslationModel::class);
+        $rows = $branchTranslationModel
+            ->whereIn('branch_id', $branchIds)
+            ->findAll();
+
+        $indexed = [];
+        foreach ($rows as $row) {
+            $branchId = (int) $row['branch_id'];
+            $language = $row['language'];
+
+            $indexed[$branchId][$language] = [
+                'name' => $row['name'],
+                'address' => $row['address'] ?? '',
+            ];
+        }
+
+        return $indexed;
     }
 }

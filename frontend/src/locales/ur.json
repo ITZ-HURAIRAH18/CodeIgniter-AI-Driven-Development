@@ -222,7 +222,11 @@
     "trendThisWeek": "رجحان: اس ہفتے بمقابلہ گزشتہ ہفتے",
     "noTopSales": "کوئی بہترین فروخت نہیں",
     "productsWillAppear": "انوینٹری قیمت والی مصنوعات یہاں ظاہر ہوں گی",
-    "loadingActivities": "سرگرمیاں لوڈ ہو رہی ہیں..."
+    "loadingActivities": "سرگرمیاں لوڈ ہو رہی ہیں...",
+    "stockAdjusted": "اسٹاک ایڈجسٹ کیا گیا",
+    "stockAdded": "اسٹاک شامل کیا گیا",
+    "stockTransferred": "اسٹاک منتقل کیا گیا",
+    "lowStockAlert": "کم اسٹاک"
   },
   "inventory": {
     "title": "سٹاک مینجمنٹ",

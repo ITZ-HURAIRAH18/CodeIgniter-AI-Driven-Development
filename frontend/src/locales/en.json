@@ -222,7 +222,11 @@
     "trendThisWeek": "Trend: This week vs Last week",
     "noTopSales": "No top sales",
     "productsWillAppear": "Products with inventory value will appear here",
-    "loadingActivities": "Loading activities..."
+    "loadingActivities": "Loading activities...",
+    "stockAdjusted": "Stock adjusted",
+    "stockAdded": "Stock added",
+    "stockTransferred": "Stock transferred",
+    "lowStockAlert": "Low stock"
   },
   "inventory": {
     "title": "Stock Management",

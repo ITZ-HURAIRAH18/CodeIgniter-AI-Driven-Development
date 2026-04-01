@@ -204,7 +204,7 @@
                         branch.status === 'Low Stock' ? 'bg-rose-600' :
                         'bg-slate-700'
                       ]"></span>
-                      {{ branch.status }}
+                      {{ branch.status === 'Optimal' ? t('status.optimal') : branch.status === 'Low Stock' ? t('status.lowStock') : branch.status }}
                     </span>
                   </td>
                 </tr>
@@ -344,7 +344,7 @@
               
               <!-- Center text - Larger for readability -->
               <text x="100" y="98" text-anchor="middle" font-size="24" font-weight="bold" fill="#1e293b">{{ stockHealth.optimal }}</text>
-              <text x="100" y="118" text-anchor="middle" font-size="12" fill="#64748b">Optimal</text>
+              <text x="100" y="118" text-anchor="middle" font-size="12" fill="#64748b">{{ t('status.optimal') }}</text>
             </svg>
           </div>
           
@@ -386,7 +386,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useAuthStore } from '@/store/auth.store'
 import { useI18n } from '@/composables/useI18n'
 import api from '@/api/axios'
@@ -408,7 +408,7 @@ import {
 } from 'lucide-vue-next'
 
 const auth = useAuthStore()
-const { t } = useI18n()
+const { t, language } = useI18n()
 
 // KPI Data
 const branchColumns = [
@@ -511,24 +511,24 @@ const loadDashboardData = async () => {
     loading.value = true
     console.log('📊 Loading dashboard data for', auth.isBranchManager ? 'manager' : 'admin')
     
-    // Load branches - same endpoint for both, backend filters by role
-    const branchRes = await api.get('/branches')
+    // Load branches with language parameter
+    const branchRes = await api.get(`/branches?lang=${language.value}`)
     const branches = Array.isArray(branchRes) ? branchRes : (branchRes.data || [])
     console.log('📍 Loaded branches:', branches.length)
     
-    // Load inventory data - if manager, gets their branches' inventory only
-    const inventoryRes = await api.get('/inventory')
+    // Load inventory data with language parameter - if manager, gets their branches' inventory only
+    const inventoryRes = await api.get(`/inventory?lang=${language.value}`)
     const inventoryData = Array.isArray(inventoryRes) ? inventoryRes : (inventoryRes.data || [])
     console.log('📦 Loaded inventory items:', inventoryData.length)
     console.log('🔍 First inventory item:', inventoryData[0]) // Debug: Check if reorder_level exists
     
-    // Load orders
-    const ordersRes = await api.get('/orders')
+    // Load orders with language parameter
+    const ordersRes = await api.get(`/orders?lang=${language.value}`)
     const orderData = Array.isArray(ordersRes) ? ordersRes : (ordersRes.data || [])
     console.log('📋 Loaded orders:', orderData.length)
     
-    // Load activity logs
-    const activityRes = await api.get('/inventory/logs')
+    // Load activity logs with language parameter
+    const activityRes = await api.get(`/inventory/logs?lang=${language.value}`)
     const activityLogs = Array.isArray(activityRes) ? activityRes : (activityRes.data || [])
     console.log('📝 Loaded activity logs:', activityLogs.length)
 
@@ -714,7 +714,7 @@ const loadDashboardData = async () => {
     
     topProducts.value = topProds
     
-    // Load recent activities from logs
+    // Load recent activities from logs - now with translated product and branch names
     if (activityLogs.length > 0) {
       recentActivities.value = activityLogs
         .slice(0, 3)
@@ -724,16 +724,19 @@ const loadDashboardData = async () => {
           let title = 'Stock movement'
           
           const movementType = log.movement_type?.toLowerCase() || ''
+          // Use translated product_name from API response
           const productName = log.product_name || `Product #${log.product_id}`
+          // Use translated branch_name from API response
+          const branchName = log.branch_name || `Branch #${log.branch_id}`
           const qtyChange = parseInt(log.qty_change || 0)
           
           if (movementType === 'add' || movementType === 'addition') {
             type = 'created'
-            title = `✓ Stock added: ${productName}`
+            title = `✓ ${t('dashboard.stockAdded')}: ${productName}`
             if (qtyChange > 0) title += ` (+${qtyChange})`
           } else if (movementType === 'adjust' || movementType === 'adjustment') {
             type = 'updated'
-            title = `→ Stock adjusted: ${productName}`
+            title = `→ ${t('dashboard.stockAdjusted')}: ${productName}`
             if (qtyChange !== 0) title += ` (${qtyChange > 0 ? '+' : ''}${qtyChange})`
           } else if (movementType === 'remove' || movementType === 'deduction') {
             type = 'alert'
@@ -741,16 +744,14 @@ const loadDashboardData = async () => {
             if (qtyChange < 0) title += ` (${qtyChange})`
           } else if (movementType === 'transfer') {
             type = 'transfer'
-            title = `↔ Stock transferred: ${productName}`
+            title = `↔ ${t('dashboard.stockTransferred')}: ${productName}`
           } else if (qtyChange < 0) {
             type = 'alert'
-            title = `⚠ Low stock: ${productName} (${qtyChange})`
+            title = `⚠ ${t('dashboard.lowStockAlert')}: ${productName} (${qtyChange})`
           }
           
-          // Add branch name if available
-          if (log.branch_name) {
-            title += ` @ ${log.branch_name}`
-          }
+          // Add translated branch name if available
+          title += ` @ ${branchName}`
           
           return {
             type,
@@ -771,6 +772,10 @@ const loadDashboardData = async () => {
 }
 
 onMounted(() => {
+  loadDashboardData()
+})
+
+watch(language, () => {
   loadDashboardData()
 })
 </script>
