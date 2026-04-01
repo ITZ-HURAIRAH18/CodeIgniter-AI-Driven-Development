@@ -125,28 +125,123 @@
           </div>
 
           <form @submit.prevent="save" class="p-6 space-y-6">
+          <!-- Multilingual Content -->
+          <div class="space-y-4">
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Multilingual Content *</h3>
+            <div class="grid grid-cols-1 gap-4">
+              <div class="rounded-md border border-slate-200 p-4">
+                <p class="text-xs font-semibold text-slate-700 mb-3">English (EN)</p>
+                <div class="space-y-3">
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('branches.name') }} *</label>
+                    <input
+                      v-model="form.translations.en.name"
+                      type="text"
+                      placeholder="Branch Name"
+                      required
+                      class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
+                    />
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('common.description') }} *</label>
+                    <textarea
+                      v-model="form.translations.en.description"
+                      placeholder="Branch description..."
+                      rows="2"
+                      required
+                      class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 resize-none"
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('branches.address') }} *</label>
+                    <input
+                      v-model="form.translations.en.address"
+                      type="text"
+                      placeholder="Branch address..."
+                      required
+                      class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-md border border-slate-200 p-4">
+                <p class="text-xs font-semibold text-slate-700 mb-3">Urdu (UR)</p>
+                <div class="space-y-3">
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('branches.name') }} *</label>
+                    <input
+                      v-model="form.translations.ur.name"
+                      type="text"
+                      placeholder="شاخ کا نام"
+                      required
+                      class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
+                    />
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('common.description') }} *</label>
+                    <textarea
+                      v-model="form.translations.ur.description"
+                      placeholder="شاخ کی تفصیل"
+                      rows="2"
+                      required
+                      class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 resize-none"
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('branches.address') }} *</label>
+                    <input
+                      v-model="form.translations.ur.address"
+                      type="text"
+                      placeholder="شاخ کا پتہ"
+                      required
+                      class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-md border border-slate-200 p-4">
+                <p class="text-xs font-semibold text-slate-700 mb-3">Chinese (ZH)</p>
+                <div class="space-y-3">
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('branches.name') }} *</label>
+                    <input
+                      v-model="form.translations.zh.name"
+                      type="text"
+                      placeholder="分支名称"
+                      required
+                      class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
+                    />
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('common.description') }} *</label>
+                    <textarea
+                      v-model="form.translations.zh.description"
+                      placeholder="分支描述"
+                      rows="2"
+                      required
+                      class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 resize-none"
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('branches.address') }} *</label>
+                    <input
+                      v-model="form.translations.zh.address"
+                      type="text"
+                      placeholder="分支地址"
+                      required
+                      class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Location Info -->
           <div class="space-y-4">
             <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">{{ t('branches.location') }}</h3>
-            <div>
-              <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">{{ t('branches.name') }} *</label>
-              <input
-                v-model="form.name"
-                type="text"
-                :placeholder="t('branches.placeholderName')"
-                required
-                class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">{{ t('branches.address') }}</label>
-              <input
-                v-model="form.address"
-                type="text"
-                :placeholder="t('branches.placeholderAddress')"
-                class="w-full px-4 py-2.5 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent-pink-500"
-              />
-            </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5">{{ t('branches.phone') }}</label>
               <input
@@ -205,14 +300,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive } from 'vue'
+import { ref, computed, onMounted, reactive, watch } from 'vue'
 import { useI18n } from '@/composables/useI18n'
 import api from '@/api/axios'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import Badge from '@/components/ui/Badge.vue'
 import { Edit2, Trash2, MapPin } from 'lucide-vue-next'
 
-const { t } = useI18n()
+const { t, language } = useI18n()
 
 const Edit2Icon = Edit2
 const Trash2Icon = Trash2
@@ -231,10 +326,14 @@ const allUsers = ref([])
 
 const form = reactive({
   name: '',
-  address: '',
   phone: '',
   manager_id: null,
   is_active: 1,
+  translations: {
+    en: { name: '', description: '', address: '' },
+    ur: { name: '', description: '', address: '' },
+    zh: { name: '', description: '', address: '' },
+  },
 })
 
 const filteredBranches = computed(() => {
@@ -242,7 +341,6 @@ const filteredBranches = computed(() => {
     const matchSearch =
       !search.value ||
       b.name?.toLowerCase().includes(search.value.toLowerCase()) ||
-      b.address?.toLowerCase().includes(search.value.toLowerCase()) ||
       b.manager_name?.toLowerCase().includes(search.value.toLowerCase())
 
     let matchStatus = true
@@ -256,11 +354,14 @@ const filteredBranches = computed(() => {
   })
 })
 
-onMounted(async () => {
+const loadBranches = async () => {
   loading.value = true
   try {
+    const { getCurrentLanguage } = useI18n()
+    const currentLang = getCurrentLanguage()
+    
     const [branchRes, userRes] = await Promise.all([
-      api.get('/branches').catch(() => []),
+      api.get('/branches', { params: { lang: currentLang } }).catch(() => []),
       api.get('/users').catch(() => [])
     ])
     
@@ -289,17 +390,24 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
-})
+}
+
+onMounted(loadBranches)
+watch(language, loadBranches)
 
 function openCreate() {
   editing.value = null
   modalError.value = ''
   Object.assign(form, {
     name: '',
-    address: '',
     phone: '',
     manager_id: null,
     is_active: 1,
+    translations: {
+      en: { name: '', description: '', address: '' },
+      ur: { name: '', description: '', address: '' },
+      zh: { name: '', description: '', address: '' },
+    },
   })
   showModal.value = true
 }
@@ -307,7 +415,17 @@ function openCreate() {
 function openEdit(b) {
   editing.value = b.id
   modalError.value = ''
-  Object.assign(form, b)
+  Object.assign(form, {
+    name: b.name,
+    phone: b.phone,
+    manager_id: b.manager_id,
+    is_active: b.is_active,
+    translations: b.translations || {
+      en: { name: b.name || '', description: '', address: '' },
+      ur: { name: '', description: '', address: '' },
+      zh: { name: '', description: '', address: '' },
+    },
+  })
   showModal.value = true
 }
 
@@ -315,11 +433,16 @@ async function save() {
   saving.value = true
   modalError.value = ''
   try {
+    const { getCurrentLanguage } = useI18n()
+    const currentLang = getCurrentLanguage()
+    
     // Ensure manager_id is a number
     const saveData = {
-      ...form,
+      name: form.name,
+      phone: form.phone,
       manager_id: form.manager_id ? parseInt(form.manager_id, 10) : null,
-      is_active: form.is_active ? 1 : 0
+      is_active: form.is_active ? 1 : 0,
+      translations: form.translations,
     }
     
     console.log('Saving branch:', saveData)
@@ -329,7 +452,7 @@ async function save() {
     } else {
       await api.post('/branches', saveData)
     }
-    const res = await api.get('/branches')
+    const res = await api.get('/branches', { params: { lang: currentLang } })
     branches.value = Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
     showModal.value = false
   } catch (e) {

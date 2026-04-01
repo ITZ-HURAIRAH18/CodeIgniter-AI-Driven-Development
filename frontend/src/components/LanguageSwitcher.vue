@@ -14,7 +14,8 @@
 
     <!-- Language Dropdown Menu -->
     <div
-      class="absolute right-0 mt-2 w-40 bg-white border border-slate-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"
+      class="absolute right-0 mt-2 w-40 bg-white border border-slate-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200"
+      style="z-index: 99999;"
     >
       <div class="py-2">
         <button

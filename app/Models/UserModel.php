@@ -15,7 +15,7 @@ class UserModel extends Model
 
     protected $allowedFields = [
         'role_id', 'name', 'email',
-        'password', 'is_active', 'last_login', 'date_of_birth',
+        'password', 'is_active', 'last_login',
     ];
 
     protected $hidden = ['password'];
@@ -25,7 +25,6 @@ class UserModel extends Model
         'email'    => 'required|valid_email|is_unique[users.email,id,{id}]',
         'password' => 'required|min_length[8]',
         'role_id'  => 'required|integer|in_list[1,2,3]',
-        'date_of_birth' => 'permit_empty|valid_date[Y-m-d]',
         'is_active' => 'integer|in_list[0,1]',
     ];
 
@@ -49,8 +48,5 @@ class UserModel extends Model
                  ->update(['last_login' => date('Y-m-d H:i:s')]);
     }
 
-    /**
-     * Calculate age from date_of_birth
-     */
     
 }

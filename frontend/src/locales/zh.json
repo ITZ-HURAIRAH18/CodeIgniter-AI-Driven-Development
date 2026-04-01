@@ -90,7 +90,19 @@
     "units": "单位",
     "product": "产品",
     "sku": "SKU",
-    "optional": "可选"
+    "optional": "可选的",
+    "user": "用户",
+    "users": "用户",
+    "name": "名称",
+    "names": "名称",
+    "role": "角色",
+    "password": "密码",
+    "email": "电子邮件",
+    "english": "English",
+    "urdu": "اردو",
+    "chinese": "中文",
+    "selected": "已选定",
+    "s": ""
   },
   "navigation": {
     "main": "主要",

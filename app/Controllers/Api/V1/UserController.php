@@ -3,27 +3,35 @@
 namespace App\Controllers\Api\V1;
 
 use App\Models\UserModel;
+use App\Models\UserTranslationModel;
 
 class UserController extends BaseApiController
 {
     protected $model;
+    protected $translationModel;
 
     public function __construct()
     {
         $this->model = model(UserModel::class);
+        $this->translationModel = model(UserTranslationModel::class);
     }
 
     /**
      * GET /api/v1/users — List all users (active and inactive)
+     * 
+     * Query Parameters:
+     * - lang=en|ur|zh : Language for user names (defaults to 'en')
      */
     public function index(): \CodeIgniter\HTTP\ResponseInterface
     {
         try {
+            $lang = $this->request->getGet('lang') ?? 'en';
+            
             $users = $this->model->where('deleted_at', null)
-                                  ->select('id, name, email, role_id, is_active, last_login, date_of_birth')
+                                  ->select('id, name, email, role_id, is_active, last_login')
                                   ->findAll();
             
-            return $this->ok($users);
+            return $this->ok($this->withLocalizedNames($users, $lang));
         } catch (\Exception $e) {
             log_message('error', 'UserController::index: ' . $e->getMessage());
             return $this->apiError('Failed to retrieve users: ' . $e->getMessage(), 500);
@@ -33,34 +41,75 @@ class UserController extends BaseApiController
     /**
      * POST /api/v1/users — Create new user (admin only)
      * 
-     * All users are created WITHOUT branch assigned.
-     * Branch assignment happens separately via assignBranch endpoint.
+     * Request Body:
+     * {
+     *   "email": "user@company.com",
+     *   "password": "securepass123",
+     *   "role_id": 2,
+     *   "translations": {
+     *     "en": { "name": "User Name" },
+     *     "ur": { "name": "صارف کا نام" },
+     *     "zh": { "name": "用户名称" }
+     *   }
+     * }
      */
     public function create(): \CodeIgniter\HTTP\ResponseInterface
     {
-        $rules = [
-            'name'     => 'required|min_length[2]|max_length[100]',
+        $data = $this->request->getJSON(true);
+        
+        // Validate required fields
+        if (empty($data['email']) || empty($data['password']) || empty($data['role_id'])) {
+            return $this->validationError([
+                'email' => 'Email is required',
+                'password' => 'Password is required',
+                'role_id' => 'Role ID is required',
+            ]);
+        }
+        
+        // Validate translations
+        if (empty($data['translations'])) {
+            return $this->validationError(['translations' => 'Translations for all 3 languages (en, ur, zh) are required']);
+        }
+        
+        $validationErrors = $this->validateRequiredTranslations($data['translations']);
+        if (!empty($validationErrors)) {
+            return $this->validationError($validationErrors);
+        }
+
+        $baseRules = [
             'email'    => 'required|valid_email|is_unique[users.email]',
             'password' => 'required|min_length[8]',
             'role_id'  => 'required|in_list[1,2,3]',
         ];
 
-        $data = $this->request->getJSON(true);
-
-        if (!$this->validate($rules, $data)) {
+        if (!$this->validate($baseRules, $data)) {
             return $this->validationError($this->validator->getErrors());
         }
 
         try {
-            // All users created WITHOUT branch
-            // Branch assignment happens separately
-
             // Hash password
             $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
             $data['is_active'] = 1;
+            
+            // Extract translations before inserting user
+            $translations = $data['translations'];
+            unset($data['translations']);
 
+            // Create user (use first language name as fallback)
+            $data['name'] = $translations['en']['name'];
             $id = $this->model->insert($data, true);
+            
+            // Create translations
+            foreach ($translations as $lang => $langData) {
+                $this->translationModel->insert([
+                    'user_id' => $id,
+                    'language' => $lang,
+                    'name' => $langData['name'],
+                ]);
+            }
+            
             $user = $this->model->find($id);
+            $user = $this->withLocalizedNames([$user], 'en')[0];
 
             return $this->created($user, 'User created successfully.');
         } catch (\Exception $e) {
@@ -183,5 +232,59 @@ class UserController extends BaseApiController
             log_message('error', 'UserController::assignBranch: ' . $e->getMessage());
             return $this->apiError('Failed to assign branch: ' . $e->getMessage(), 500);
         }
+    }
+    /**
+     * Validate that all 3 required languages have translations
+     */
+    private function validateRequiredTranslations($translations)
+    {
+        $errors = [];
+        $requiredLanguages = ['en', 'ur', 'zh'];
+        
+        foreach ($requiredLanguages as $lang) {
+            if (empty($translations[$lang])) {
+                $errors[$lang] = "Translation for language '{$lang}' is required";
+            } elseif (empty($translations[$lang]['name'])) {
+                $errors["{$lang}.name"] = "Name for language '{$lang}' is required";
+            } elseif (strlen($translations[$lang]['name']) < 2) {
+                $errors["{$lang}.name"] = "Name must be at least 2 characters";
+            }
+        }
+        
+        return $errors;
+    }
+
+    /**
+     * Add localized names to users based on language preference.
+     * Falls back: Selected language -> English -> First available
+     */
+    private function withLocalizedNames(array $users, string $lang = 'en')
+    {
+        if (empty($users)) {
+            return $users;
+        }
+
+        $userIds = array_map(fn($u) => $u->id, $users);
+        $translations = $this->translationModel->getTranslationsByUserIds($userIds);
+
+        foreach ($users as &$user) {
+            $userTranslations = $translations[$user->id] ?? [];
+            
+            // Try selected language first
+            if (isset($userTranslations[$lang])) {
+                $user->name = $userTranslations[$lang];
+            }
+            // Fallback to English
+            elseif (isset($userTranslations['en'])) {
+                $user->name = $userTranslations['en'];
+            }
+            // Fallback to first available
+            elseif (!empty($userTranslations)) {
+                $user->name = reset($userTranslations);
+            }
+            // Keep original name if no translations
+        }
+
+        return $users;
     }
 }

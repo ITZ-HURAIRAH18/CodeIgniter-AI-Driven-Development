@@ -3,14 +3,19 @@
 namespace App\Controllers\Api\V1;
 
 use App\Models\BranchModel;
+use App\Models\BranchTranslationModel;
 
 class BranchController extends BaseApiController
 {
+    private const SUPPORTED_LANGUAGES = ['en', 'ur', 'zh'];
+
     protected $model;
+    protected $translationModel;
 
     public function __construct()
     {
-        $this->model = model(BranchModel::class);
+        $this->model            = model(BranchModel::class);
+        $this->translationModel = model(BranchTranslationModel::class);
     }
 
     /** GET /api/v1/branches */
@@ -18,6 +23,7 @@ class BranchController extends BaseApiController
     {
         try {
             $actor = $this->actor();
+            $lang = $this->resolveLanguage($this->request->getGet('lang'));
 
             // Branch managers - see only their managed branches
             if ((int) $actor->role_id === 2) {
@@ -28,14 +34,28 @@ class BranchController extends BaseApiController
                     log_message('warning', "BranchController::index - Manager {$actor->sub} has no assigned branches");
                     return $this->ok([]);
                 }
-                return $this->ok(
-                    $this->model->whereIn('id', $myBranchIds)->findAll()
-                );
+                
+                $branches = $this->model->whereIn('id', $myBranchIds)->findAll();
+                $ids = array_column($branches, 'id');
+                
+                $translationsByBranch = $this->getTranslationsByBranchIds($ids);
+                $localizedBranches = array_map(function (array $branch) use ($lang, $translationsByBranch) {
+                    return $this->withLocalizedFields($branch, $lang, $translationsByBranch[$branch['id']] ?? []);
+                }, $branches);
+                
+                return $this->ok($localizedBranches);
             }
 
-            // Sales users can see all branches (no restriction)
-            // Admin and sales users see all branches without restriction
-            return $this->ok($this->model->getWithManagers());
+            // Sales users and admins can see all branches
+            $branches = $this->model->getWithManagers();
+            $ids = array_column($branches, 'id');
+            
+            $translationsByBranch = $this->getTranslationsByBranchIds($ids);
+            $localizedBranches = array_map(function (array $branch) use ($lang, $translationsByBranch) {
+                return $this->withLocalizedFields($branch, $lang, $translationsByBranch[$branch['id']] ?? []);
+            }, $branches);
+            
+            return $this->ok($localizedBranches);
         } catch (\Exception $e) {
             log_message('error', 'BranchController::index: ' . $e->getMessage());
             return $this->apiError('Failed to retrieve branches: ' . $e->getMessage(), 500);
@@ -45,15 +65,29 @@ class BranchController extends BaseApiController
     /** GET /api/v1/branches/{id} */
     public function show($id = null): \CodeIgniter\HTTP\ResponseInterface
     {
+        $lang = $this->resolveLanguage($this->request->getGet('lang'));
         $branch = $this->model->find($id);
         if (!$branch) return $this->apiError('Branch not found.', 404);
-        return $this->ok($branch);
+
+        $translationsByBranch = $this->getTranslationsByBranchIds([(int) $id]);
+        $localizedBranch = $this->withLocalizedFields($branch, $lang, $translationsByBranch[(int) $id] ?? []);
+
+        return $this->ok($localizedBranch);
     }
 
     /** POST /api/v1/branches — admin only */
     public function create(): \CodeIgniter\HTTP\ResponseInterface
     {
-        $data = $this->request->getJSON(true);
+        $data = $this->request->getJSON(true) ?? [];
+        $translations = $data['translations'] ?? [];
+
+        $translationErrors = $this->validateRequiredTranslations($translations);
+        if (!empty($translationErrors)) {
+            return $this->validationError($translationErrors);
+        }
+
+        $data['name'] = trim((string) ($translations['en']['name'] ?? ''));
+        $data['description'] = trim((string) ($translations['en']['description'] ?? ''));
 
         if (!$this->model->validate($data)) {
             return $this->validationError($this->model->errors());
@@ -69,9 +103,34 @@ class BranchController extends BaseApiController
             }
         }
 
-        // Insert branch with manager_id - this establishes the manager-branch relationship
-        $id = $this->model->insert($data, true);
-        return $this->created($this->model->find($id));
+        unset($data['translations']);
+
+        $this->model->db->transStart();
+        $id = (int) $this->model->insert($data, true);
+
+        $translationRows = [];
+        foreach (self::SUPPORTED_LANGUAGES as $language) {
+            $translationRows[] = [
+                'branch_id'   => $id,
+                'language'    => $language,
+                'name'        => trim((string) $translations[$language]['name']),
+                'description' => trim((string) $translations[$language]['description']),
+                'address'     => trim((string) $translations[$language]['address']),
+            ];
+        }
+
+        $this->translationModel->insertBatch($translationRows);
+        $this->model->db->transComplete();
+
+        if (!$this->model->db->transStatus()) {
+            return $this->apiError('Failed to create branch.', 500);
+        }
+
+        $lang = $this->resolveLanguage($this->request->getGet('lang'));
+        $branch = $this->model->find($id);
+        $localizedBranch = $this->withLocalizedFields($branch, $lang, $this->indexTranslations($translationRows));
+
+        return $this->created($localizedBranch);
     }
 
     /** PUT /api/v1/branches/{id} — admin only */
@@ -80,7 +139,18 @@ class BranchController extends BaseApiController
         $branch = $this->model->find($id);
         if (!$branch) return $this->apiError('Branch not found.', 404);
 
-        $data = $this->request->getJSON(true);
+        $data = $this->request->getJSON(true) ?? [];
+        $translations = $data['translations'] ?? null;
+
+        if (is_array($translations)) {
+            $translationErrors = $this->validateRequiredTranslations($translations);
+            if (!empty($translationErrors)) {
+                return $this->validationError($translationErrors);
+            }
+
+            $data['name'] = trim((string) ($translations['en']['name'] ?? ''));
+            $data['description'] = trim((string) ($translations['en']['description'] ?? ''));
+        }
 
         // Validate manager_id is a branch manager if provided
         if (isset($data['manager_id']) && $data['manager_id'] !== null) {
@@ -92,9 +162,40 @@ class BranchController extends BaseApiController
             }
         }
 
-        // Update branch (only updates branches.manager_id, not users.branch_id)
-        $this->model->update($id, $data);
-        return $this->ok($this->model->find($id), 'Branch updated.');
+        unset($data['translations']);
+
+        if (!$this->model->update($id, $data)) {
+            return $this->validationError($this->model->errors());
+        }
+
+        if (is_array($translations)) {
+            foreach (self::SUPPORTED_LANGUAGES as $language) {
+                $translationData = [
+                    'branch_id'   => (int) $id,
+                    'language'    => $language,
+                    'name'        => trim((string) $translations[$language]['name']),
+                    'description' => trim((string) $translations[$language]['description']),
+                    'address'     => trim((string) $translations[$language]['address']),
+                ];
+
+                $existing = $this->translationModel
+                    ->where('branch_id', (int) $id)
+                    ->where('language', $language)
+                    ->first();
+
+                if ($existing) {
+                    $this->translationModel->update((int) $existing['id'], $translationData);
+                } else {
+                    $this->translationModel->insert($translationData);
+                }
+            }
+        }
+
+        $lang = $this->resolveLanguage($this->request->getGet('lang'));
+        $translationsByBranch = $this->getTranslationsByBranchIds([(int) $id]);
+        $localizedBranch = $this->withLocalizedFields($this->model->find($id), $lang, $translationsByBranch[(int) $id] ?? []);
+
+        return $this->ok($localizedBranch, 'Branch updated.');
     }
 
     /** DELETE /api/v1/branches/{id} — admin only */
@@ -312,5 +413,94 @@ class BranchController extends BaseApiController
             log_message('error', 'BranchController::getSales: ' . $e->getMessage());
             return $this->apiError('Failed to retrieve sales users: ' . $e->getMessage(), 500);
         }
+    }
+
+    private function resolveLanguage(?string $language): string
+    {
+        return in_array($language, self::SUPPORTED_LANGUAGES, true) ? $language : 'en';
+    }
+
+    private function validateRequiredTranslations(array $translations): array
+    {
+        $errors = [];
+
+        foreach (self::SUPPORTED_LANGUAGES as $language) {
+            $name = trim((string) ($translations[$language]['name'] ?? ''));
+            $description = trim((string) ($translations[$language]['description'] ?? ''));
+            $address = trim((string) ($translations[$language]['address'] ?? ''));
+
+            if ($name === '') {
+                $errors["translations.{$language}.name"] = strtoupper($language) . ' name is required.';
+            }
+
+            if ($description === '') {
+                $errors["translations.{$language}.description"] = strtoupper($language) . ' description is required.';
+            }
+
+            if ($address === '') {
+                $errors["translations.{$language}.address"] = strtoupper($language) . ' address is required.';
+            }
+        }
+
+        return $errors;
+    }
+
+    private function getTranslationsByBranchIds(array $branchIds): array
+    {
+        if (empty($branchIds)) {
+            return [];
+        }
+
+        $rows = $this->translationModel
+            ->whereIn('branch_id', $branchIds)
+            ->whereIn('language', self::SUPPORTED_LANGUAGES)
+            ->findAll();
+
+        $indexed = [];
+        foreach ($rows as $row) {
+            $branchId = (int) $row['branch_id'];
+            $language = $row['language'];
+
+            $indexed[$branchId][$language] = [
+                'name'        => $row['name'],
+                'description' => $row['description'] ?? '',
+                'address'     => $row['address'] ?? '',
+            ];
+        }
+
+        return $indexed;
+    }
+
+    private function indexTranslations(array $rows): array
+    {
+        $indexed = [];
+        foreach ($rows as $row) {
+            $indexed[$row['language']] = [
+                'name'        => $row['name'],
+                'description' => $row['description'] ?? '',
+                'address'     => $row['address'] ?? '',
+            ];
+        }
+
+        return $indexed;
+    }
+
+    private function withLocalizedFields(array $branch, string $language, array $translations): array
+    {
+        $selected = $translations[$language] ?? null;
+        $english  = $translations['en'] ?? null;
+        $fallback = $selected ?? $english;
+
+        if ($fallback === null && !empty($translations)) {
+            $fallback = reset($translations);
+        }
+
+        $branch['name']             = $fallback['name'] ?? $branch['name'] ?? '';
+        $branch['description']      = $fallback['description'] ?? $branch['description'] ?? '';
+        $branch['address']          = $fallback['address'] ?? $branch['address'] ?? '';
+        $branch['display_language'] = $selected ? $language : ($english ? 'en' : null);
+        $branch['translations']     = $translations;
+
+        return $branch;
     }
 }

@@ -90,7 +90,19 @@
     "units": "اکائیاں",
     "product": "پروڈکٹ",
     "sku": "SKU",
-    "optional": "اختیاری"
+    "optional": "اختیاری",
+    "user": "صارف",
+    "users": "صارفین",
+    "name": "نام",
+    "names": "نام",
+    "role": "کردار",
+    "password": "پاس ورڈ",
+    "email": "ای میل",
+    "english": "English",
+    "urdu": "اردو",
+    "chinese": "中文",
+    "selected": "منتخب",
+    "s": ""
   },
   "navigation": {
     "main": "اہم",

@@ -227,16 +227,60 @@
         <!-- Form Content -->
         <div class="flex-1 overflow-y-auto px-6 py-4">
           <form @submit.prevent="handleCreateUser" class="space-y-5">
-            <!-- Full Name -->
-            <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1.5">{{ t('users.fullName') }} *</label>
-              <input
-                v-model="form.name"
-                type="text"
-                placeholder="John Doe"
-                class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent-pink-500 focus:border-transparent outline-none text-sm transition-all"
-                required
-              />
+            <!-- MULTILINGUAL NAMES SECTION -->
+            <div class="border-b border-slate-200 pb-5 mb-5">
+              <h3 class="text-xs font-semibold text-slate-700 mb-4">{{ t('common.names') }} (3 Languages)</h3>
+              
+              <!-- English Name -->
+              <div class="mb-4">
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-2">
+                  <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"></path>
+                  </svg>
+                  {{ t('common.english') }} - Name *
+                </label>
+                <input
+                  v-model="form.translations.en.name"
+                  type="text"
+                  placeholder="John Doe"
+                  class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent-pink-500 focus:border-transparent outline-none text-sm transition-all"
+                  required
+                />
+              </div>
+              
+              <!-- Urdu Name -->
+              <div class="mb-4">
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-2">
+                  <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"></path>
+                  </svg>
+                  {{ t('common.urdu') }} - نام *
+                </label>
+                <input
+                  v-model="form.translations.ur.name"
+                  type="text"
+                  placeholder="صارف نام"
+                  class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent-pink-500 focus:border-transparent outline-none text-sm transition-all"
+                  required
+                />
+              </div>
+              
+              <!-- Chinese Name -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-2">
+                  <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"></path>
+                  </svg>
+                  {{ t('common.chinese') }} - 名称 *
+                </label>
+                <input
+                  v-model="form.translations.zh.name"
+                  type="text"
+                  placeholder="用户名"
+                  class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent-pink-500 focus:border-transparent outline-none text-sm transition-all"
+                  required
+                />
+              </div>
             </div>
 
             <!-- Email -->
@@ -270,7 +314,8 @@
               <label class="block text-xs font-semibold text-slate-700 mb-1.5">{{ t('common.role') }} *</label>
               <select
                 v-model="form.role_id"
-                class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent-pink-500 focus:border-transparent outline-none text-sm transition-all bg-white"
+                class="w-full h-9 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-accent-pink-500 focus:border-transparent outline-none text-sm transition-all bg-white relative"
+                style="z-index: 99999;"
                 required
               >
                 <option value="">{{ t('users.selectRole') }}</option>
@@ -323,12 +368,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useI18n } from '@/composables/useI18n'
 import { useAuthStore } from '@/store/auth.store'
 import { userService } from '@/api/user.service'
 
-const { t } = useI18n()
+const { t, language } = useI18n()
 
 // Store & Auth
 const auth = useAuthStore()
@@ -349,10 +394,14 @@ const selectedUsers = ref([])
 
 // Form
 const form = ref({
-  name: '',
   email: '',
   password: '',
   role_id: '',
+  translations: {
+    en: { name: '' },
+    ur: { name: '' },
+    zh: { name: '' },
+  },
 })
 
 // Computed Properties
@@ -366,14 +415,16 @@ const filteredUsers = computed(() => {
   )
 })
 
+// Reactive role names map that updates with language changes
+const roleNamesMap = computed(() => ({
+  1: t('roles.systemAdmin'),
+  2: t('roles.branchManager'),
+  3: t('roles.salesUser'),
+}))
+
 // Methods
 const getRoleName = (roleId) => {
-  const roles = {
-    1: t('roles.systemAdmin'),
-    2: t('roles.branchManager'),
-    3: t('roles.salesUser'),
-  }
-  return roles[roleId] || t('roles.unknown')
+  return roleNamesMap.value[roleId] || t('roles.unknown')
 }
 
 const calculateAge = (dateString) => {
@@ -420,10 +471,14 @@ const closeDrawer = () => {
 
 const resetForm = () => {
   form.value = {
-    name: '',
     email: '',
     password: '',
     role_id: '',
+    translations: {
+      en: { name: '' },
+      ur: { name: '' },
+      zh: { name: '' },
+    },
   }
   formError.value = ''
   formSuccess.value = ''
@@ -493,7 +548,7 @@ const bulkDelete = async () => {
 const loadUsers = async () => {
   try {
     loading.value = true
-    const data = await userService.getAllUsers()
+    const data = await userService.getAllUsers(language.value)
     users.value = data
   } catch (err) {
     console.error('Failed to load users:', err)
@@ -506,8 +561,13 @@ const handleCreateUser = async () => {
   formError.value = ''
   formSuccess.value = ''
 
-  // Validation
-  if (!form.value.name || !form.value.email || !form.value.password || !form.value.role_id) {
+  // Validation - all 3 languages required
+  if (!form.value.translations.en.name || !form.value.translations.ur.name || !form.value.translations.zh.name) {
+    formError.value = 'User names in all 3 languages (English, Urdu, Chinese) are required'
+    return
+  }
+
+  if (!form.value.email || !form.value.password || !form.value.role_id) {
     formError.value = t('messages.fillAllRequiredFields')
     return
   }
@@ -515,16 +575,15 @@ const handleCreateUser = async () => {
   try {
     creating.value = true
 
-    // Prepare data
+    // Prepare data with multilingual translations
     const createData = {
-      name: form.value.name,
       email: form.value.email,
       password: form.value.password,
       role_id: parseInt(form.value.role_id),
-      is_active: 1, // New users are active by default
+      translations: form.value.translations,
     }
 
-    // Add date of birth if provided
+    const newUser = await userService.createUser(createData)
     console.log('✅ User created:', newUser)
 
     formSuccess.value = `User "${newUser.name}" created successfully!`
@@ -554,6 +613,10 @@ const handleCreateUser = async () => {
 
 // Lifecycle
 onMounted(() => {
+  loadUsers()
+})
+
+watch(language, () => {
   loadUsers()
 })
 </script>

@@ -2,8 +2,10 @@ import api from '@/api/axios'
 
 export const userService = {
   // Get all users
-  async getAllUsers() {
-    const response = await api.get('/users')
+  async getAllUsers(lang = 'en') {
+    const response = await api.get('/users', {
+      params: { lang }
+    })
     return response
   },
 

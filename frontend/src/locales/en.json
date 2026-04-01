@@ -90,7 +90,19 @@
     "units": "Units",
     "product": "Product",
     "sku": "SKU",
-    "optional": "Optional"
+    "optional": "Optional",
+    "user": "User",
+    "users": "Users",
+    "name": "Name",
+    "names": "Names",
+    "role": "Role",
+    "password": "Password",
+    "email": "Email",
+    "english": "English",
+    "urdu": "اردو",
+    "chinese": "中文",
+    "selected": "selected",
+    "s": ""
   },
   "navigation": {
     "main": "Main",
