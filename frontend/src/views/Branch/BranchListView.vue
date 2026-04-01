@@ -73,7 +73,7 @@
         <div class="space-y-3 mb-4 pb-4 border-b border-gray-100">
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide">{{ t('branches.manager') }}</span>
-            <span class="text-sm text-gray-900 font-medium">{{ branch.manager_name || '—' }}</span>
+            <span class="text-sm text-gray-900 font-medium">{{ getManagerName(branch.manager_id) || '—' }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold text-gray-600 uppercase tracking-wide">{{ t('branches.phone') }}</span>
@@ -336,12 +336,18 @@ const form = reactive({
   },
 })
 
+const getManagerName = (managerId) => {
+  if (!managerId) return ''
+  const manager = users.value.find(u => u.id === managerId)
+  return manager ? manager.name : ''
+}
+
 const filteredBranches = computed(() => {
   return branches.value.filter(b => {
     const matchSearch =
       !search.value ||
       b.name?.toLowerCase().includes(search.value.toLowerCase()) ||
-      b.manager_name?.toLowerCase().includes(search.value.toLowerCase())
+      getManagerName(b.manager_id)?.toLowerCase().includes(search.value.toLowerCase())
 
     let matchStatus = true
     if (statusFilter.value === 'active') {
@@ -362,7 +368,7 @@ const loadBranches = async () => {
     
     const [branchRes, userRes] = await Promise.all([
       api.get('/branches', { params: { lang: currentLang } }).catch(() => []),
-      api.get('/users').catch(() => [])
+      api.get('/users', { params: { lang: currentLang } }).catch(() => [])
     ])
     
     // Handle paginated responses

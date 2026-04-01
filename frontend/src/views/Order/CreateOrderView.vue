@@ -112,7 +112,7 @@
                   @change="onProductSelect"
                   class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-accent-pink-500 focus:ring-1 focus:ring-accent-pink-500/20 cursor-pointer"
                 >
-                  <option value="">— {{ t('orders.selectProducts') }} —</option>
+                  <option value="">— {{ t('inventory.selectProducts') }} —</option>
                   <option
                     v-for="item in inventoryOptions"
                     :key="item.product_id"
@@ -265,7 +265,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth.store'
 import { useI18n } from '@/composables/useI18n'
@@ -274,7 +274,7 @@ import api from '@/api/axios'
 
 const auth   = useAuthStore()
 const router = useRouter()
-const { t } = useI18n()
+const { t, language } = useI18n()
 
 // State
 const branches      = ref([])
@@ -330,9 +330,18 @@ const grandTotal = computed(() => '$' + (parseFloat(orderItems.value.reduce((s, 
 
 const filteredBranches = computed(() => branches.value)
 
-onMounted(async () => {
-  const res = await api.get('/branches')
+const loadBranches = async () => {
+  const res = await api.get('/branches', { params: { lang: language.value } })
   branches.value = res || []
+}
+
+onMounted(async () => {
+  await loadBranches()
+})
+
+watch(language, async () => {
+  await loadBranches()
+  if (selectedBranchId.value) await loadInventory()
 })
 
 async function onBranchChange() {
@@ -343,7 +352,7 @@ async function onBranchChange() {
 
 async function loadInventory() {
   if (!selectedBranchId.value) return
-  const res = await api.get(`/inventory?branch_id=${selectedBranchId.value}`)
+  const res = await api.get(`/inventory?branch_id=${selectedBranchId.value}&lang=${language.value}`)
   inventory.value = res || []
 }
 

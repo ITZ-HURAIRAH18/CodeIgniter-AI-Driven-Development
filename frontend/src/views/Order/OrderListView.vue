@@ -137,7 +137,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { SearchIcon, PlusIcon, ShoppingCartIcon } from 'lucide-vue-next'
 import { useAuthStore } from '@/store/auth.store'
@@ -146,7 +146,7 @@ import api from '@/api/axios'
 
 const router = useRouter()
 const auth = useAuthStore()
-const { t } = useI18n()
+const { t, language } = useI18n()
 const orders = ref([])
 const loading = ref(true)
 const search = ref('')
@@ -204,14 +204,16 @@ const viewOrder = (order) => {
   console.log('View order:', order)
 }
 
-onMounted(async () => {
+const loadOrders = async () => {
   try {
     let url = '/orders'
     
     // Apply role-based filtering
     if (auth.isSalesUser) {
       // Sales User: only see their own orders
-      url = `/orders?created_by_id=${auth.userId}`
+      url = `/orders?created_by_id=${auth.userId}&lang=${language.value}`
+    } else {
+      url = `/orders?lang=${language.value}`
     }
     // Branch Manager: backend will automatically filter by their managed branches
     // Admin: sees all orders (no filter needed)
@@ -223,5 +225,11 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+}
+
+onMounted(async () => {
+  await loadOrders()
 })
+
+watch(language, loadOrders)
 </script>

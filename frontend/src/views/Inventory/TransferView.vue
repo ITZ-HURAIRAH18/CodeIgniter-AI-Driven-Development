@@ -357,12 +357,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive } from 'vue'
+import { ref, computed, onMounted, reactive, watch } from 'vue'
 import { PlusIcon, ArrowRightIcon, TruckIcon, EyeIcon, CheckIcon, CheckCircle2Icon, XIcon, ShoppingCartIcon, TrashIcon } from 'lucide-vue-next'
 import { useI18n } from '@/composables/useI18n'
 import api from '@/api/axios'
 
-const { t } = useI18n()
+const { t, language } = useI18n()
 
 const transfers = ref([])
 const branches = ref([])
@@ -428,23 +428,27 @@ const formatDate = (dt) => {
   return dt ? new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'
 }
 
-onMounted(async () => {
+const loadData = async () => {
+  loading.value = true
   try {
+    const currentLang = language.value || 'en'
     const [transRes, branchRes] = await Promise.all([
       api.get('/transfers'),
-      api.get('/branches')
+      api.get('/branches', { params: { lang: currentLang } })
     ])
     transfers.value = transRes || []
     branches.value = branchRes || []
-    console.log('Transfers loaded:', transfers.value.length)
-    console.log('Branches loaded:', branches.value.length)
+    console.log('Data loaded for language:', currentLang)
   } catch (err) {
     console.error('Failed to load data:', err)
     alert('Failed to load transfers or branches. Please refresh the page.')
   } finally {
     loading.value = false
   }
-})
+}
+
+onMounted(loadData)
+watch(language, loadData)
 
 async function onFromBranchChange() {
   tform.items = []
@@ -517,6 +521,7 @@ async function submitTransfer() {
     await api.post('/transfers', tform)
     modalSuccess.value = t('messages.transferCreated')
 
+    const currentLang = language.value || 'en'
     const res = await api.get('/transfers')
     transfers.value = res || []
 

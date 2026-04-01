@@ -4,16 +4,21 @@ namespace App\Controllers\Api\V1;
 
 use App\Models\InventoryModel;
 use App\Models\InventoryLogModel;
+use App\Models\ProductTranslationModel;
 use App\Services\InventoryService;
 
 class InventoryController extends BaseApiController
 {
+    private const SUPPORTED_LANGUAGES = ['en', 'ur', 'zh'];
+    
     protected $service;
     protected $model;
+    protected $translationModel;
 
     public function __construct()
     {
         $this->model   = model(InventoryModel::class);
+        $this->translationModel = model(ProductTranslationModel::class);
         $this->service = new InventoryService(
             $this->model,
             model(InventoryLogModel::class)
@@ -21,12 +26,13 @@ class InventoryController extends BaseApiController
     }
 
     /**
-     * GET /api/v1/inventory?branch_id=X
+     * GET /api/v1/inventory?branch_id=X&lang=en|ur|zh
      */
     public function index(): \CodeIgniter\HTTP\ResponseInterface
     {
         try {
             $branchId = $this->request->getGet('branch_id');
+            $lang     = $this->resolveLanguage($this->request->getGet('lang'));
             $actor    = $this->actor();
 
             // Branch managers - can view all their branches' inventory
@@ -44,16 +50,18 @@ class InventoryController extends BaseApiController
                 if (!$branchId) {
                     // Show all inventory for all managed branches with product details
                     if (empty($myBranchIds)) return $this->ok([]);
-                    return $this->ok($this->model->getByBranchesWithDetails($myBranchIds));
+                    $data = $this->model->getByBranchesWithDetails($myBranchIds);
+                    return $this->ok($this->withLocalizedProducts($data, $lang));
                 }
                 
                 // Manager requested specific branch - get that branch's inventory
-                return $this->ok($this->model->getByBranch((int) $branchId));
+                $data = $this->model->getByBranch((int) $branchId);
+                return $this->ok($this->withLocalizedProducts($data, $lang));
             }
 
             // Sales users and admins can view inventory from ALL branches
             $data = $branchId ? $this->model->getByBranch((int) $branchId) : $this->model->getAllWithProductDetails();
-            return $this->ok($data);
+            return $this->ok($this->withLocalizedProducts($data, $lang));
         } catch (\Exception $e) {
             log_message('error', 'InventoryController::index: ' . $e->getMessage());
             return $this->apiError('Failed to retrieve inventory: ' . $e->getMessage(), 500);
@@ -179,5 +187,73 @@ class InventoryController extends BaseApiController
         }
         
         return $this->ok(array_values($logs));
+    }
+
+    /**
+     * Apply localized product names to inventory data
+     */
+    private function withLocalizedProducts(array $inventoryData, string $language): array
+    {
+        if (empty($inventoryData)) {
+            return [];
+        }
+
+        // Get all product IDs from inventory
+        $productIds = array_unique(array_column($inventoryData, 'product_id'));
+        
+        // Get translations for all products
+        $translationsByProduct = $this->getTranslationsByProductIds($productIds);
+
+        // Apply localized fields to each inventory item
+        return array_map(function (array $item) use ($language, $translationsByProduct) {
+            $productId = (int) $item['product_id'];
+            $translations = $translationsByProduct[$productId] ?? [];
+            
+            // Get the requested language translation, fallback to English, then first available
+            $selected = $translations[$language] ?? null;
+            $english  = $translations['en'] ?? null;
+            $fallback = $selected ?? $english;
+
+            if ($fallback === null && !empty($translations)) {
+                $fallback = reset($translations);
+            }
+
+            // Update product_name with localized version
+            $item['product_name'] = $fallback['name'] ?? $item['product_name'] ?? '';
+            
+            return $item;
+        }, $inventoryData);
+    }
+
+    /**
+     * Get translations for products by their IDs
+     */
+    private function getTranslationsByProductIds(array $productIds): array
+    {
+        if (empty($productIds)) {
+            return [];
+        }
+
+        $rows = $this->translationModel
+            ->whereIn('product_id', $productIds)
+            ->findAll();
+
+        $indexed = [];
+        foreach ($rows as $row) {
+            $productId = (int) $row['product_id'];
+            $language  = $row['language'];
+
+            $indexed[$productId][$language] = [
+                'name'        => $row['name'],
+                'description' => $row['description'] ?? '',
+            ];
+        }
+
+        return $indexed;
+    }
+
+    private function resolveLanguage(?string $language): string
+    {
+        return in_array($language, self::SUPPORTED_LANGUAGES, true) ? $language : 'en';
     }
 }

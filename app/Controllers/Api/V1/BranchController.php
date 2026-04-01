@@ -164,6 +164,13 @@ class BranchController extends BaseApiController
 
         unset($data['translations']);
 
+        // Add id to data for validation context to work with {id} placeholder
+        $data['id'] = $id;
+        if (!$this->model->validate($data)) {
+            return $this->validationError($this->model->errors());
+        }
+        unset($data['id']);
+
         if (!$this->model->update($id, $data)) {
             return $this->validationError($this->model->errors());
         }

@@ -411,7 +411,7 @@ import Input from '@/components/ui/Input.vue'
 import Select from '@/components/ui/Select.vue'
 
 const auth = useAuthStore()
-const { t } = useI18n()
+const { t, language } = useI18n()
 const branches = ref([])
 const inventory = ref([])
 const allProducts = ref([])
@@ -521,7 +521,7 @@ watch(
   { deep: true }
 )
 
-onMounted(async () => {
+async function loadData() {
   // Load branches and products first, then inventory
   await Promise.all([
     loadBranches(),
@@ -530,12 +530,18 @@ onMounted(async () => {
   
   // Then load inventory after products are available for joining
   await loadInventory()
+}
+
+onMounted(async () => {
+  await loadData()
 })
+
+watch(language, loadData)
 
 async function loadBranches() {
   if (auth.isAdmin || auth.isBranchManager) {
     try {
-      const res = await api.get('/branches')
+      const res = await api.get('/branches', { params: { lang: language.value } })
       
       // Handle both paginated and direct array responses
       const branchesData = Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
@@ -567,7 +573,7 @@ async function loadBranches() {
 
 async function loadProducts() {
   try {
-    const res = await api.get('/products?status=active')
+    const res = await api.get(`/products?status=active&lang=${language.value}`)
     // Handle paginated response wrapper
     allProducts.value = Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : [])
     console.log('Products loaded:', allProducts.value.length, 'items')
@@ -579,12 +585,12 @@ async function loadProducts() {
 async function loadInventory() {
   loading.value = true
   try {
-    let url = '/inventory'
+    let url = `/inventory?lang=${language.value}`
     
     // Admin and managers can load without branch_id (backend filters)
     // but if a branch is selected, use it
     if (selectedBranchId.value) {
-      url = `/inventory?branch_id=${selectedBranchId.value}`
+      url = `/inventory?branch_id=${selectedBranchId.value}&lang=${language.value}`
     }
     
     console.log('Loading inventory from:', url)

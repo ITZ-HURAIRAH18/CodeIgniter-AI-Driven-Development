@@ -10,6 +10,8 @@ use App\Services\OrderService;
 
 class OrderController extends BaseApiController
 {
+    private const SUPPORTED_LANGUAGES = ['en', 'ur', 'zh'];
+    
     protected $service;
     protected $model;
 
@@ -24,7 +26,7 @@ class OrderController extends BaseApiController
     }
 
     /**
-     * GET /api/v1/orders
+     * GET /api/v1/orders?lang=en|ur|zh
      */
     public function index(): \CodeIgniter\HTTP\ResponseInterface
     {
@@ -32,10 +34,12 @@ class OrderController extends BaseApiController
             $actor    = $this->actor();
             $branchId = $this->request->getGet('branch_id');
             $createdById = $this->request->getGet('created_by_id');
+            $lang     = $this->resolveLanguage($this->request->getGet('lang'));
 
             // Admin: see all orders
             if ((int) $actor->role_id === 1) {
-                return $this->ok($this->model->getWithDetails($branchId ? (int) $branchId : null));
+                $orders = $this->model->getWithDetails($branchId ? (int) $branchId : null);
+                return $this->ok($this->applyBranchTranslations($orders, $lang));
             }
 
             // Branch Manager: see only orders from their managed branches
@@ -53,19 +57,23 @@ class OrderController extends BaseApiController
                     if (!in_array((int)$branchId, $myBranchIds)) {
                         return $this->apiError('Access denied for this branch.', 403);
                     }
-                    return $this->ok($this->model->getWithDetails((int) $branchId));
+                    $orders = $this->model->getWithDetails((int) $branchId);
+                    return $this->ok($this->applyBranchTranslations($orders, $lang));
                 }
                 
                 // Return orders from all their managed branches
-                return $this->ok($this->model->getWithDetailsMultiBranch($myBranchIds));
+                $orders = $this->model->getWithDetailsMultiBranch($myBranchIds);
+                return $this->ok($this->applyBranchTranslations($orders, $lang));
             }
 
             // Sales User: see only their own orders
             if ((int) $actor->role_id === 3) {
-                return $this->ok($this->model->getWithDetails(null, (int) $actor->sub));
+                $orders = $this->model->getWithDetails(null, (int) $actor->sub);
+                return $this->ok($this->applyBranchTranslations($orders, $lang));
             }
 
-            return $this->ok($this->model->getWithDetails($branchId ? (int) $branchId : null));
+            $orders = $this->model->getWithDetails($branchId ? (int) $branchId : null);
+            return $this->ok($this->applyBranchTranslations($orders, $lang));
         } catch (\Exception $e) {
             log_message('error', 'OrderController::index: ' . $e->getMessage());
             return $this->apiError('Failed to retrieve orders: ' . $e->getMessage(), 500);
@@ -158,5 +166,65 @@ class OrderController extends BaseApiController
 
         $this->model->update($id, ['status' => 'cancelled']);
         return $this->ok(null, 'Order cancelled.');
+    }
+
+    private function resolveLanguage(?string $language): string
+    {
+        return in_array($language, self::SUPPORTED_LANGUAGES, true) ? $language : 'en';
+    }
+
+    private function applyBranchTranslations(array $orders, string $language): array
+    {
+        if (empty($orders)) {
+            return [];
+        }
+
+        // Get all branch IDs
+        $branchIds = array_unique(array_column($orders, 'branch_id'));
+        
+        // Get translations for all branches
+        $translationsByBranch = $this->getBranchTranslationsByIds($branchIds, $language);
+
+        // Apply localized branch names to each order
+        return array_map(function (array $order) use ($translationsByBranch) {
+            $branchId = (int) $order['branch_id'];
+            $order['branch_name'] = $translationsByBranch[$branchId] ?? $order['branch_name'] ?? '';
+            return $order;
+        }, $orders);
+    }
+
+    private function getBranchTranslationsByIds(array $branchIds, string $language): array
+    {
+        if (empty($branchIds)) {
+            return [];
+        }
+
+        $translationModel = model(\App\Models\BranchTranslationModel::class);
+        
+        // First try to get the requested language
+        $rows = $translationModel
+            ->whereIn('branch_id', $branchIds)
+            ->where('language', $language)
+            ->findAll();
+
+        $indexed = [];
+        foreach ($rows as $row) {
+            $indexed[(int) $row['branch_id']] = $row['name'];
+        }
+
+        // For missing branches, fallback to English
+        $missingIds = array_diff($branchIds, array_keys($indexed));
+        if (!empty($missingIds)) {
+            $fallbackRows = $translationModel
+                ->whereIn('branch_id', $missingIds)
+                ->where('language', 'en')
+                ->findAll();
+
+            foreach ($fallbackRows as $row) {
+                $indexed[(int) $row['branch_id']] = $row['name'];
+            }
+        }
+
+        return $indexed;
     }
 }
