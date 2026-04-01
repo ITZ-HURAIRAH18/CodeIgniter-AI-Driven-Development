@@ -16,7 +16,7 @@
           <PlusIcon class="w-4 h-4" />
           <span>{{ t('products.addProduct') }}</span>
         </button>
-      </div>
+      </div>x
     </div>
 
     <!-- Compact Filter Bar -->
@@ -234,24 +234,87 @@
                       />
                     </div>
                   </div>
-                  <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('products.productName') }} *</label>
-                    <input
-                      v-model="form.name"
-                      type="text"
-                      placeholder="Premium Widget A"
-                      required
-                      class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
-                    />
-                  </div>
-                  <div>
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('common.description') }}</label>
-                    <textarea
-                      v-model="form.description"
-                      placeholder="Product description and details..."
-                      rows="3"
-                      class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 resize-none"
-                    ></textarea>
+                  <div class="space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Multilingual Content *</h3>
+                    <div class="grid grid-cols-1 gap-4">
+                      <div class="rounded-md border border-slate-200 p-4">
+                        <p class="text-xs font-semibold text-slate-700 mb-3">English (EN)</p>
+                        <div class="space-y-3">
+                          <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('products.productName') }} *</label>
+                            <input
+                              v-model="form.translations.en.name"
+                              type="text"
+                              placeholder="Premium Widget A"
+                              required
+                              class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
+                            />
+                          </div>
+                          <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('common.description') }} *</label>
+                            <textarea
+                              v-model="form.translations.en.description"
+                              placeholder="Product description and details..."
+                              rows="2"
+                              required
+                              class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 resize-none"
+                            ></textarea>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="rounded-md border border-slate-200 p-4">
+                        <p class="text-xs font-semibold text-slate-700 mb-3">Urdu (UR)</p>
+                        <div class="space-y-3">
+                          <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('products.productName') }} *</label>
+                            <input
+                              v-model="form.translations.ur.name"
+                              type="text"
+                              placeholder="لیپ ٹاپ"
+                              required
+                              class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
+                            />
+                          </div>
+                          <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('common.description') }} *</label>
+                            <textarea
+                              v-model="form.translations.ur.description"
+                              placeholder="مصنوعات کی تفصیل"
+                              rows="2"
+                              required
+                              class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 resize-none"
+                            ></textarea>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="rounded-md border border-slate-200 p-4">
+                        <p class="text-xs font-semibold text-slate-700 mb-3">Chinese (ZH)</p>
+                        <div class="space-y-3">
+                          <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('products.productName') }} *</label>
+                            <input
+                              v-model="form.translations.zh.name"
+                              type="text"
+                              placeholder="笔记本电脑"
+                              required
+                              class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
+                            />
+                          </div>
+                          <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">{{ t('common.description') }} *</label>
+                            <textarea
+                              v-model="form.translations.zh.description"
+                              placeholder="产品描述"
+                              rows="2"
+                              required
+                              class="w-full px-3 py-2.5 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 resize-none"
+                            ></textarea>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -300,11 +363,11 @@
                 <div class="space-y-4">
                   <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">{{ t('common.status') }}</h3>
                   <select
-                    v-model="form.is_active"
+                    v-model="form.status"
                     class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20"
                   >
-                    <option :value="1">{{ t('products.active') }}</option>
-                    <option :value="0">{{ t('products.inactive') }}</option>
+                    <option value="active">{{ t('products.active') }}</option>
+                    <option value="inactive">{{ t('products.inactive') }}</option>
                   </select>
                 </div>
               </form>
@@ -336,14 +399,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive } from 'vue'
+import { ref, computed, onMounted, reactive, watch } from 'vue'
 import { useAuthStore } from '@/store/auth.store'
 import { useI18n } from '@/composables/useI18n'
 import { PlusIcon, SearchIcon, PackageIcon, XIcon, Edit3Icon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, CheckCircle2Icon } from 'lucide-vue-next'
 import api from '@/api/axios'
 
 const auth = useAuthStore()
-const { t } = useI18n()
+const { t, language } = useI18n()
 const products = ref([])
 const loading = ref(true)
 const search = ref('')
@@ -355,16 +418,35 @@ const modalError = ref('')
 const currentPage = ref(1)
 const itemsPerPage = 10
 
-const form = reactive({
+const getDefaultForm = () => ({
   sku: '',
-  name: '',
-  description: '',
   cost_price: 0,
   sale_price: 0,
   tax_percentage: 0,
   unit: 'pcs',
   status: 'active',
+  translations: {
+    en: { name: '', description: '' },
+    ur: { name: '', description: '' },
+    zh: { name: '', description: '' },
+  },
 })
+
+const form = reactive(getDefaultForm())
+
+async function loadProducts() {
+  loading.value = true
+  try {
+    const res = await api.get('/products', {
+      params: { lang: language.value },
+    })
+    products.value = res || []
+  } catch (e) {
+    console.error('Failed to load products:', e)
+  } finally {
+    loading.value = false
+  }
+}
 
 const filteredProducts = computed(() => {
   return products.value.filter(p => {
@@ -392,37 +474,43 @@ const getMarginColor = (product) => {
   return 'text-red-600'
 }
 
-onMounted(async () => {
-  try {
-    const res = await api.get('/products')
-    products.value = res || []
-  } catch (e) {
-    console.error('Failed to load products:', e)
-  } finally {
-    loading.value = false
-  }
-})
+onMounted(loadProducts)
 
 function openCreate() {
   editing.value = null
   modalError.value = ''
-  Object.assign(form, {
-    sku: '',
-    name: '',
-    description: '',
-    cost_price: 0,
-    sale_price: 0,
-    tax_percentage: 0,
-    unit: 'pcs',
-    status: 'active',
-  })
+  Object.assign(form, getDefaultForm())
   showModal.value = true
 }
 
 function openEdit(product) {
   editing.value = product.id
   modalError.value = ''
-  Object.assign(form, product)
+
+  const existingTranslations = product.translations || {}
+  Object.assign(form, {
+    sku: product.sku || '',
+    cost_price: Number(product.cost_price || 0),
+    sale_price: Number(product.sale_price || 0),
+    tax_percentage: Number(product.tax_percentage || 0),
+    unit: product.unit || 'pcs',
+    status: product.status || 'active',
+    translations: {
+      en: {
+        name: existingTranslations.en?.name || '',
+        description: existingTranslations.en?.description || '',
+      },
+      ur: {
+        name: existingTranslations.ur?.name || '',
+        description: existingTranslations.ur?.description || '',
+      },
+      zh: {
+        name: existingTranslations.zh?.name || '',
+        description: existingTranslations.zh?.description || '',
+      },
+    },
+  })
+
   showModal.value = true
 }
 
@@ -430,13 +518,22 @@ async function saveProduct() {
   saving.value = true
   modalError.value = ''
   try {
-    if (editing.value) {
-      await api.put(`/products/${editing.value}`, form)
-    } else {
-      await api.post('/products', form)
+    const payload = {
+      sku: form.sku,
+      cost_price: form.cost_price,
+      sale_price: form.sale_price,
+      tax_percentage: form.tax_percentage,
+      unit: form.unit,
+      status: form.status,
+      translations: form.translations,
     }
-    const res = await api.get('/products')
-    products.value = res || []
+
+    if (editing.value) {
+      await api.put(`/products/${editing.value}?lang=${language.value}`, payload)
+    } else {
+      await api.post(`/products?lang=${language.value}`, payload)
+    }
+    await loadProducts()
     showModal.value = false
   } catch (e) {
     modalError.value = e?.message || 'Failed to save product.'
@@ -454,4 +551,8 @@ async function deleteProduct(id) {
     console.error('Failed to delete product:', e)
   }
 }
+
+watch(language, () => {
+  loadProducts()
+})
 </script>

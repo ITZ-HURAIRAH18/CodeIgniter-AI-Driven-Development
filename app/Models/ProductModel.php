@@ -19,7 +19,7 @@ class ProductModel extends Model
 
     protected $validationRules = [
         'sku'            => 'required|alpha_dash|max_length[100]|is_unique[products.sku,id,{id}]',
-        'name'           => 'required|min_length[2]|max_length[200]',
+        'name'           => 'permit_empty|min_length[2]|max_length[200]',
         'cost_price'     => 'required|decimal|greater_than_equal_to[0]',
         'sale_price'     => 'required|decimal|greater_than_equal_to[0]',
         'tax_percentage' => 'required|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
