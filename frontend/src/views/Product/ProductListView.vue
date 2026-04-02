@@ -16,7 +16,7 @@
           <PlusIcon class="w-4 h-4" />
           <span>{{ t('products.addProduct') }}</span>
         </button>
-      </div>x
+      </div>
     </div>
 
     <!-- Compact Filter Bar -->
@@ -40,7 +40,7 @@
             @click="statusFilter = ''"
             :class="['px-3 py-1.5 rounded-full text-xs font-medium transition-colors', statusFilter === '' ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200']"
           >
-            {{ t('products.all') }}
+            {{ t('common.all') }}
           </button>
           <button
             @click="statusFilter = 'active'"

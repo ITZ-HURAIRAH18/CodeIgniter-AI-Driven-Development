@@ -42,7 +42,7 @@ class UserTranslationModel extends Model
     /**
      * Get translations for multiple users indexed by user_id
      */
-    public function getTranslationsByUserIds(array $userIds, string $language = null)
+    public function getTranslationsByUserIds(array $userIds, ?string $language = null)
     {
         $query = $this->whereIn('user_id', $userIds);
         if ($language) {
@@ -52,10 +52,10 @@ class UserTranslationModel extends Model
 
         $indexed = [];
         foreach ($results as $translation) {
-            if (!isset($indexed[$translation->user_id])) {
-                $indexed[$translation->user_id] = [];
+            if (!isset($indexed[$translation['user_id']])) {
+                $indexed[$translation['user_id']] = [];
             }
-            $indexed[$translation->user_id][$translation->language] = $translation->name;
+            $indexed[$translation['user_id']][$translation['language']] = $translation['name'];
         }
         return $indexed;
     }

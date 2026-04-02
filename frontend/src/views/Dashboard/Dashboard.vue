@@ -1,165 +1,239 @@
 <template>
-  <div class="min-h-screen bg-slate-50 font-inter">
+  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-pink-50/30 to-slate-100 font-inter">
     <!-- Sales User Welcome Screen -->
     <div v-if="auth.isSalesUser" class="min-h-screen flex items-center justify-center px-6 py-12">
-      <div class="max-w-4xl w-full">
-        <!-- Welcome Section -->
-        <div class="mb-12">
-          <div class="flex items-center gap-4 mb-4">
-            <div class="w-12 h-12 rounded-lg bg-accent-pink-100 flex items-center justify-center">
-              <ShoppingCartIcon class="w-6 h-6 text-accent-pink-600" />
-            </div>
-            <div>
-              <h1 class="text-3xl font-bold text-slate-900">{{ t('dashboard.welcome') }}, {{ auth.user?.name || t('roles.salesUser') }}</h1>
-              <p class="text-slate-600 text-sm mt-1">{{ t('dashboard.manageSales') }}</p>
+      <div class="max-w-5xl w-full">
+        <!-- Modern Hero Welcome Section -->
+        <div class="mb-10">
+          <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-accent-pink-500 via-pink-500 to-accent-pink-600 p-8 shadow-lg">
+            <!-- Decorative background elements -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl"></div>
+            
+            <div class="relative flex items-center gap-5">
+              <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                <ShoppingCartIcon class="w-8 h-8 text-white" />
+              </div>
+              <div class="flex-1">
+                <h1 class="text-3xl font-bold text-white tracking-tight">{{ t('dashboard.welcome') }}, {{ auth.user?.name || t('roles.salesUser') }}</h1>
+                <p class="text-pink-100 text-sm mt-1.5 font-medium">{{ t('dashboard.manageSales') }}</p>
+              </div>
+              <!-- Animated badge -->
+              <div class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+                </span>
+                <span class="text-white text-xs font-semibold">{{ t('dashboard.salesDashboard') }}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Main Actions Grid -->
+        <!-- Main Actions Grid - Enhanced Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <!-- View Products Card -->
-          <router-link to="/products" class="group relative rounded-xl bg-white border-2 border-slate-300 shadow-sm hover:shadow-lg hover:border-accent-pink-500 transition-all duration-200 overflow-hidden">
-            <div class="p-8">
-              <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-lg bg-accent-pink-50 flex items-center justify-center group-hover:bg-accent-pink-100 transition-colors">
-                  <BoxIcon class="w-6 h-6 text-accent-pink-600" />
+          <router-link to="/products" class="group relative rounded-2xl bg-white border border-slate-200 shadow-md hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300 overflow-hidden hover:-translate-y-1">
+            <!-- Gradient border effect on hover -->
+            <div class="absolute inset-0 bg-gradient-to-r from-accent-pink-500/20 via-pink-500/10 to-accent-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-pink-400 via-pink-500 to-accent-pink-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+            
+            <div class="relative p-8">
+              <div class="flex items-start gap-5">
+                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-accent-pink-50 to-accent-pink-100 flex items-center justify-center group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+                  <BoxIcon class="w-7 h-7 text-accent-pink-600" />
                 </div>
                 <div class="flex-1">
-                  <h3 class="font-bold text-slate-900 text-lg">{{ t('dashboard.browseProducts') }}</h3>
-                  <p class="text-slate-600 text-sm mt-1">{{ t('dashboard.checkInventory') }}</p>
+                  <h3 class="font-bold text-slate-900 text-xl">{{ t('dashboard.browseProducts') }}</h3>
+                  <p class="text-slate-600 text-sm mt-2 leading-relaxed">{{ t('dashboard.checkInventory') }}</p>
+                  <div class="mt-5 inline-flex items-center gap-2 text-accent-pink-600 font-semibold text-sm group-hover:gap-3 transition-all duration-300">
+                    <span>{{ t('dashboard.viewCatalog') }}</span>
+                    <ArrowRightIcon class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  </div>
                 </div>
-              </div>
-              <div class="mt-6 inline-flex items-center gap-2 text-accent-pink-600 font-medium text-sm group-hover:gap-3 transition-all">
-                {{ t('dashboard.viewCatalog') }} <span>→</span>
               </div>
             </div>
           </router-link>
 
           <!-- Create Order Card -->
-          <router-link to="/orders/create" class="group relative rounded-xl bg-white border-2 border-slate-300 shadow-sm hover:shadow-lg hover:border-accent-pink-500 transition-all duration-200 overflow-hidden">
-            <div class="p-8">
-              <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-lg bg-accent-pink-50 flex items-center justify-center group-hover:bg-accent-pink-100 transition-colors">
-                  <ShoppingCartIcon class="w-6 h-6 text-accent-pink-600" />
+          <router-link to="/orders/create" class="group relative rounded-2xl bg-white border border-slate-200 shadow-md hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300 overflow-hidden hover:-translate-y-1">
+            <!-- Gradient border effect on hover -->
+            <div class="absolute inset-0 bg-gradient-to-r from-accent-pink-500/20 via-pink-500/10 to-accent-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-pink-400 via-pink-500 to-accent-pink-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+            
+            <div class="relative p-8">
+              <div class="flex items-start gap-5">
+                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-accent-pink-50 to-accent-pink-100 flex items-center justify-center group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+                  <ShoppingCartIcon class="w-7 h-7 text-accent-pink-600" />
                 </div>
                 <div class="flex-1">
-                  <h3 class="font-bold text-slate-900 text-lg">{{ t('dashboard.createOrder') }}</h3>
-                  <p class="text-slate-600 text-sm mt-1">{{ t('dashboard.startNewOrder') }}</p>
+                  <h3 class="font-bold text-slate-900 text-xl">{{ t('dashboard.createOrder') }}</h3>
+                  <p class="text-slate-600 text-sm mt-2 leading-relaxed">{{ t('dashboard.startNewOrder') }}</p>
+                  <div class="mt-5 inline-flex items-center gap-2 text-accent-pink-600 font-semibold text-sm group-hover:gap-3 transition-all duration-300">
+                    <span>{{ t('dashboard.newOrder') }}</span>
+                    <ArrowRightIcon class="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  </div>
                 </div>
-              </div>
-              <div class="mt-6 inline-flex items-center gap-2 text-accent-pink-600 font-medium text-sm group-hover:gap-3 transition-all">
-                {{ t('dashboard.newOrder') }} <span>→</span>
               </div>
             </div>
           </router-link>
         </div>
 
-        <!-- Quick Links -->
+        <!-- Quick Links - Enhanced Design -->
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
           <!-- View All Orders -->
-          <router-link to="/orders" class="group p-6 rounded-lg bg-white border-2 border-slate-300 hover:border-accent-pink-500 hover:bg-accent-pink-50 transition-all duration-200 text-center">
-            <CheckCircleIcon class="w-6 h-6 text-accent-pink-600 mx-auto mb-2" />
-            <p class="font-semibold text-slate-900 text-sm">{{ t('dashboard.viewOrders') }}</p>
-            <p class="text-slate-500 text-xs mt-1">{{ t('dashboard.allYourOrders') }}</p>
+          <router-link to="/orders" class="group relative p-6 rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-lg hover:shadow-pink-500/10 hover:border-accent-pink-300 transition-all duration-300 text-center overflow-hidden hover:-translate-y-0.5">
+            <div class="absolute inset-0 bg-gradient-to-br from-accent-pink-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div class="relative">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-pink-100 to-accent-pink-50 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
+                <CheckCircleIcon class="w-6 h-6 text-accent-pink-600" />
+              </div>
+              <p class="font-bold text-slate-900 text-sm">{{ t('dashboard.viewOrders') }}</p>
+              <p class="text-slate-500 text-xs mt-1.5">{{ t('dashboard.allYourOrders') }}</p>
+            </div>
           </router-link>
 
           <!-- Products -->
-          <router-link to="/products" class="group p-6 rounded-lg bg-white border-2 border-slate-300 hover:border-accent-pink-500 hover:bg-accent-pink-50 transition-all duration-200 text-center">
-            <TrendingUpIcon class="w-6 h-6 text-accent-pink-600 mx-auto mb-2" />
-            <p class="font-semibold text-slate-900 text-sm">{{ t('dashboard.products') }}</p>
-            <p class="text-slate-500 text-xs mt-1">{{ t('dashboard.allItems') }}</p>
+          <router-link to="/products" class="group relative p-6 rounded-xl bg-white border border-slate-200 shadow-sm hover:shadow-lg hover:shadow-pink-500/10 hover:border-accent-pink-300 transition-all duration-300 text-center overflow-hidden hover:-translate-y-0.5">
+            <div class="absolute inset-0 bg-gradient-to-br from-accent-pink-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div class="relative">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-pink-100 to-accent-pink-50 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
+                <TrendingUpIcon class="w-6 h-6 text-accent-pink-600" />
+              </div>
+              <p class="font-bold text-slate-900 text-sm">{{ t('dashboard.products') }}</p>
+              <p class="text-slate-500 text-xs mt-1.5">{{ t('dashboard.allItems') }}</p>
+            </div>
           </router-link>
+
+          <!-- Additional Quick Link Placeholder (for future expansion) -->
+          <div class="group relative p-6 rounded-xl bg-white border border-dashed border-slate-300 shadow-sm text-center overflow-hidden">
+            <div class="flex flex-col items-center justify-center h-full">
+              <div class="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mx-auto mb-3">
+                <PlusIcon class="w-6 h-6 text-slate-400" />
+              </div>
+              <p class="font-medium text-slate-400 text-sm">{{ t('common.comingSoon') }}</p>
+              <p class="text-slate-400 text-xs mt-1.5">{{ t('dashboard.moreFeatures') }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Admin/Manager Dashboard -->
     <div v-else class="max-w-7xl mx-auto px-6 py-6">
-      <!-- Page Header -->
-      <div class="mb-8 pt-2">
-        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">{{ t('dashboard.title') }}</h1>
-        <p class="text-slate-500 text-sm mt-1">{{ t('dashboard.subtitle') }}</p>
+      <!-- Modern Page Header -->
+      <div class="mb-10 pt-2">
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-600 via-accent-pink-500 to-pink-500 p-6 shadow-lg shadow-pink-500/30">
+          <!-- Animated background elements -->
+          <div class="absolute top-0 right-0 w-80 h-80 bg-white/15 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl animate-pulse"></div>
+          <div class="absolute bottom-0 left-0 w-64 h-64 bg-pink-300/20 rounded-full translate-y-1/3 -translate-x-1/4 blur-2xl"></div>
+          <div class="absolute top-1/2 left-1/2 w-48 h-48 bg-accent-pink-400/20 rounded-full translate-y-[-50%] translate-x-[-50%] blur-xl"></div>
+          
+          <!-- Decorative pattern overlay -->
+          <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
+          
+          <div class="relative flex items-center gap-5">
+            <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
+              <BoxIcon class="w-8 h-8 text-white" />
+            </div>
+            <div class="flex-1">
+              <h1 class="text-3xl font-bold text-white tracking-tight">{{ t('dashboard.title') }}</h1>
+              <p class="text-pink-100 text-sm mt-2 font-medium">{{ t('dashboard.subtitle') }}</p>
+            </div>
+            <!-- Cool animated badge -->
+            <div class="hidden lg:flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/25 backdrop-blur-md border border-white/40 shadow-lg">
+              <span class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+              </span>
+              <span class="text-white text-xs font-bold tracking-wide uppercase">{{ t('dashboard.liveDashboard') }}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- KPI Cards - Unified Pink & Slate Design -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <!-- KPI Cards - Modern Pink & Slate Design -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
       <!-- Total Inventory Value -->
-      <div class="group relative overflow-hidden rounded-lg backdrop-blur-md bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 p-4">
-        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div class="group relative overflow-hidden rounded-2xl backdrop-blur-md bg-white border border-slate-200 shadow-md hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300 p-5 hover:-translate-y-1">
+        <div class="absolute inset-0 bg-gradient-to-br from-accent-pink-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-pink-400 via-pink-500 to-accent-pink-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
         <div class="relative flex items-start justify-between">
           <div class="flex-1">
-              <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">{{ t('dashboard.totalInventoryValue') }}</p>
-              <p class="text-2xl font-bold text-slate-950 mt-2">${{ dashboardStats.totalInventoryValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
-              <p class="text-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
+              <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider">{{ t('dashboard.totalInventoryValue') }}</p>
+              <p class="text-2xl font-bold text-slate-900 mt-2">${{ dashboardStats.totalInventoryValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
+              <p class="text-accent-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
                 <span class="inline-flex items-center">
                   <TrendingUpIcon class="w-3.5 h-3.5" />
                 </span>
                 {{ t('dashboard.acrossBranches', { count: branchData.length }) }}
             </p>
           </div>
-          <div class="w-12 h-12 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0 group-hover:bg-pink-200 transition-colors">
-            <DollarSignIcon class="w-6 h-6 text-pink-600" />
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-accent-pink-100 to-accent-pink-50 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+            <DollarSignIcon class="w-7 h-7 text-accent-pink-600" />
           </div>
         </div>
       </div>
 
       <!-- Total Products -->
-      <div class="group relative overflow-hidden rounded-lg backdrop-blur-md bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 p-4">
-        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div class="group relative overflow-hidden rounded-2xl backdrop-blur-md bg-white border border-slate-200 shadow-md hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300 p-5 hover:-translate-y-1">
+        <div class="absolute inset-0 bg-gradient-to-br from-accent-pink-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-pink-400 via-pink-500 to-accent-pink-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
         <div class="relative flex items-start justify-between">
           <div class="flex-1">
-            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">{{ t('dashboard.totalProducts') }}</p>
-            <p class="text-2xl font-bold text-slate-950 mt-2">{{ dashboardStats.totalProducts }}</p>
-            <p class="text-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
+            <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider">{{ t('dashboard.totalProducts') }}</p>
+            <p class="text-2xl font-bold text-slate-900 mt-2">{{ dashboardStats.totalProducts }}</p>
+            <p class="text-accent-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
               <span class="inline-flex items-center">
                 <TrendingUpIcon class="w-3.5 h-3.5" />
               </span>
               {{ t('dashboard.inCatalog') }}
             </p>
           </div>
-          <div class="w-12 h-12 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0 group-hover:bg-pink-200 transition-colors">
-            <BoxIcon class="w-6 h-6 text-pink-600" />
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-accent-pink-100 to-accent-pink-50 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+            <BoxIcon class="w-7 h-7 text-accent-pink-600" />
           </div>
         </div>
       </div>
 
       <!-- Low Stock Items -->
-      <div class="group relative overflow-hidden rounded-lg backdrop-blur-md bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 p-4">
-        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div class="group relative overflow-hidden rounded-2xl backdrop-blur-md bg-white border border-slate-200 shadow-md hover:shadow-xl hover:shadow-rose-500/10 transition-all duration-300 p-5 hover:-translate-y-1">
+        <div class="absolute inset-0 bg-gradient-to-br from-rose-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-400 via-rose-500 to-rose-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
         <div class="relative flex items-start justify-between">
           <div class="flex-1">
-            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">{{ t('dashboard.lowStockItems') }}</p>
-            <p class="text-2xl font-bold text-slate-950 mt-2">{{ dashboardStats.lowStockItems }}</p>
-            <p class="text-rose-700 text-xs font-semibold mt-3 flex items-center gap-2">
+            <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider">{{ t('dashboard.lowStockItems') }}</p>
+            <p class="text-2xl font-bold text-slate-900 mt-2">{{ dashboardStats.lowStockItems }}</p>
+            <p class="text-rose-600 text-xs font-semibold mt-3 flex items-center gap-2">
               <span class="inline-flex items-center">
                 <AlertCircleIcon class="w-3.5 h-3.5" />
               </span>
               {{ t('dashboard.requiresAttention') }}
             </p>
           </div>
-          <div class="w-12 h-12 rounded-lg bg-rose-50 flex items-center justify-center flex-shrink-0 group-hover:bg-rose-100 transition-colors">
-            <AlertTriangleIcon class="w-6 h-6 text-rose-700" />
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-rose-100 to-rose-50 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+            <AlertTriangleIcon class="w-7 h-7 text-rose-600" />
           </div>
         </div>
       </div>
 
-      <!-- Pending Orders -->
-      <div class="group relative overflow-hidden rounded-lg backdrop-blur-md bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 p-4">
-        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <!-- Used Branches -->
+      <div class="group relative overflow-hidden rounded-2xl backdrop-blur-md bg-white border border-slate-200 shadow-md hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300 p-5 hover:-translate-y-1">
+        <div class="absolute inset-0 bg-gradient-to-br from-accent-pink-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-pink-400 via-pink-500 to-accent-pink-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
         <div class="relative flex items-start justify-between">
           <div class="flex-1">
-            <p class="text-slate-600 text-xs font-semibold uppercase tracking-wide">{{ t('dashboard.pendingOrders') }}</p>
-            <p class="text-2xl font-bold text-slate-950 mt-2">{{ dashboardStats.pendingOrders }}</p>
-            <p class="text-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
+            <p class="text-slate-500 text-xs font-semibold uppercase tracking-wider">{{ t('dashboard.usedBranches') }}</p>
+            <p class="text-2xl font-bold text-slate-900 mt-2">{{ dashboardStats.usedBranches }}</p>
+            <p class="text-accent-pink-600 text-xs font-semibold mt-3 flex items-center gap-2">
               <span class="inline-flex items-center">
-                <ShoppingCartIcon class="w-3.5 h-3.5" />
+                <TrendingUpIcon class="w-3.5 h-3.5" />
               </span>
-              {{ t('dashboard.totalOrdersCount', { count: dashboardStats.totalOrders }) }}
+              {{ t('dashboard.inSystem') }}
             </p>
           </div>
-          <div class="w-12 h-12 rounded-lg bg-pink-100 flex items-center justify-center flex-shrink-0 group-hover:bg-pink-200 transition-colors">
-            <ShoppingCartIcon class="w-6 h-6 text-pink-600" />
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-accent-pink-100 to-accent-pink-50 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+            <BoxIcon class="w-7 h-7 text-accent-pink-600" />
           </div>
         </div>
       </div>
@@ -169,9 +243,9 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <!-- Inventory by Branch -->
         <div class="lg:col-span-2">
-          <div class="rounded-lg bg-white border border-slate-200 shadow-sm overflow-hidden">
+          <div class="rounded-lg bg-pink-50 border border-pink-200 shadow-sm overflow-hidden">
             <!-- Header -->
-            <div class="px-6 py-4 border-b border-slate-200">
+            <div class="px-6 py-4 border-b border-pink-200">
               <h2 class="text-lg font-bold text-slate-900">{{ t('dashboard.inventoryByBranch') }}</h2>
               <p class="text-slate-500 text-xs mt-0.5">{{ t('dashboard.currentStockLevels') }}</p>
             </div>
@@ -180,15 +254,15 @@
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
               <thead>
-                <tr class="bg-slate-50 border-b border-slate-200">
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('dashboard.branch') }}</th>
-                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('dashboard.items') }}</th>
-                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('dashboard.value') }}</th>
-                  <th class="px-6 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">{{ t('common.status') }}</th>
+                <tr class="bg-pink-100 border-b border-pink-200">
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">{{ t('dashboard.branch') }}</th>
+                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">{{ t('dashboard.items') }}</th>
+                  <th class="px-6 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">{{ t('dashboard.value') }}</th>
+                  <th class="px-6 py-3 text-center text-xs font-semibold text-slate-700 uppercase tracking-wider">{{ t('common.status') }}</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-200">
-                <tr v-for="branch in branchData" :key="branch.id" class="hover:bg-slate-50 transition-colors duration-200">
+              <tbody class="divide-y divide-pink-200">
+                <tr v-for="branch in branchData" :key="branch.id" class="hover:bg-pink-100/50 transition-colors duration-200">
                   <td class="px-6 py-3 font-semibold text-slate-900">{{ branch.name }}</td>
                   <td class="px-6 py-3 text-slate-600 text-right font-medium">{{ branch.inventory_count }}</td>
                   <td class="px-6 py-3 text-slate-900 text-right font-bold">{{ branch.inventory_value }}</td>
@@ -424,7 +498,7 @@ const dashboardStats = ref({
   totalOrders: 0,
   totalProducts: 0,
   lowStockItems: 0,
-  pendingOrders: 0,
+  usedBranches: 0,
   totalInventoryValue: 0
 })
 
@@ -585,7 +659,7 @@ const loadDashboardData = async () => {
       totalOrders: totalOrders,
       totalProducts: inventoryData.length,
       lowStockItems: totalLowStock,
-      pendingOrders: orderData.filter(o => o.status !== 'completed').length,
+      usedBranches: processedBranches.length,
       totalInventoryValue: totalInventoryValue
     }
     

@@ -18,7 +18,7 @@ const setLanguage = (lang) => {
   if (LANGUAGES[lang]) {
     currentLanguage.value = lang
     localStorage.setItem('app_language', lang)
-    
+
     // Update document lang attribute for accessibility
     document.documentElement.lang = lang
     // Keep layout LTR (no RTL direction changes)
@@ -32,9 +32,14 @@ const getCurrentLocale = () => {
   return LANGUAGES[currentLanguage.value]?.locale || LANGUAGES.en.locale
 }
 
+// Reactive locale computed property
+const reactiveLocale = computed(() => getCurrentLocale())
+
 // Main translation function - supports nested keys and interpolation
+// Accesses reactiveLocale.value to ensure reactivity
 const t = (key, params = {}) => {
-  const locale = getCurrentLocale()
+  // Access reactiveLocale to establish reactive dependency
+  const locale = reactiveLocale.value
   const keys = key.split('.')
   let value = locale
 
