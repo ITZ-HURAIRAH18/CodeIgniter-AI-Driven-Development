@@ -186,9 +186,12 @@
                       'bg-green-100/70 text-green-700 border border-green-200': parseInt(user.is_active) === 1,
                       'bg-slate-100/70 text-slate-600 border border-slate-200': parseInt(user.is_active) !== 1,
                     }"
-                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
                   >
-                    {{ parseInt(user.is_active) === 1 ? '● Active' : '○ Inactive' }}
+                    <span :class="parseInt(user.is_active) === 1 ? 'text-green-600' : 'text-slate-500'">
+                      {{ parseInt(user.is_active) === 1 ? '●' : '○' }}
+                    </span>
+                    {{ parseInt(user.is_active) === 1 ? t('status.active') : t('status.inactive') }}
                   </span>
                 </td>
               </tr>

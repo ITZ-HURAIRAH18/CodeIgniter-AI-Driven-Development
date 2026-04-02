@@ -14,8 +14,7 @@
 
     <!-- Language Dropdown Menu -->
     <div
-      class="absolute right-0 mt-2 w-40 bg-white border border-slate-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200"
-      style="z-index: 99999;"
+      class="absolute right-0 mt-2 w-40 bg-white border border-slate-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"
     >
       <div class="py-2">
         <button
@@ -65,10 +64,3 @@ const handleSelectLanguage = (langCode) => {
   console.log(`✅ Language changed to: ${langCode}`)
 }
 </script>
-
-<style scoped>
-/* Ensures dropdown appears above other elements */
-.group:hover > div {
-  z-index: 50;
-}
-</style>

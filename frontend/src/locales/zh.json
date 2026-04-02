@@ -163,7 +163,9 @@
     "refunded": "已退款",
     "onHold": "暂停",
     "draft": "草稿",
-    "archived": "已归档"
+    "archived": "已归档",
+    "active": "活跃",
+    "inactive": "不活跃"
   },
   "roles": {
     "admin": "管理员",

@@ -163,7 +163,9 @@
     "refunded": "Refunded",
     "onHold": "On Hold",
     "draft": "Draft",
-    "archived": "Archived"
+    "archived": "Archived",
+    "active": "Active",
+    "inactive": "Inactive"
   },
   "roles": {
     "admin": "Admin",

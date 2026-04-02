@@ -1,15 +1,1 @@
-Failed to load resource: the server responded with a status of 500 (Internal Server Error)
-
-UserManagement.vue:554 Failed to load users: 
-Object
-message
-: 
-"Failed to retrieve users: Attempt to read property \"user_id\" on array"
-success
-: 
-false
-[[Prototype]]
-: 
-Object
-
-fix this issue
+still on Action it show commondeleted 
