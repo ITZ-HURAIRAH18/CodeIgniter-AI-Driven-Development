@@ -70,29 +70,30 @@ const sendQuery = async (forceQuery = null) => {
 
   try {
     const response = await ChatbotApi.query(text);
-    // Response format after axios interceptor: { success, message, data: { response: "..." } }
     
     let textResp = "";
     
-    // Primary: Check data.response
-    if (response?.data?.response) {
-      textResp = response.data.response;
-    } 
-    // Fallback: Check direct response property
-    else if (response?.response) {
+    // The axios interceptor returns the inner 'data' property of the API response.
+    // Our backend returns { success: true, data: { response: "...", module: "..." } }
+    // So 'response' here should be { response: "...", module: "..." }
+    
+    if (response?.response) {
       textResp = response.response;
     } 
-    // Fallback: Check message
-    else if (response?.message) {
-      textResp = response.message;
+    else if (response?.data?.response) {
+      // Fallback for cases where interceptor might not have fired
+      textResp = response.data.response;
     } 
-    // Fallback: Raw string
     else if (typeof response === 'string') {
       textResp = response;
-    } 
-    // Last resort
-    else {
-      textResp = "I received an empty response. Please try again.";
+    }
+    else if (response?.message) {
+      textResp = response.message;
+    }
+    
+    // If we still have no text, we have an empty response
+    if (!textResp || textResp.trim() === "") {
+      textResp = "I received an empty response from Gemini. Please try again or rephrase your query.";
     }
 
     const parsedResp = parseMarkdown(textResp);

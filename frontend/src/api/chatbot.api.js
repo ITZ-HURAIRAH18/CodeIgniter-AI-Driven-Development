@@ -1,35 +1,19 @@
 import axios from './axios';
-import { useAuthStore } from '@/store/auth.store';
 
 /**
- * Creates a chatbot-specific axios instance with longer timeout
+ * ChatbotApi interaction layer
+ * Uses the main axios instance to benefit from global interceptors (auth, data extraction)
  */
-function createChatbotAxios() {
-  const chatbotAxios = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || '/api/v1',
-    headers: { 'Content-Type': 'application/json' },
-    timeout: 60000, // 60 seconds for AI/LLM API calls
-  });
-
-  // Attach auth token
-  const auth = useAuthStore();
-  if (auth?.accessToken) {
-    chatbotAxios.defaults.headers.common['Authorization'] = `Bearer ${auth.accessToken}`;
-  }
-
-  return chatbotAxios;
-}
-
 const ChatbotApi = {
   /**
    * Query the AI chatbot
    * @param {String} query
-   * @returns {Promise} - Returns { success, message, data: { response } }
+   * @returns {Promise} - Returns the inner response object { response, module }
    */
   async query(query) {
-    const chatbotAxios = createChatbotAxios();
-    const response = await chatbotAxios.post('/chatbot/query', { query });
-    return response;
+    // We use the main axios instance directly to keep the response interceptors
+    // We override timeout specifically for AI calls
+    return await axios.post('/chatbot/query', { query }, { timeout: 60000 });
   },
 
   /**
@@ -37,9 +21,9 @@ const ChatbotApi = {
    * @returns {Promise} - Returns array of suggestions
    */
   async getSuggestions() {
-    const chatbotAxios = createChatbotAxios();
-    const response = await chatbotAxios.post('/chatbot/suggest');
-    return response.data || response;
+    // The interceptor already handles data extraction
+    // Backend route /api/v1/chatbot/suggest is a POST route
+    return await axios.post('/chatbot/suggest');
   }
 };
 
