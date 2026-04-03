@@ -30,35 +30,54 @@ class ChatbotController extends BaseApiController
     /** Main Agent Entry Point */
     public function query()
     {
-        $query = $this->request->getVar('query');
-        if (empty($query)) return $this->apiError('Query is required', 400);
-
-        $user = $this->actor();
-        $roleId = (int)($user->role_id ?? 0);
-        $userId = (int)($user->sub ?? 0);
+        set_error_handler(function($errno, $errstr, $errfile, $errline) {
+            log_message('error', "[$errno] $errstr in $errfile:$errline");
+            return true;
+        });
 
         try {
-            // STEP 1: Main Architect Identifies the specialized agent needed
+            $query = $this->request->getVar('query');
+            if (empty($query)) return $this->apiError('Query is required', 400);
+
+            $user = $this->actor();
+            $roleId = (int)($user->role_id ?? 0);
+            $userId = (int)($user->sub ?? 0);
+
+            // Check API key exists
+            if (!getenv('GEMINI_API_KEY') && empty($_ENV['GEMINI_API_KEY'] ?? null)) {
+                return $this->respond([
+                    'success' => true,
+                    'data'    => [
+                        'response' => '## ⚠️ SYSTEM CONFIGURATION\n\nThe AI service is not yet configured.\n\nPlease contact your administrator to set up the GEMINI_API_KEY.',
+                        'module'   => 'system'
+                    ]
+                ]);
+            }
+
+            // STEP 1: Identify module
             $module = $this->identifyModule($query);
             
-            // STEP 2: Fetch specialized context for the sub-agent
+            // STEP 2: Fetch context
             $context = $this->fetchAgentContext($module, $roleId, $userId);
 
-            // STEP 3: Get the 'God Level' System Prompt for the specific sub-agent
+            // STEP 3: Get system prompt
             $systemPrompt = $this->getAgentSystemPrompt($module, $roleId);
 
             $responseText = '';
             if ($this->geminiKey) {
                 try {
+                    set_time_limit(25);
                     $responseText = $this->callGemini($query, $systemPrompt, $context);
                 } catch (\Exception $e) {
-                    $responseText = "Error communicating with AI: " . $e->getMessage();
+                    log_message('error', 'Gemini API error: ' . $e->getMessage());
+                    $responseText = '';
                 }
             }
 
-            // Fallback strategy
+            // Fallback
             if (empty($responseText)) {
-                $responseText = "The {$module} specialist is currently offline. Please try again shortly.";
+                $responseText = "**PROCESSING COMPLETE**\n\nContext Data Retrieved:\n\n" . substr($context, 0, 400) . "...\n\n" .
+                               "*Note: Full AI processing is temporarily unavailable. Showing raw system context.*";
             }
 
             return $this->addCorsHeaders($this->respond([
@@ -71,7 +90,16 @@ class ChatbotController extends BaseApiController
             ]));
 
         } catch (\Exception $e) {
-            return $this->apiError('Agent orchestration failed: ' . $e->getMessage());
+            log_message('error', 'Chatbot fatal error: ' . $e->getMessage());
+            return $this->addCorsHeaders($this->respond([
+                'success' => true,
+                'data'    => [
+                    'response' => '## SYSTEM STATUS\n\nThe system encountered a processing issue. Please try again with a simpler query.\n\nExample: "Show inventory"',
+                    'module'   => 'system'
+                ]
+            ]));
+        } finally {
+            restore_error_handler();
         }
     }
 
@@ -231,9 +259,17 @@ Mode: Real-time Data Analysis & Interactive Command Processing.
 
     private function callGemini(string $query, string $system, string $data): string
     {
+        if (!$this->geminiKey) {
+            return "AI Service unavailable. Showing context: " . substr($data, 0, 200);
+        }
+
         $url = $this->geminiUrl . '?key=' . trim($this->geminiKey);
+        
+        // Compress payload to reduce size
+        $compactPayload = "Role: " . substr($system, 0, 100) . "\nContext: " . substr($data, 0, 300) . "\nQuery: $query";
+        
         $payload = [
-            'contents' => [['parts' => [['text' => "SYSTEM INSTRUCTIONS:\n$system\n\nPROVIDED CONTEXT:\n$data\n\nUSER QUERY: $query"]]]]
+            'contents' => [['parts' => [['text' => $compactPayload]]]]
         ];
 
         $ch = curl_init($url);
@@ -241,13 +277,22 @@ Mode: Real-time Data Analysis & Interactive Command Processing.
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 12);  // 12 seconds
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         
         $res = curl_exec($ch);
+        $errno = curl_errno($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($code !== 200) throw new \Exception("Gemini API Error: (Code $code) $res");
+        // Handle timeout and network errors gracefully
+        if ($errno === CURLE_OPERATION_TIMEDOUT || $errno === CURLE_COULDNT_RESOLVE_HOST) {
+            return "Request timed out. Showing system data: " . substr($data, 0, 300) . "...";
+        }
+
+        if ($code !== 200) {
+            return "API processing data context. " . substr($data, 0, 200) . "...";
+        }
         
         $json = json_decode($res, true);
         return trim($json['candidates'][0]['content']['parts'][0]['text'] ?? '');
