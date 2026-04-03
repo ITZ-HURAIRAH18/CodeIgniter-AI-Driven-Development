@@ -237,8 +237,12 @@ watch(() => messages.value.length, () => {
               <div v-else-if="msg.type === 'table' && msg.tableData" class="overflow-x-auto my-2">
                 <table class="w-full border-collapse border border-slate-200 dark:border-slate-700 text-xs text-left">
                   <thead class="bg-slate-100 dark:bg-slate-800">
-                    <tr>
-                      <th v-for="h in msg.tableData.headers" :key="h" class="p-2 border border-slate-200 dark:border-slate-700 font-bold uppercase tracking-wider text-[10px]">{{ h }}</th>
+                    <tr v-if="msg.tableData.headers && msg.tableData.headers.length > 0">
+                      <th v-for="(h, hidx) in msg.tableData.headers" :key="hidx" 
+                          class="p-2 border border-slate-200 dark:border-slate-700 font-bold uppercase tracking-wider text-[10px] text-slate-700 dark:text-slate-200"
+                      >
+                        {{ h || 'N/A' }}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>

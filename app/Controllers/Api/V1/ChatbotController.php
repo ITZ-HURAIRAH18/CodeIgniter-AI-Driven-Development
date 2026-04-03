@@ -11,8 +11,8 @@ use App\Models\StockTransferModel;
 
 /**
  * ChatbotController
- * Advanced Gemini-only AI Assistant for Inventory Management System.
- * Operates as a Main Agent routing queries to data-rich sub-modules.
+ * THE GRAND ARCHITECT: A Multi-Agent AI Ecosystem for ERP Management.
+ * Routes user intents to specialized sub-agents with domain-specific intelligence.
  */
 class ChatbotController extends BaseApiController
 {
@@ -27,7 +27,7 @@ class ChatbotController extends BaseApiController
     /** Preflight CORS handler */
     public function options() { return $this->addCorsHeaders($this->response->setStatusCode(204)); }
 
-    /** Main Chatbot Query entry point */
+    /** Main Agent Entry Point */
     public function query()
     {
         $query = $this->request->getVar('query');
@@ -37,40 +37,48 @@ class ChatbotController extends BaseApiController
         $roleId = (int)($user->role_id ?? 0);
         $userId = (int)($user->sub ?? 0);
 
-        // --- STEP 1: Main Agent - Categorization ---
-        $module = $this->identifyModule($query);
-        
-        // --- STEP 2: Sub-Agent - Data Gathering ---
-        $dataSummary = $this->fetchModuleData($module, $roleId, $userId);
-
-        // --- STEP 3: Prompt Assembly & Gemini Call ---
-        $systemPrompt = $this->buildMainSystemPrompt($roleId);
-
         try {
-            $responseText = '';
+            // STEP 1: Main Architect Identifies the specialized agent needed
+            $module = $this->identifyModule($query);
             
+            // STEP 2: Fetch specialized context for the sub-agent
+            $context = $this->fetchAgentContext($module, $roleId, $userId);
+
+            // STEP 3: Get the 'God Level' System Prompt for the specific sub-agent
+            $systemPrompt = $this->getAgentSystemPrompt($module, $roleId);
+
+            $responseText = '';
             if ($this->geminiKey) {
                 try {
-                    $responseText = $this->callGemini($query, $systemPrompt, $dataSummary);
-                } catch (\Exception $e) { 
-                    // Log error internally if needed
+                    $responseText = $this->callGemini($query, $systemPrompt, $context);
+                } catch (\Exception $e) {
+                    $responseText = "Error communicating with AI: " . $e->getMessage();
                 }
             }
 
-            // Fallback if Gemini failed or key missing
+            // Fallback strategy
             if (empty($responseText)) {
-                $responseText = $this->getStaticIntelligentResponse($query, $dataSummary, $roleId);
+                $responseText = "The {$module} specialist is currently offline. Please try again shortly.";
             }
 
             return $this->addCorsHeaders($this->respond([
                 'success' => true,
-                'data'    => ['response' => $responseText, 'module' => $module]
+                'data'    => [
+                    'response' => $responseText, 
+                    'agent'    => ucfirst($module) . " Specialist",
+                    'module'   => $module
+                ]
             ]));
+
         } catch (\Exception $e) {
-            return $this->apiError('Gemini Agent processing failed: ' . $e->getMessage());
+            return $this->apiError('Agent orchestration failed: ' . $e->getMessage());
         }
     }
 
+    /**
+     * LOCAL ROUTER: The Grand Architect's primary routing logic.
+     * Uses pattern matching to delegate to specialized sub-agents.
+     */
     private function identifyModule(string $query): string
     {
         $q = strtolower($query);
@@ -81,144 +89,181 @@ class ChatbotController extends BaseApiController
         if (preg_match('/transfer|move|ship|dispatch|logistics/', $q)) return 'transfers';
         if (preg_match('/branch|location|store|warehouse|site|office/', $q)) return 'branches';
         
-        return 'stats';
+        return 'general';
     }
 
-    private function fetchModuleData(string $module, int $roleId, int $userId): string
+    /**
+     * AGENT-SPECIFIC DATA FETCHING
+     * Provides the raw data context for the sub-agent to analyze.
+     */
+    private function fetchAgentContext(string $module, int $roleId, int $userId): string
     {
-        $summary = "SYSTEM CONTEXT MODULE: " . strtoupper($module) . "\n";
         $branchIds = ($roleId === 2) ? model(BranchModel::class)->getManagerBranchIds($userId) : [];
+        $context = "PRIMARY DATA CONTEXT FOR AGENT:\n";
 
         switch ($module) {
             case 'inventory':
                 $invModel = model(InventoryModel::class);
                 $data = ($roleId === 1) ? $invModel->getAllWithProductDetails() : $invModel->getByBranchesWithDetails($branchIds);
-                $list = "";
-                foreach(array_slice($data, 0, 15) as $i) {
-                    $list .= "- {$i['product_name']} (SKU: {$i['sku']}): {$i['quantity']} {$i['unit']} at {$i['branch_name']}\n";
+                foreach(array_slice($data, 0, 20) as $i) {
+                    $context .= "- SKU: {$i['sku']} | Product: {$i['product_name']} | Qty: {$i['quantity']} | Branch: {$i['branch_name']} | Reorder: {$i['reorder_level']}\n";
                 }
-                $summary .= "Stock Levels:\n" . ($list ?: "No stock found.") . "\n";
-                $lowStock = count(array_filter($data, fn($i) => ($i['quantity'] ?? 0) <= ($i['reorder_level'] ?? 10)));
-                $summary .= "Insights: Total Items=" . count($data) . ", Low Stock Items=$lowStock\n";
                 break;
 
             case 'orders':
                 $orderModel = model(OrderModel::class);
-                if ($roleId === 1) $orders = $orderModel->getWithDetails();
-                elseif ($roleId === 2) $orders = $orderModel->getWithDetailsMultiBranch($branchIds);
-                else $orders = $orderModel->getWithDetails(null, $userId); 
-                $list = "";
-                foreach(array_slice($orders, 0, 10) as $o) {
-                    $list .= "- Order {$o['order_number']}: Total {$o['grand_total']}, Status: {$o['status']}\n";
+                $orders = ($roleId === 1) ? $orderModel->getWithDetails() : ($roleId === 2 ? $orderModel->getWithDetailsMultiBranch($branchIds) : $orderModel->getWithDetails(null, $userId));
+                foreach(array_slice($orders, 0, 15) as $o) {
+                    $context .= "- #{$o['order_number']} | Total: {$o['grand_total']} | Status: {$o['status']} | Date: {$o['created_at']} | Branch: {$o['branch_name']}\n";
                 }
-                $summary .= "Recent Orders:\n" . ($list ?: "No orders found.") . "\n";
                 break;
 
             case 'products':
-                $pModel = model(ProductModel::class);
-                $prods = $pModel->limit(15)->findAll();
-                $list = "";
-                foreach($prods as $p) { $list .= "- {$p->name} (SKU: {$p->sku}): Price {$p->sale_price}\n"; }
-                $summary .= "Product Catalog:\n" . ($list ?: "Empty catalog.") . "\n";
+                $prods = model(ProductModel::class)->limit(20)->findAll();
+                foreach($prods as $p) {
+                    $context .= "- SKU: {$p->sku} | Name: {$p->name} | Price: {$p->sale_price} | Cost: {$p->purchase_price} | Category: " . ($p->category_id ?? 'N/A') . "\n";
+                }
                 break;
 
-            case 'users':
-                if ($roleId !== 1) { $summary .= "Access Restricted.\n"; }
-                else {
-                    $uModel = model(UserModel::class);
-                    $users = $uModel->select('name, email, role_id, is_active')->limit(15)->findAll();
-                    $list = "";
-                    foreach($users as $u) {
-                        $roleName = [1 => 'Admin', 2 => 'Manager', 3 => 'Sales'][$u->role_id] ?? 'User';
-                        $list .= "- {$u->name} ({$u->email}) - Role: {$roleName}\n";
-                    }
-                    $summary .= "User Directory:\n" . ($list ?: "No users.") . "\n";
+            case 'branches':
+                $branches = ($roleId === 1) ? model(BranchModel::class)->getWithManagers() : model(BranchModel::class)->whereIn('id', $branchIds ?: [0])->findAll();
+                foreach($branches as $b) {
+                    $context .= "- Branch: {$b['name']} | Manager: " . ($b['manager_name'] ?? 'Unassigned') . " | Status: " . ($b['is_active'] ? 'Active' : 'Inactive') . " | Contact: {$b['phone']}\n";
                 }
                 break;
 
             case 'transfers':
-                $tModel = model(StockTransferModel::class);
-                $transfers = ($roleId === 1) ? $tModel->listAll() : $tModel->listAllMultiBranch($branchIds);
-                $list = "";
-                foreach(array_slice($transfers, 0, 10) as $t) {
-                    $list .= "- Transfer #{$t['id']} -> Status: {$t['status']}, Logic: From {$t['from_branch']} to {$t['to_branch']}\n";
+                $transfers = ($roleId === 1) ? model(StockTransferModel::class)->listAll() : model(StockTransferModel::class)->listAllMultiBranch($branchIds);
+                foreach(array_slice($transfers, 0, 15) as $t) {
+                    $context .= "- ID: {$t['id']} | From: {$t['from_branch']} | To: {$t['to_branch']} | Status: {$t['status']} | Qty: {$t['total_quantity']}\n";
                 }
-                $summary .= "History:\n" . ($list ?: "No transfers.") . "\n";
                 break;
 
-            case 'branches':
-                $bModel = model(BranchModel::class);
-                $branches = ($roleId === 1) ? $bModel->getWithManagers() : $bModel->whereIn('id', $branchIds ?: [0])->findAll();
-                $list = "";
-                foreach($branches as $b) { $list .= "- {$b['name']}, Phone: {$b['phone']}, Active: " . ($b['is_active'] ? 'Yes' : 'No') . "\n"; }
-                $summary .= "Branches:\n" . ($list ?: "No branches.") . "\n";
+            case 'users':
+                if ($roleId === 1) {
+                    $users = model(UserModel::class)->select('name, email, role_id, is_active')->limit(15)->findAll();
+                    foreach($users as $u) {
+                        $role = [1 => 'Admin', 2 => 'Manager', 3 => 'Sales'][$u->role_id] ?? 'User';
+                        $context .= "- User: {$u->name} | Email: {$u->email} | Role: $role | Active: " . ($u->is_active ? 'Yes' : 'No') . "\n";
+                    }
+                } else {
+                    $context .= "ACCESS DENIED: Role unauthorized for user directory.\n";
+                }
                 break;
 
             default:
-                $summary .= "General Stats: Products=".model(ProductModel::class)->countAll().", Branches=".model(BranchModel::class)->countAll();
+                $context .= "System State: Admin role active. High-level dashboard visibility enabled. Summary: " . model(ProductModel::class)->countAll() . " Products, " . model(OrderModel::class)->countAll() . " Orders.";
         }
 
-        return $summary;
+        return $context;
     }
 
-    private function buildMainSystemPrompt(int $roleId): string
+    /**
+     * GOD LEVEL PROMPT ENGINE
+     * Dynamically constructs the system personality based on the identified module.
+     */
+    private function getAgentSystemPrompt(string $module, int $roleId): string
     {
-        $roleName = [1 => 'Admin', 2 => 'Manager', 3 => 'Sales'][$roleId] ?? 'User';
-        return "You are an advanced Gemini AI Assistant for a complete Inventory Management System.
-Your role: Professional business assistant for $roleName.
+        $roleMap = [1 => 'System Administrator', 2 => 'Regional Manager', 3 => 'Sales Associate'];
+        $userRole = $roleMap[$roleId] ?? 'System User';
 
-## SYSTEM CONTEXT
-Modules: Inventory, Orders, Products, Users, Transfers, Branches.
+        $base = "You are an elite, specialized AI Agent within an Enterprise Inventory Management Ecosystem.
+Current User Role: {$userRole}.
+Mode: Real-time Data Analysis & Interactive Command Processing.
 
-## RESPONSE STYLE (STRICT)
-- NEVER return JSON.
-- ALWAYS use TABLES for data.
-- Use Markdown.
-- Add insights/summaries.
-- Table Format: | Col | Col | Col |
+---
 
-## STRICT RULES
-- Answer ONLY based on provided Data Context.
-- If data missing, say: 'No data available for this request'.
-- DO NOT explain how you work.";
+## CORE DIRECTIVES (APPLY TO ALL AGENTS)
+1. **Precision**: Use ONLY provided data. Never extrapolate or hallucinate.
+2. **Professionalism**: Maintain a high-tier, executive tone. No emojis. No conversational fluff.
+3. **Format**: Always use Markdown Tables for data lists. No exceptions.
+4. **Actionable Insights**: Don't just show data; identify trends or issues (e.g., 'Low Stock', 'High-Value Order').
+5. **Interactive Intent**: If the user wants to ADD or UPDATE something, act as a 'Registry Agent':
+   - Identify missing information.
+   - Ask for specific fields clearly (e.g. 'I need Name, Location, Manager').
+   - Example: \"I can help you add a branch. Please provide the Branch Name, Manager ID, and Address.\"
+
+---
+
+";
+
+        $prompts = [
+            'inventory' => "### ROLE: INVENTORY STRATEGIST
+- Focus: Stock health, reorder levels, and SKU performance.
+- Goal: Minimize stock-outs and identify dead stock.
+- Formatting: Include 'Stock Status' (Healthy, Low, Critical) based on reorder levels.",
+
+            'orders' => "### ROLE: TRANSACTION ANALYST
+- Focus: Order flow, revenue tracking, and order status lifecycle.
+- Goal: Identify pending bottlenecks and summarize sales performance.
+- Formatting: Use columns for Order ID, status, and Total Value.",
+
+            'products' => "### ROLE: CATALOG CURATOR
+- Focus: Product details, pricing strategy, and categorization.
+- Goal: Help users find items quickly and maintain catalog integrity.
+- Formatting: Highlight pricing tiers and SKU identifiers.",
+
+            'branches' => "### ROLE: OPERATIONS DIRECTOR
+- Focus: Branch performance, manager assignments, and site status.
+- Goal: Manage the physical footprint of the enterprise.
+- Interaction: For adding branches, ensure you request Name, Address, and Phone.",
+
+            'transfers' => "### ROLE: LOGISTICS SPECIALIST
+- Focus: Inter-branch movement, shipping logs, and transit times.
+- Goal: Ensure stock is where it needs to be. Identify delayed transfers.
+- Formatting: Focus on Origin vs Destination analysis.",
+
+            'users' => "### ROLE: HUMAN RESOURCE AGENT
+- Focus: Access control, activity status, and team structure.
+- Goal: Secure management of personnel.",
+
+            'general' => "### ROLE: GRAND ARCHITECT
+- Focus: Holistic system health and general navigation.
+- Goal: Provide a high-level summary if no specific module is identified."
+        ];
+
+        return $base . ($prompts[$module] ?? $prompts['general']) . "\n\n### RESPONSE STRUCTURE (STRICT)
+1. Title: Bold, uppercase, no emojis.
+2. Content: Analyze the $module query using the provided context.
+3. Table: Professional Markdown Table (if applicable).
+4. Summary: 1-2 sentences of executive-level insights.";
     }
 
     private function callGemini(string $query, string $system, string $data): string
     {
         $url = $this->geminiUrl . '?key=' . trim($this->geminiKey);
-        $ch = curl_init($url);
         $payload = [
-            'contents' => [['parts' => [['text' => "Instructions: $system\n\nData Context:\n$data\n\nQuestion: $query"]]]]
+            'contents' => [['parts' => [['text' => "SYSTEM INSTRUCTIONS:\n$system\n\nPROVIDED CONTEXT:\n$data\n\nUSER QUERY: $query"]]]]
         ];
+
+        $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        
         $res = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($code !== 200) throw new \Exception("Gemini API Error: $res");
+        if ($code !== 200) throw new \Exception("Gemini API Error: (Code $code) $res");
+        
         $json = json_decode($res, true);
         return trim($json['candidates'][0]['content']['parts'][0]['text'] ?? '');
     }
 
-    private function getStaticIntelligentResponse(string $query, string $data, int $roleId): string
-    {
-        return "### ⚠️ Gemini Note\n\nUnable to connect to Gemini. Live data snapshot:\n\n" . substr($data, 0, 400) . "...";
-    }
-
+    /** Suggestions based on role */
     public function suggest()
     {
         $user = $this->actor();
         $roleId = (int)($user->role_id ?? 0);
         $suggestions = [
-            1 => ['Low stock alert', 'User list summary', 'Branch stats'],
-            2 => ['Branch inventory', 'Recent transfers'],
-            3 => ['Check price', 'My sales']
+            1 => ['System Audit Report', 'Add New Branch', 'High-Level Metrics'],
+            2 => ['Inventory at my branch', 'Incoming Transfers', 'Pending Sales'],
+            3 => ['Stock Availability', 'Record New Sale', 'Recent Orders']
         ];
-        return $this->ok($suggestions[$roleId] ?? ['Help']);
+        return $this->ok($suggestions[$roleId] ?? ['General Support']);
     }
 
     public function getRoutes()
