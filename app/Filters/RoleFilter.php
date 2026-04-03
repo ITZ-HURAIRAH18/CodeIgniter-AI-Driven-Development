@@ -47,7 +47,24 @@ class RoleFilter implements FilterInterface
             return null; // continue (will be handled by CorsFilter)
         }
 
-        $payload = $request->authPayload;
+        // Try to get or set the auth payload from the Authorization header
+        $payload = $request->authPayload ?? null;
+
+        if (!$payload) {
+            // Try to extract from Authorization header if it wasn't set by JWT filter
+            $authHeader = $request->getHeaderLine('Authorization');
+            if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
+                $token = substr($authHeader, 7);
+                try {
+                    // Attempt to decode the JWT to get the payload
+                    $config = \Config\Services::config('App');
+                    $jwt = \Config\Services::jwt();
+                    $payload = $jwt->decode($token);
+                } catch (\Exception $e) {
+                    // Token is invalid, continue to error
+                }
+            }
+        }
 
         if (!$payload) {
             return $this->getErrorResponse('Authentication required.', 401);

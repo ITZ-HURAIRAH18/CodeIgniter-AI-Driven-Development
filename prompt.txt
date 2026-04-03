@@ -1,1 +1,9 @@
-still on Action it show commondeleted 
+   - Orange: qty=111, reorder=10, category=Optimal
+:8081/api/v1/chatbot/query:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
+InventoryChatbot.vue:106 Chatbot error: AxiosError: Request failed with status code 500
+    at settle (axios.js?v=8321e9f3:1319:7)
+    at XMLHttpRequest.onloadend (axios.js?v=8321e9f3:1682:7)
+    at Axios.request (axios.js?v=8321e9f3:2328:41)
+    at async Object.query (chatbot.api.js:31:22)
+    at async Proxy.sendQuery (InventoryChatbot.vue:72:22)
+sendQuery @ InventoryChatbot.vue:106Understand this error

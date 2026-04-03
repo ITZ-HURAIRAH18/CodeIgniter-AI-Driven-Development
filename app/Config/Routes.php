@@ -23,6 +23,8 @@ $routes->group('api/v1', ['filter' => 'cors'], function ($routes) {
 
     // ── CORS Preflight Handler — OPTIONS for all API routes ────────────
     $routes->options('(.*)', 'Api\V1\TestController::corsPreFlight');
+    $routes->options('chatbot/query', 'Api\V1\ChatbotController::options');
+    $routes->options('chatbot/suggest', 'Api\V1\ChatbotController::options');
 
     // ── Test/Debug endpoints ────────────────────────────────────────
     $routes->get('test/health', 'Api\V1\TestController::health');
@@ -112,6 +114,11 @@ $routes->group('api/v1', ['filter' => 'cors'], function ($routes) {
             $routes->post('',                    'Api\V1\OrderController::create');
             $routes->post('(:num)/cancel',       'Api\V1\OrderController::cancel/$1');
         });
+
+        // ── Chatbot Routes ──────────────────────────────────────
+        $routes->get('chatbot/routes',  'Api\V1\ChatbotController::getRoutes');
+        $routes->post('chatbot/query',  'Api\V1\ChatbotController::query');
+        $routes->post('chatbot/suggest', 'Api\V1\ChatbotController::suggest');
     });
 });
 

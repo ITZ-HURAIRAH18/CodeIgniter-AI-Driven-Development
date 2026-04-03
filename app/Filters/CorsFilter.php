@@ -25,17 +25,19 @@ class CorsFilter implements FilterInterface
         $origin = $request->getHeaderLine('Origin');
         $allowedOrigins = $this->config->default['allowedOrigins'];
         
-        // Check if all origins allowed or origin is in whitelist
-        $isAllowed = in_array('*', $allowedOrigins) || ($origin && in_array($origin, $allowedOrigins));
-        
-        if ($isAllowed) {
-            // Handle preflight
-            if ($request->getMethod() === 'OPTIONS') {
-                $responseOrigin = in_array('*', $allowedOrigins) ? '*' : $origin;
+        // Handle preflight
+        if ($request->getMethod() === 'OPTIONS') {
+            $isAllowed = in_array('*', $allowedOrigins) || ($origin && in_array($origin, $allowedOrigins));
+            
+            if ($isAllowed) {
+                // If '*' is allowed, we echo the actual origin to be safer (some browsers prefer it)
+                $responseOrigin = ($origin && in_array('*', $allowedOrigins)) ? $origin : (in_array('*', $allowedOrigins) ? '*' : $origin);
+                
                 return response()
-                    ->setHeader('Access-Control-Allow-Origin',      $responseOrigin)
+                    ->setHeader('Access-Control-Allow-Origin',      $responseOrigin ?: '*')
                     ->setHeader('Access-Control-Allow-Methods',     'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-                    ->setHeader('Access-Control-Allow-Headers',     'Content-Type, Authorization, X-Requested-With')
+                    ->setHeader('Access-Control-Allow-Headers',     'Content-Type, Authorization, X-Requested-With, Accept')
+                    ->setHeader('Access-Control-Allow-Credentials',  'true')
                     ->setHeader('Access-Control-Max-Age',           '86400')
                     ->setStatusCode(204);
             }
@@ -46,19 +48,19 @@ class CorsFilter implements FilterInterface
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null): mixed
     {
-        $origin = $request->getHeaderLine('Origin');
+        $origin = $request->getHeaderLine('Origin') ?: '*';
         $allowedOrigins = $this->config->default['allowedOrigins'];
         
-        // Only set CORS headers if all origins allowed or origin is whitelisted
         $isAllowed = in_array('*', $allowedOrigins) || ($origin && in_array($origin, $allowedOrigins));
         
         if ($isAllowed) {
-            $responseOrigin = in_array('*', $allowedOrigins) ? '*' : $origin;
-            return $response
+            $responseOrigin = ($origin !== '*' && in_array('*', $allowedOrigins)) ? $origin : $origin;
+
+            $response
                 ->setHeader('Access-Control-Allow-Origin',      $responseOrigin)
                 ->setHeader('Access-Control-Allow-Headers',     'Content-Type, Authorization, X-Requested-With, Accept')
                 ->setHeader('Access-Control-Allow-Methods',     'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD')
-                ->setHeader('Access-Control-Allow-Credentials',  'false')
+                ->setHeader('Access-Control-Allow-Credentials',  'true')
                 ->setHeader('Access-Control-Max-Age',           '86400');
         }
 
