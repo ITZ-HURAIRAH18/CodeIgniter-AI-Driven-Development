@@ -9,28 +9,13 @@ import {
   Sparkles as SparklesIcon,
   Copy as CopyIcon,
   RefreshCw as RefreshIcon,
-  ThumbsUp as ThumbsUpIcon,
-  ThumbsDown as ThumbsDownIcon,
+  Trash2 as TrashIcon,
+  Maximize2 as MaximizeIcon,
+  Zap as ZapIcon,
+  AlertCircle as AlertCircleIcon,
   ChevronDown as ChevronDownIcon,
   ChevronUp as ChevronUpIcon,
-  Trash2 as TrashIcon,
-  Download as DownloadIcon,
-  Minimize2 as MinimizeIcon,
-  Mic as MicIcon,
-  Paperclip as PaperclipIcon,
   Clock as ClockIcon,
-  Zap as ZapIcon,
-  Database as DatabaseIcon,
-  AlertCircle as AlertCircleIcon,
-  CheckCircle2 as CheckCircleIcon,
-  Loader2 as LoaderIcon,
-  Search as SearchIcon,
-  ArrowUpDown as SortIcon,
-  ExternalLink as ExternalLinkIcon,
-  HelpCircle as HelpCircleIcon,
-  Settings as SettingsIcon,
-  Maximize2 as MaximizeIcon,
-  Lightbulb as LightbulbIcon,
 } from 'lucide-vue-next';
 import ChatbotApi from '@/api/chatbot.api';
 
@@ -52,15 +37,7 @@ const suggestions = ref([]);
 const queryHistory = ref([]);
 const historyIndex = ref(-1);
 const isMinimized = ref(false);
-const showSuggestions = ref(true);
-const connectionStatus = ref('connected'); // 'connected' | 'connecting' | 'error'
 const responseCache = new Map();
-const tooltipState = ref({ visible: false, text: '', x: 0, y: 0 });
-
-// Per-message metadata
-const responseTime = ref(0);
-const lastProcessedAt = ref(null);
-const sessionId = computed(() => `sess_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
 
 // Quick Actions
 const quickActions = [
@@ -73,7 +50,9 @@ const quickActions = [
 // ─── Lifecycle ──────────────────────────────────────────────────
 const toggleChat = () => {
   isOpen.value = !isOpen.value;
+  
   if (isOpen.value) {
+    // Opening chat - initialize fresh
     isMinimized.value = false;
     if (messages.value.length === 0) {
       autoWelcome();
@@ -81,6 +60,13 @@ const toggleChat = () => {
       loadQueryHistory();
     }
     loadCachedMessages();
+  } else {
+    // Closing chat - clear all messages for privacy
+    messages.value = [];
+    responseCache.clear();
+    localStorage.removeItem('chatbot_messages');
+    query.value = '';
+    historyIndex.value = -1;
   }
 };
 
@@ -192,7 +178,6 @@ const sendQuery = async (forceQuery = null) => {
   query.value = '';
   historyIndex.value = -1;
   isTyping.value = true;
-  connectionStatus.value = 'connecting';
   await scrollDown();
 
   const startTime = performance.now();
@@ -201,9 +186,6 @@ const sendQuery = async (forceQuery = null) => {
     const response = await ChatbotApi.query(text);
     const endTime = performance.now();
     const procTime = Math.round(endTime - startTime);
-    responseTime.value = procTime;
-    lastProcessedAt.value = new Date();
-    connectionStatus.value = 'connected';
 
     let textResp = '';
 
@@ -251,10 +233,6 @@ const sendQuery = async (forceQuery = null) => {
     cacheMessages();
   } catch (err) {
     console.error('Chatbot error:', err);
-    const endTime = performance.now();
-    responseTime.value = Math.round(endTime - startTime);
-    lastProcessedAt.value = new Date();
-    connectionStatus.value = 'error';
 
     messages.value.push({
       id: generateId(),
@@ -262,9 +240,6 @@ const sendQuery = async (forceQuery = null) => {
       content: 'Sorry, I encountered an error. Please check your connection and try again.',
       type: 'text',
       timestamp: new Date(),
-      confidence: 0,
-      sources: [],
-      processingTime: responseTime.value,
       isError: true,
     });
   } finally {
@@ -361,34 +336,6 @@ const formatTime = (date) => {
   }).format(date);
 };
 
-const formatLastUpdate = (date) => {
-  if (!date) return '—';
-  const now = new Date();
-  const diff = Math.floor((now - new Date(date)) / 1000);
-  if (diff < 5) return 'Just now';
-  if (diff < 60) return `${diff}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  return formatTime(date);
-};
-
-const getConfidenceColor = (confidence) => {
-  if (confidence >= 90) return 'text-emerald-600 dark:text-emerald-400';
-  if (confidence >= 70) return 'text-amber-600 dark:text-amber-400';
-  return 'text-red-600 dark:text-red-400';
-};
-
-const getConfidenceBg = (confidence) => {
-  if (confidence >= 90) return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400';
-  if (confidence >= 70) return 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400';
-  return 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400';
-};
-
-const getConfidenceBarColor = (confidence) => {
-  if (confidence >= 90) return 'bg-emerald-500';
-  if (confidence >= 70) return 'bg-amber-500';
-  return 'bg-red-500';
-};
-
 // ─── Actions ────────────────────────────────────────────────────
 const clearChat = () => {
   messages.value = [];
@@ -397,33 +344,11 @@ const clearChat = () => {
   autoWelcome();
 };
 
-const exportConversation = () => {
-  const text = messages.value.map(m => {
-    const role = m.role === 'user' ? 'You' : 'Assistant';
-    const time = formatTime(m.timestamp);
-    let content = m.content || '';
-    if (m.type === 'table' && m.tableData) {
-      content += '\n[Table: ' + m.tableData.headers.join(', ') + ']';
-    }
-    return `[${time}] ${role}: ${content}`;
-  }).join('\n\n');
-
-  const header = `Inventory Assistant - Conversation Export\nSession: ${sessionId.value}\nDate: ${new Date().toLocaleString()}\n${'='.repeat(60)}\n\n`;
-  const blob = new Blob([header + text], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `chat-export-${new Date().toISOString().slice(0, 10)}.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
-};
-
 const copyResponse = async (content) => {
   try {
     await navigator.clipboard.writeText(content);
-    showTooltip('Copied to clipboard');
   } catch {
-    showTooltip('Failed to copy');
+    // Silently fail
   }
 };
 
@@ -434,40 +359,6 @@ const regenerateResponse = async (msgIndex) => {
     messages.value.splice(msgIndex, 1); // Remove the bot message
     await sendQuery(userMsg.content);
   }
-};
-
-const giveFeedback = (msgIndex, feedback) => {
-  if (messages.value[msgIndex]) {
-    messages.value[msgIndex].feedback = feedback;
-    cacheMessages();
-    showTooltip(feedback === 'up' ? 'Thanks for the feedback!' : 'We\'ll improve this response');
-  }
-};
-
-const showTooltip = (text) => {
-  tooltipState.value = { visible: true, text, x: 0, y: 0 };
-  setTimeout(() => {
-    tooltipState.value.visible = false;
-  }, 2000);
-};
-
-// ─── Table Features ─────────────────────────────────────────────
-const tableSortStates = ref({});
-
-const sortTable = (tableKey, colIndex) => {
-  const key = `${tableKey}_${colIndex}`;
-  const current = tableSortStates.value[key] || 'none';
-  const next = current === 'none' ? 'asc' : current === 'asc' ? 'desc' : 'none';
-  tableSortStates.value[key] = next;
-  // Sorting would be applied during render
-};
-
-const getSortIcon = (tableKey, colIndex) => {
-  const key = `${tableKey}_${colIndex}`;
-  const state = tableSortStates.value[key] || 'none';
-  if (state === 'asc') return '↑';
-  if (state === 'desc') return '↓';
-  return '↕';
 };
 
 // ─── Keyboard Shortcuts ─────────────────────────────────────────
@@ -536,26 +427,6 @@ const getTableKey = (msgId) => `table_${msgId}`;
 
 <template>
   <div v-if="isLoggedIn" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
-
-    <!-- Global Tooltip -->
-    <transition
-      enter-active-class="transition duration-150 ease-out"
-      enter-from-class="opacity-0 transform -translate-y-1"
-      enter-to-class="opacity-100 transform translate-y-0"
-      leave-active-class="transition duration-100 ease-in"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="tooltipState.visible"
-        class="fixed z-[9999] px-2.5 py-1.5 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-md shadow-lg pointer-events-none"
-        style="transform: translate(-50%, -100%)"
-      >
-        {{ tooltipState.text }}
-        <div class="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
-      </div>
-    </transition>
-
     <transition
       enter-active-class="transition duration-200 ease-out"
       enter-from-class="transform translate-y-4 opacity-0"
@@ -566,88 +437,51 @@ const getTableKey = (msgId) => `table_${msgId}`;
     >
       <div
         v-if="isOpen"
-        class="mb-3 w-[400px] h-[600px] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
+        class="mb-4 w-[420px] max-h-[80vh] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200/80 dark:border-gray-700/80 flex flex-col overflow-hidden"
         role="dialog"
         aria-label="Inventory Assistant Chat"
       >
-        <!-- ═══ Professional Header Toolbar ═══ -->
+        <!-- ═══ Simplified Professional Header ═══ -->
         <div class="shrink-0">
-          <!-- Main Header -->
-          <div class="px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 dark:from-primary-700 dark:to-primary-600 flex justify-between items-center">
+          <!-- Clean Header -->
+          <div class="px-5 py-3.5 bg-gradient-to-r from-primary-600 to-primary-500 dark:from-primary-700 dark:to-primary-600 flex justify-between items-center">
             <div class="flex items-center gap-3">
-              <div class="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg">
-                <SparklesIcon :size="16" class="text-white" />
+              <div class="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                <SparklesIcon :size="18" class="text-white" />
               </div>
               <div>
-                <div class="flex items-center gap-2">
-                  <h3 class="font-semibold text-sm text-white tracking-tight">Inventory Assistant</h3>
-                  <span class="px-1.5 py-0.5 text-[10px] font-medium bg-white/20 text-white rounded-md backdrop-blur-sm">
-                    AI
-                  </span>
-                </div>
-                <div class="flex items-center gap-2 mt-0.5">
-                  <span class="relative flex h-1.5 w-1.5">
-                    <span
-                      class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                      :class="connectionStatus === 'connected' ? 'bg-emerald-300' : connectionStatus === 'connecting' ? 'bg-amber-300' : 'bg-red-300'"
-                    ></span>
-                    <span
-                      class="relative inline-flex rounded-full h-1.5 w-1.5"
-                      :class="connectionStatus === 'connected' ? 'bg-emerald-300' : connectionStatus === 'connecting' ? 'bg-amber-300' : 'bg-red-300'"
-                    ></span>
-                  </span>
-                  <p class="text-[11px] text-white/80">
-                    {{ currentRoleName }}
-                    <span class="mx-1">·</span>
-                    <span class="capitalize">{{ connectionStatus }}</span>
-                  </p>
-                </div>
+                <h3 class="font-semibold text-sm text-white">Inventory Assistant</h3>
+                <p class="text-[11px] text-white/80">AI-powered assistant</p>
               </div>
             </div>
-            <div class="flex items-center gap-1">
-              <button
-                @click="exportConversation"
-                class="p-1.5 hover:bg-white/20 rounded-lg transition-colors text-white/70 hover:text-white"
-                title="Export conversation"
-                aria-label="Export conversation"
-              >
-                <DownloadIcon :size="14" />
-              </button>
+            <div class="flex items-center gap-1.5">
               <button
                 @click="clearChat"
-                class="p-1.5 hover:bg-white/20 rounded-lg transition-colors text-white/70 hover:text-white"
+                class="p-2 hover:bg-white/20 rounded-lg transition-colors text-white/80 hover:text-white"
                 title="Clear chat"
                 aria-label="Clear chat"
               >
-                <TrashIcon :size="14" />
-              </button>
-              <button
-                @click="isMinimized = !isMinimized"
-                class="p-1.5 hover:bg-white/20 rounded-lg transition-colors text-white/70 hover:text-white"
-                title="Minimize"
-                aria-label="Minimize chat"
-              >
-                <MinimizeIcon :size="14" />
+                <TrashIcon :size="16" />
               </button>
               <button
                 @click="isOpen = false"
-                class="p-1.5 hover:bg-white/20 rounded-lg transition-colors text-white/70 hover:text-white"
+                class="p-2 hover:bg-white/20 rounded-lg transition-colors text-white/80 hover:text-white"
                 title="Close"
                 aria-label="Close chat"
               >
-                <XIcon :size="14" />
+                <XIcon :size="16" />
               </button>
             </div>
           </div>
 
           <!-- Minimized State -->
-          <div v-if="isMinimized" class="px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-center">
+          <div v-if="isMinimized" class="px-5 py-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-center">
             <button
               @click="isMinimized = false"
-              class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              class="flex items-center gap-2 px-4 py-2 bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-lg transition-colors text-sm font-medium"
             >
               <MaximizeIcon :size="14" />
-              Click to expand
+              Click to expand chat
             </button>
           </div>
         </div>
@@ -656,41 +490,54 @@ const getTableKey = (msgId) => `table_${msgId}`;
         <div
           v-show="!isMinimized"
           ref="messageBox"
-          class="flex-1 overflow-y-auto scroll-smooth bg-gray-50 dark:bg-gray-950/30"
+          class="flex-1 overflow-y-auto scroll-smooth bg-gradient-to-b from-gray-50/50 to-gray-100/30 dark:from-gray-950/20 dark:to-gray-950/40"
           role="log"
           aria-label="Chat messages"
           aria-live="polite"
         >
           <!-- Welcome / Empty State -->
-          <div v-if="messages.length === 0" class="flex flex-col items-center justify-center h-full text-center py-12 px-6">
-            <div class="p-4 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/10 rounded-2xl mb-4">
-              <ChatIcon :size="32" class="text-primary-500 dark:text-primary-400" />
+          <div v-if="messages.length === 0" class="flex flex-col items-center justify-center h-full text-center py-10 px-6 bg-gradient-to-b from-primary-50/30 to-transparent dark:from-primary-950/10">
+            <div class="relative mb-5">
+              <div class="absolute inset-0 bg-primary-400/20 dark:bg-primary-500/20 rounded-3xl blur-xl animate-pulse"></div>
+              <div class="relative p-5 bg-gradient-to-br from-primary-500 to-primary-600 dark:from-primary-600 dark:to-primary-700 rounded-2xl shadow-xl border border-white/20">
+                <ChatIcon :size="36" class="text-white" />
+              </div>
             </div>
-            <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">Inventory Assistant</h4>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Your intelligent ERP assistant powered by AI</p>
+            <h4 class="text-base font-bold text-gray-900 dark:text-gray-50 mb-1.5">Inventory Assistant</h4>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mb-5 max-w-[240px]">Your intelligent ERP assistant powered by AI & Gemini</p>
 
             <!-- Guided Onboarding -->
-            <div class="w-full space-y-2 mt-2">
-              <p class="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Quick start</p>
+            <div class="w-full space-y-2.5 mt-1">
+              <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2.5">Quick start actions</p>
               <button
-                v-for="action in quickActions"
+                v-for="(action, idx) in quickActions"
                 :key="action.label"
                 @click="sendQuery(action.query)"
-                class="w-full flex items-center gap-3 px-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-300 dark:hover:border-primary-600 hover:shadow-sm transition-all group text-left"
+                class="w-full flex items-center gap-3 px-3.5 py-3 bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/80 rounded-xl hover:border-primary-400 dark:hover:border-primary-600 hover:shadow-lg hover:shadow-primary-500/10 hover:-translate-y-0.5 transition-all duration-200 group text-left"
+                :style="{ animationDelay: `${idx * 75}ms` }"
               >
-                <div class="p-1.5 bg-primary-50 dark:bg-primary-900/20 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 transition-colors">
-                  <ZapIcon :size="14" class="text-primary-600 dark:text-primary-400" />
+                <div class="p-2 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl group-hover:from-primary-100 dark:group-hover:from-primary-900/40 group-hover:to-primary-700/30 transition-all shadow-sm">
+                  <ZapIcon :size="15" class="text-primary-600 dark:text-primary-400" />
                 </div>
-                <div>
-                  <p class="text-xs font-medium text-gray-700 dark:text-gray-200">{{ action.label }}</p>
-                  <p class="text-[10px] text-gray-400 dark:text-gray-500">{{ action.query }}</p>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-semibold text-gray-800 dark:text-gray-100">{{ action.label }}</p>
+                  <p class="text-[10px] text-gray-500 dark:text-gray-400 truncate">{{ action.query }}</p>
                 </div>
+                <ChevronDownIcon :size="14" class="text-gray-400 -rotate-90 group-hover:-translate-y-0.5 transition-transform" />
               </button>
             </div>
           </div>
 
           <!-- Message List -->
           <div class="px-4 py-4 space-y-4">
+            <transition-group
+              enter-active-class="transition-all duration-300 ease-out"
+              enter-from-class="opacity-0 translate-y-2"
+              enter-to-class="opacity-100 translate-y-0"
+              leave-active-class="transition-all duration-200 ease-in"
+              leave-from-class="opacity-100"
+              leave-to-class="opacity-0 -translate-y-2"
+            >
             <div
               v-for="(msg, idx) in messages"
               :key="msg.id || idx"
@@ -702,97 +549,60 @@ const getTableKey = (msgId) => `table_${msgId}`;
               <!-- User Message -->
               <div
                 v-if="msg.role === 'user'"
-                class="max-w-[85%] rounded-xl px-4 py-2.5 text-sm shadow-sm bg-gradient-to-br from-primary-600 to-primary-500 text-white"
+                class="max-w-[88%] rounded-2xl px-4 py-3 text-sm shadow-lg shadow-primary-500/20 bg-gradient-to-br from-primary-600 via-primary-500 to-primary-600 text-white border border-white/10"
               >
-                <p class="leading-relaxed">{{ msg.content }}</p>
-                <div class="flex items-center justify-end gap-2 mt-1.5">
-                  <ClockIcon :size="10" class="text-white/60" />
-                  <span class="text-[10px] text-white/60">{{ formatTime(msg.timestamp) }}</span>
+                <p class="leading-relaxed whitespace-pre-wrap">{{ msg.content }}</p>
+                <div class="flex items-center justify-end gap-1.5 mt-2">
+                  <ClockIcon :size="10" class="text-white/50" />
+                  <span class="text-[10px] text-white/50 font-medium">{{ formatTime(msg.timestamp) }}</span>
                 </div>
               </div>
 
               <!-- Bot Message -->
               <div
                 v-else
-                class="max-w-[92%] w-full"
+                class="max-w-[95%] w-full"
               >
-                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-xs overflow-hidden">
-                  <!-- Bot Header -->
-                  <div class="px-3 py-2 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                      <div class="p-1 bg-primary-100 dark:bg-primary-900/30 rounded-md">
-                        <BotIcon :size="12" class="text-primary-600 dark:text-primary-400" />
+                <div class="bg-white dark:bg-gray-800/90 rounded-2xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm overflow-hidden">
+                  <!-- Simplified Bot Header -->
+                  <div class="px-4 py-2.5 bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700/60 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                      <div class="p-1.5 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
+                        <BotIcon :size="13" class="text-primary-600 dark:text-primary-400" />
                       </div>
-                      <span class="text-[10px] font-semibold uppercase tracking-wider text-primary-600 dark:text-primary-400">
+                      <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">
                         {{ msg.agent || 'Assistant' }}
                       </span>
-                      <span v-if="msg.fromCache" class="flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md">
-                        <ClockIcon :size="9" />
-                        Cached
-                      </span>
                     </div>
-                    <!-- Response Actions -->
+                    <!-- Minimal Actions -->
                     <div class="flex items-center gap-0.5">
                       <button
                         @click="copyResponse(msg.content)"
-                        class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        class="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                         title="Copy response"
                         aria-label="Copy response"
                       >
-                        <CopyIcon :size="12" />
+                        <CopyIcon :size="13" />
                       </button>
                       <button
                         @click="regenerateResponse(idx)"
-                        class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        class="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                         title="Regenerate"
                         aria-label="Regenerate response"
                       >
-                        <RefreshIcon :size="12" />
-                      </button>
-                      <button
-                        @click="giveFeedback(idx, 'up')"
-                        :class="[
-                          'p-1 rounded transition-colors',
-                          msg.feedback === 'up'
-                            ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20'
-                            : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400',
-                        ]"
-                        title="Helpful"
-                        aria-label="Mark as helpful"
-                      >
-                        <ThumbsUpIcon :size="12" />
-                      </button>
-                      <button
-                        @click="giveFeedback(idx, 'down')"
-                        :class="[
-                          'p-1 rounded transition-colors',
-                          msg.feedback === 'down'
-                            ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
-                            : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-400 hover:text-red-600 dark:hover:text-red-400',
-                        ]"
-                        title="Not helpful"
-                        aria-label="Mark as not helpful"
-                      >
-                        <ThumbsDownIcon :size="12" />
+                        <RefreshIcon :size="13" />
                       </button>
                     </div>
                   </div>
 
                   <!-- Message Content -->
-                  <div class="px-3 py-2.5">
+                  <div class="px-4 py-3">
                     <!-- Error State -->
-                    <div v-if="msg.isError" class="flex items-start gap-2.5 p-2.5 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-lg">
-                      <AlertCircleIcon :size="16" class="text-red-500 dark:text-red-400 shrink-0 mt-0.5" />
+                    <div v-if="msg.isError" class="flex items-start gap-2.5 p-3 bg-red-50 dark:bg-red-900/10 border border-red-200/50 dark:border-red-800/30 rounded-lg">
+                      <AlertCircleIcon :size="16" class="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                       <div>
                         <p class="text-sm text-red-700 dark:text-red-300 font-medium">Response Error</p>
-                        <p class="text-xs text-red-600 dark:text-red-400 mt-0.5">{{ msg.content }}</p>
-                        <button
-                          @click="regenerateResponse(idx)"
-                          class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/30 rounded-md transition-colors"
-                        >
-                          <RefreshIcon :size="12" />
-                          Retry
-                        </button>
+                        <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ msg.content }}</p>
                       </div>
                     </div>
 
@@ -803,44 +613,15 @@ const getTableKey = (msgId) => `table_${msgId}`;
                     <div v-else-if="msg.type === 'table' && msg.tableData" class="-mx-1">
                       <p v-if="msg.content" class="text-sm text-gray-700 dark:text-gray-300 mb-2.5 leading-relaxed" v-html="formatContent(msg.content)"></p>
                       <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-                        <!-- Table Toolbar -->
-                        <div class="flex items-center justify-between px-2.5 py-1.5 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                          <div class="flex items-center gap-1.5">
-                            <DatabaseIcon :size="12" class="text-gray-400" />
-                            <span class="text-[10px] font-medium text-gray-500 dark:text-gray-400">
-                              {{ msg.tableData.rows.length }} records
-                            </span>
-                          </div>
-                          <div class="flex items-center gap-1">
-                            <button
-                              class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                              title="Export table"
-                              aria-label="Export table"
-                            >
-                              <DownloadIcon :size="12" />
-                            </button>
-                            <button
-                              class="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                              title="Expand table"
-                              aria-label="Expand table"
-                            >
-                              <ExternalLinkIcon :size="12" />
-                            </button>
-                          </div>
-                        </div>
                         <table class="w-full border-collapse text-xs text-left">
-                          <thead class="bg-gray-100 dark:bg-gray-700/50">
+                          <thead class="bg-gray-50 dark:bg-gray-800/80">
                             <tr>
                               <th
                                 v-for="(h, hidx) in msg.tableData.headers"
                                 :key="hidx"
-                                class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 font-semibold text-[10px] text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors select-none"
-                                @click="sortTable(getTableKey(msg.id), hidx)"
+                                class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 font-semibold text-[10px] text-gray-600 dark:text-gray-400 uppercase tracking-wider"
                               >
-                                <span class="inline-flex items-center gap-1">
-                                  {{ h || 'N/A' }}
-                                  <SortIcon :size="10" class="text-gray-400" />
-                                </span>
+                                {{ h || 'N/A' }}
                               </th>
                             </tr>
                           </thead>
@@ -864,222 +645,68 @@ const getTableKey = (msgId) => `table_${msgId}`;
                     </div>
                   </div>
 
-                  <!-- Response Metadata Footer -->
-                  <div class="px-3 py-2 bg-gray-50/80 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-700/50">
-                    <div class="flex flex-wrap items-center gap-2">
-                      <!-- Confidence Badge -->
-                      <span
-                        v-if="msg.confidence !== undefined && msg.confidence > 0"
-                        :class="['inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-medium', getConfidenceBg(msg.confidence)]"
-                      >
-                        <CheckCircleIcon :size="10" />
-                        {{ msg.confidence }}% confidence
-                      </span>
-
-                      <!-- Processing Time -->
-                      <span
-                        v-if="msg.processingTime"
-                        class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
-                      >
-                        <ZapIcon :size="9" />
-                        {{ msg.processingTime }}ms
-                      </span>
-
-                      <!-- Sources -->
-                      <span
-                        v-if="msg.sources && msg.sources.length > 0"
-                        class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
-                      >
-                        <DatabaseIcon :size="9" />
-                        {{ msg.sources[0] }}
-                        <span v-if="msg.sources.length > 1" class="text-gray-400">+{{ msg.sources.length - 1 }}</span>
-                      </span>
-
-                      <!-- Timestamp -->
-                      <span class="inline-flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-500 ml-auto">
-                        <ClockIcon :size="10" />
-                        {{ formatTime(msg.timestamp) }}
-                      </span>
-                    </div>
-
-                    <!-- Confidence Bar -->
-                    <div
-                      v-if="msg.confidence !== undefined && msg.confidence > 0"
-                      class="mt-1.5 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"
-                    >
-                      <div
-                        :class="['h-full rounded-full transition-all duration-500', getConfidenceBarColor(msg.confidence)]"
-                        :style="{ width: `${msg.confidence}%` }"
-                      ></div>
-                    </div>
+                  <!-- Minimal Timestamp Footer -->
+                  <div class="px-4 py-1.5 border-t border-gray-100 dark:border-gray-800/50">
+                    <span class="text-[10px] text-gray-400 dark:text-gray-500">{{ formatTime(msg.timestamp) }}</span>
                   </div>
                 </div>
               </div>
             </div>
+            </transition-group>
 
-            <!-- Typing Indicator -->
-            <div v-if="isTyping" class="flex justify-start flex-col gap-1.5">
-              <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xs w-fit overflow-hidden">
-                <div class="px-3 py-2.5 flex items-center gap-3">
-                  <div class="flex gap-1.5">
-                    <span class="w-1.5 h-1.5 bg-primary-400 dark:bg-primary-500 rounded-full animate-pulse"></span>
-                    <span class="w-1.5 h-1.5 bg-primary-400 dark:bg-primary-500 rounded-full animate-pulse" style="animation-delay: 0.15s"></span>
-                    <span class="w-1.5 h-1.5 bg-primary-400 dark:bg-primary-500 rounded-full animate-pulse" style="animation-delay: 0.3s"></span>
-                  </div>
-                  <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                    Analyzing query...
-                  </span>
+            <!-- Simplified Typing Indicator -->
+            <div v-if="isTyping" class="flex justify-start">
+              <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-3">
+                <div class="flex gap-1.5">
+                  <span class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></span>
+                  <span class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.15s"></span>
+                  <span class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
                 </div>
-                <!-- Skeleton Loader -->
-                <div class="px-3 pb-2.5 space-y-1.5">
-                  <div class="h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full w-3/4 animate-pulse"></div>
-                  <div class="h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full w-1/2 animate-pulse"></div>
-                </div>
-              </div>
-              <div class="flex items-center gap-1.5 px-1">
-                <LoaderIcon :size="10" class="text-gray-400 animate-spin" />
-                <p class="text-[10px] text-gray-400 dark:text-gray-500">Fetching data from inventory systems</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ═══ Suggestion Chips ═══ -->
+        <!-- ═══ Lightweight Suggestion Chips ═══ -->
         <div
           v-show="!isMinimized"
           v-if="messages.length < 3 && !isTyping"
-          class="px-4 py-2.5 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0"
+          class="px-4 py-3 border-t border-gray-100 dark:border-gray-800/50 bg-white dark:bg-gray-900 shrink-0"
         >
-          <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-1.5">
-              <LightbulbIcon :size="12" class="text-amber-500" />
-              <span class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Suggested queries</span>
-            </div>
+          <p class="text-[11px] font-medium text-gray-500 dark:text-gray-400 mb-2">Suggested queries</p>
+          <div class="flex flex-wrap gap-2">
             <button
-              @click="showSuggestions = !showSuggestions"
-              class="p-0.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors text-gray-400"
-              aria-label="Toggle suggestions"
+              v-for="suggest in suggestions"
+              :key="suggest"
+              @click="sendQuery(suggest)"
+              class="text-xs px-4 py-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400 rounded-full transition-colors border border-transparent hover:border-primary-200 dark:hover:border-primary-800"
             >
-              <ChevronUpIcon v-if="showSuggestions" :size="12" />
-              <ChevronDownIcon v-else :size="12" />
-            </button>
-          </div>
-          <transition
-            enter-active-class="transition duration-150 ease-out"
-            enter-from-class="opacity-0 transform -translate-y-1"
-            enter-to-class="opacity-100 transform translate-y-0"
-            leave-active-class="transition duration-100 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
-          >
-            <div v-if="showSuggestions" class="flex flex-wrap gap-1.5">
-              <button
-                v-for="suggest in suggestions"
-                :key="suggest"
-                @click="sendQuery(suggest)"
-                class="text-xs px-3 py-1.5 bg-gray-50 dark:bg-gray-800 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-gray-600 dark:text-gray-300 hover:text-primary-700 dark:hover:text-primary-400 rounded-md transition-all border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 font-medium hover:shadow-xs"
-              >
-                {{ suggest }}
-              </button>
-            </div>
-          </transition>
-        </div>
-
-        <!-- ═══ Query History Quick Access ═══ -->
-        <div
-          v-show="!isMinimized"
-          v-if="queryHistory.length > 0 && messages.length >= 2"
-          class="px-4 py-2 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0"
-        >
-          <div class="flex items-center gap-1.5 mb-1.5">
-            <ClockIcon :size="11" class="text-gray-400" />
-            <span class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Recent queries</span>
-          </div>
-          <div class="flex flex-wrap gap-1">
-            <button
-              v-for="(q, qidx) in queryHistory.slice(0, 5)"
-              :key="qidx"
-              @click="sendQuery(q)"
-              class="text-[10px] px-2 py-1 bg-gray-100 dark:bg-gray-800 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-gray-500 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400 rounded transition-colors truncate max-w-[140px]"
-              :title="q"
-            >
-              {{ q }}
+              {{ suggest }}
             </button>
           </div>
         </div>
 
-        <!-- ═══ Input Area ═══ -->
-        <div v-show="!isMinimized" class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shrink-0">
-          <div class="flex gap-2">
-            <div class="flex-1 relative">
-              <input
-                v-model="query"
-                @input="handleInput"
-                @keyup.enter="sendQuery()"
-                type="text"
-                placeholder="Ask about inventory, users, or branches..."
-                class="w-full text-sm bg-gray-100 dark:bg-gray-800 rounded-lg pl-3.5 pr-16 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 border border-gray-200 dark:border-gray-700 transition-all"
-                :disabled="isTyping"
-                aria-label="Type your message"
-              />
-              <div class="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
-                <button
-                  class="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  title="Voice input"
-                  aria-label="Voice input"
-                  :disabled="isTyping"
-                >
-                  <MicIcon :size="14" />
-                </button>
-                <button
-                  class="p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  title="Attach file"
-                  aria-label="Attach file"
-                  :disabled="isTyping"
-                >
-                  <PaperclipIcon :size="14" />
-                </button>
-              </div>
-            </div>
+        <!-- ═══ Clean Input Area ═══ -->
+        <div v-show="!isMinimized" class="px-4 py-4 border-t border-gray-100 dark:border-gray-800/50 bg-white dark:bg-gray-900 shrink-0">
+          <div class="flex gap-2.5">
+            <input
+              v-model="query"
+              @input="handleInput"
+              @keyup.enter="sendQuery()"
+              type="text"
+              placeholder="Ask about inventory, users, branches... (Press Enter to send)"
+              class="flex-1 text-sm bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 border border-gray-200 dark:border-gray-700 transition-colors"
+              :disabled="isTyping"
+              aria-label="Type your message"
+            />
             <button
               @click="sendQuery()"
               :disabled="!query.trim() || isTyping"
-              class="px-3.5 py-2.5 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white rounded-lg disabled:opacity-40 disabled:hover:from-primary-600 disabled:hover:to-primary-500 transition-all shadow-sm hover:shadow-md disabled:cursor-not-allowed"
+              class="px-5 py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white rounded-xl disabled:opacity-50 transition-colors disabled:cursor-not-allowed"
               aria-label="Send message"
             >
-              <SendIcon :size="16" />
+              <SendIcon :size="18" />
             </button>
-          </div>
-          <div class="flex items-center justify-between mt-2">
-            <p class="text-[10px] text-gray-400 dark:text-gray-500">
-              Supports English, Urdu, Chinese &amp; Natural Language queries
-            </p>
-            <div class="flex items-center gap-1">
-              <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[9px] font-mono text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
-                Ctrl+Enter
-              </kbd>
-              <span class="text-[9px] text-gray-400 dark:text-gray-500">to send</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ═══ Status Bar ═══ -->
-        <div v-show="!isMinimized" class="px-4 py-1.5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 shrink-0 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <span class="flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-500">
-              <ZapIcon :size="10" />
-              {{ responseTime > 0 ? `${responseTime}ms` : '—' }}
-            </span>
-            <span class="flex items-center gap-1 text-[10px] text-gray-400 dark:text-gray-500">
-              <ClockIcon :size="10" />
-              {{ formatLastUpdate(lastProcessedAt) }}
-            </span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="text-[10px] text-gray-400 dark:text-gray-500">Session:</span>
-            <code class="text-[9px] font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
-              {{ sessionId.slice(0, 14) }}...
-            </code>
           </div>
         </div>
       </div>
@@ -1091,8 +718,8 @@ const getTableKey = (msgId) => `table_${msgId}`;
       :class="[
         'w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 relative',
         isOpen
-          ? 'bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 shadow-gray-400/20'
-          : 'bg-gradient-to-br from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 shadow-primary-300/40 dark:shadow-primary-900/30'
+          ? 'bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700'
+          : 'bg-gradient-to-br from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 shadow-primary-300/40'
       ]"
       aria-label="Toggle chat assistant"
     >
@@ -1113,44 +740,45 @@ const getTableKey = (msgId) => `table_${msgId}`;
 <style scoped>
 /* ─── Custom Scrollbar ─── */
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
-  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
   transition: background 0.2s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.25);
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
 }
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* ─── Markdown Content Styling ─── */
 :deep(strong) {
-  font-weight: 600;
+  font-weight: 700;
   color: inherit;
 }
 :deep(em) {
   font-style: italic;
 }
 :deep(.inline-code) {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
   font-size: 0.875em;
-  padding: 0.15em 0.4em;
-  background-color: rgba(0, 0, 0, 0.06);
-  border-radius: 0.25rem;
+  padding: 0.2em 0.5em;
+  background-color: rgba(231, 90, 184, 0.1);
+  border-radius: 0.35rem;
   color: #d63fa9;
+  font-weight: 500;
 }
 .dark :deep(.inline-code) {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: rgba(231, 90, 184, 0.2);
   color: #e75ab8;
 }
 
@@ -1159,15 +787,15 @@ const getTableKey = (msgId) => `table_${msgId}`;
   border-spacing: 0;
 }
 :deep(th) {
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 :deep(tr:hover td) {
-  background-color: rgba(231, 90, 184, 0.04);
+  background-color: rgba(231, 90, 184, 0.06);
 }
 .dark :deep(tr:hover td) {
-  background-color: rgba(231, 90, 184, 0.08);
+  background-color: rgba(231, 90, 184, 0.1);
 }
 
 /* ─── Focus Visible for Accessibility ─── */
@@ -1181,5 +809,31 @@ const getTableKey = (msgId) => `table_${msgId}`;
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Message Content Links ─── */
+:deep(a) {
+  color: #e75ab8;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+:deep(a:hover) {
+  color: #d147a3;
+}
+.dark :deep(a) {
+  color: #f07cc8;
+}
+.dark :deep(a:hover) {
+  color: #e75ab8;
+}
+
+/* ─── Selection Color ─── */
+::selection {
+  background-color: rgba(231, 90, 184, 0.3);
+  color: #1f2937;
+}
+.dark ::selection {
+  background-color: rgba(231, 90, 184, 0.4);
+  color: #f9fafb;
 }
 </style>
