@@ -10,12 +10,9 @@ import {
   Copy as CopyIcon,
   RefreshCw as RefreshIcon,
   Trash2 as TrashIcon,
-  Maximize2 as MaximizeIcon,
   Zap as ZapIcon,
   AlertCircle as AlertCircleIcon,
   ChevronDown as ChevronDownIcon,
-  ChevronUp as ChevronUpIcon,
-  Clock as ClockIcon,
 } from 'lucide-vue-next';
 import ChatbotApi from '@/api/chatbot.api';
 
@@ -34,9 +31,6 @@ const isTyping = ref(false);
 const messageBox = ref(null);
 const messages = ref([]);
 const suggestions = ref([]);
-const queryHistory = ref([]);
-const historyIndex = ref(-1);
-const isMinimized = ref(false);
 const responseCache = new Map();
 
 // Quick Actions
@@ -50,23 +44,16 @@ const quickActions = [
 // ─── Lifecycle ──────────────────────────────────────────────────
 const toggleChat = () => {
   isOpen.value = !isOpen.value;
-  
+
   if (isOpen.value) {
-    // Opening chat - initialize fresh
-    isMinimized.value = false;
-    if (messages.value.length === 0) {
-      autoWelcome();
-      loadSuggestions();
-      loadQueryHistory();
-    }
-    loadCachedMessages();
+    // Opening chat - always start fresh
+    autoWelcome();
+    loadSuggestions();
   } else {
     // Closing chat - clear all messages for privacy
     messages.value = [];
     responseCache.clear();
-    localStorage.removeItem('chatbot_messages');
     query.value = '';
-    historyIndex.value = -1;
   }
 };
 
@@ -100,44 +87,6 @@ const loadSuggestions = async () => {
   }
 };
 
-const loadQueryHistory = () => {
-  try {
-    const stored = localStorage.getItem('chatbot_query_history');
-    if (stored) {
-      queryHistory.value = JSON.parse(stored);
-    }
-  } catch {
-    queryHistory.value = [];
-  }
-};
-
-const saveQueryHistory = (text) => {
-  const history = [text, ...queryHistory.value.filter(q => q !== text)].slice(0, 20);
-  queryHistory.value = history;
-  try {
-    localStorage.setItem('chatbot_query_history', JSON.stringify(history));
-  } catch { /* silent fail */ }
-};
-
-const loadCachedMessages = () => {
-  try {
-    const cached = localStorage.getItem('chatbot_messages');
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      messages.value = parsed.map(m => ({
-        ...m,
-        timestamp: new Date(m.timestamp),
-      }));
-    }
-  } catch { /* silent fail */ }
-};
-
-const cacheMessages = () => {
-  try {
-    localStorage.setItem('chatbot_messages', JSON.stringify(messages.value.slice(-50)));
-  } catch { /* silent fail */ }
-};
-
 // ─── Core Query ─────────────────────────────────────────────────
 const sendQuery = async (forceQuery = null) => {
   const text = forceQuery || query.value;
@@ -161,8 +110,6 @@ const sendQuery = async (forceQuery = null) => {
       fromCache: true,
     });
     query.value = '';
-    saveQueryHistory(text);
-    cacheMessages();
     await scrollDown();
     return;
   }
@@ -176,7 +123,6 @@ const sendQuery = async (forceQuery = null) => {
   });
 
   query.value = '';
-  historyIndex.value = -1;
   isTyping.value = true;
   await scrollDown();
 
@@ -226,11 +172,8 @@ const sendQuery = async (forceQuery = null) => {
 
     messages.value.push(botMessage);
 
-    // Cache the response
+    // Cache the response in-memory only
     responseCache.set(cacheKey, botMessage);
-
-    saveQueryHistory(text);
-    cacheMessages();
   } catch (err) {
     console.error('Chatbot error:', err);
 
@@ -375,20 +318,6 @@ const handleKeydown = (e) => {
   if (e.key === 'Escape') {
     isOpen.value = false;
   }
-
-  // Arrow Up/Down for history when input is focused and empty
-  if (e.target.tagName === 'INPUT') {
-    if (e.key === 'ArrowUp' && queryHistory.value.length > 0) {
-      e.preventDefault();
-      historyIndex.value = Math.min(historyIndex.value + 1, queryHistory.value.length - 1);
-      query.value = queryHistory.value[historyIndex.value];
-    }
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      historyIndex.value = Math.max(historyIndex.value - 1, -1);
-      query.value = historyIndex.value >= 0 ? queryHistory.value[historyIndex.value] : '';
-    }
-  }
 };
 
 onMounted(() => {
@@ -473,22 +402,10 @@ const getTableKey = (msgId) => `table_${msgId}`;
               </button>
             </div>
           </div>
-
-          <!-- Minimized State -->
-          <div v-if="isMinimized" class="px-5 py-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-center">
-            <button
-              @click="isMinimized = false"
-              class="flex items-center gap-2 px-4 py-2 bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-lg transition-colors text-sm font-medium"
-            >
-              <MaximizeIcon :size="14" />
-              Click to expand chat
-            </button>
-          </div>
         </div>
 
         <!-- ═══ Messages Area ═══ -->
         <div
-          v-show="!isMinimized"
           ref="messageBox"
           class="flex-1 overflow-y-auto scroll-smooth bg-gradient-to-b from-gray-50/50 to-gray-100/30 dark:from-gray-950/20 dark:to-gray-950/40"
           role="log"
@@ -553,7 +470,6 @@ const getTableKey = (msgId) => `table_${msgId}`;
               >
                 <p class="leading-relaxed whitespace-pre-wrap">{{ msg.content }}</p>
                 <div class="flex items-center justify-end gap-1.5 mt-2">
-                  <ClockIcon :size="10" class="text-white/50" />
                   <span class="text-[10px] text-white/50 font-medium">{{ formatTime(msg.timestamp) }}</span>
                 </div>
               </div>
@@ -653,15 +569,15 @@ const getTableKey = (msgId) => `table_${msgId}`;
               </div>
             </div>
             </transition-group>
+          </div>
 
-            <!-- Simplified Typing Indicator -->
-            <div v-if="isTyping" class="flex justify-start">
-              <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-3">
-                <div class="flex gap-1.5">
-                  <span class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></span>
-                  <span class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.15s"></span>
-                  <span class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
-                </div>
+          <!-- Simplified Typing Indicator -->
+          <div v-if="isTyping" class="px-4 py-2">
+            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-3 inline-block">
+              <div class="flex gap-1.5">
+                <span class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></span>
+                <span class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.15s"></span>
+                <span class="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
               </div>
             </div>
           </div>
@@ -669,17 +585,19 @@ const getTableKey = (msgId) => `table_${msgId}`;
 
         <!-- ═══ Lightweight Suggestion Chips ═══ -->
         <div
-          v-show="!isMinimized"
           v-if="messages.length < 3 && !isTyping"
-          class="px-4 py-3 border-t border-gray-100 dark:border-gray-800/50 bg-white dark:bg-gray-900 shrink-0"
+          class="px-4 py-3 border-t border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-gray-900/50 shrink-0"
         >
-          <p class="text-[11px] font-medium text-gray-500 dark:text-gray-400 mb-2">Suggested queries</p>
-          <div class="flex flex-wrap gap-2">
+          <div class="flex items-center gap-1.5 mb-2.5">
+            <SparklesIcon :size="12" class="text-primary-500 dark:text-primary-400" />
+            <p class="text-[11px] font-medium text-gray-500 dark:text-gray-400">Try asking</p>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
             <button
               v-for="suggest in suggestions"
               :key="suggest"
               @click="sendQuery(suggest)"
-              class="text-xs px-4 py-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400 rounded-full transition-colors border border-transparent hover:border-primary-200 dark:hover:border-primary-800"
+              class="text-xs px-3 py-1.5 bg-white dark:bg-gray-800 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400 rounded-full transition-all duration-200 border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-sm"
             >
               {{ suggest }}
             </button>
@@ -687,7 +605,7 @@ const getTableKey = (msgId) => `table_${msgId}`;
         </div>
 
         <!-- ═══ Clean Input Area ═══ -->
-        <div v-show="!isMinimized" class="px-4 py-4 border-t border-gray-100 dark:border-gray-800/50 bg-white dark:bg-gray-900 shrink-0">
+        <div class="px-4 py-4 border-t border-gray-100 dark:border-gray-800/50 bg-white dark:bg-gray-900 shrink-0">
           <div class="flex gap-2.5">
             <input
               v-model="query"
