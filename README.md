@@ -2,99 +2,265 @@
 
 **AI-Driven Development | CodeIgniter 4 + Vue.js 3 | Production-Ready**
 
+![PHP](https://img.shields.io/badge/PHP-8.5.1+-777BB4?style=flat-square&logo=php)
+![CodeIgniter](https://img.shields.io/badge/CodeIgniter-4.7.0-EF4223?style=flat-square&logo=codeigniter)
+![Vue.js](https://img.shields.io/badge/Vue.js-3.4-4FC08D?style=flat-square&logo=vue.js)
+![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=flat-square&logo=mysql)
+![Tailwind](https://img.shields.io/badge/Tailwind-4.x-06B6D4?style=flat-square&logo=tailwind-css)
+![License](https://img.shields.io/badge/License-Proprietary-gray?style=flat-square)
+
+A production-ready, multi-branch inventory and order management platform built with an AI-driven development workflow. Features JWT authentication, role-based access control, atomic order processing, comprehensive audit trails, and an integrated multi-agent AI chatbot for natural language business intelligence.
+
 ---
 
-## 📋 Quick Start
+## 📑 Table of Contents
 
-### One-Minute Overview
-- **Backend**: CodeIgniter 4 RESTful API (PHP 8.5.1+)
-- **Frontend**: Vue.js 3 Single-Page Application
-- **Database**: MySQL 8.0+
-- **Authentication**: JWT with role-based access control
-- **Purpose**: Multi-branch inventory tracking, order management, and stock transfers
+- [Overview](#-overview)
+- [Why This Project](#-why-this-project)
+- [Key Features](#-key-features)
+- [System Requirements](#-system-requirements)
+- [Quick Start](#-quick-start)
+- [Installation & Setup](#-installation--setup)
+- [Architecture](#-architecture)
+- [Database Schema](#-database-schema)
+- [Authentication & Roles](#-authentication--roles)
+- [API Reference](#-api-reference)
+- [Security](#-security)
+- [Development Workflow](#-development-workflow)
+- [Performance Considerations](#-performance-considerations)
+- [Testing](#-testing)
+- [Deployment Checklist](#-deployment-checklist)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+- [Roadmap](#-roadmap)
+- [Additional Documentation](#-additional-documentation)
+- [License](#-license)
+- [Support](#-support)
 
-### Start Development (5 minutes)
+---
+
+## 📋 Overview
+
+This system addresses real-world retail challenges: **preventing overselling**, **maintaining audit trails**, **isolating branch data**, and **enabling intelligent querying** through an AI-powered chatbot layer.
+
+| Aspect | Details |
+|--------|---------|
+| **Backend** | CodeIgniter 4 RESTful API (PHP 8.5.1+) |
+| **Frontend** | Vue.js 3 Single-Page Application with Vite |
+| **Database** | MySQL 8.0+ with relational integrity |
+| **Authentication** | JWT with access/refresh token rotation |
+| **Authorization** | 3-role RBAC (Admin, Branch Manager, Sales User) |
+| **AI Layer** | Multi-agent chatbot for natural language BI queries |
+| **Purpose** | Multi-branch inventory tracking, order processing, and stock transfers |
+
+---
+
+## 💡 Why This Project
+
+| Challenge | Solution |
+|-----------|----------|
+| **Overselling** | Atomic order processing with pessimistic locking and database transactions |
+| **No Audit Trail** | Immutable inventory logs track every stock movement with user, action, and timestamp |
+| **Branch Data Leakage** | Role-based filters and branch scoping ensure users only see their branch's data |
+| **Race Conditions** | Database-level locks prevent concurrent order conflicts |
+| **Complex Queries** | AI chatbot translates natural language into optimized database queries |
+| **Manual Stock Transfers** | Transfer workflow with approval and automatic inventory reconciliation |
+
+---
+
+## ✨ Key Features
+
+### 🔐 Authentication & Authorization
+- JWT-based bearer token authentication with refresh token rotation
+- 3 roles: Admin, Branch Manager, Sales User
+- Automatic role-based permission checks on every endpoint
+- Token expiration: Access (1 hour), Refresh (7 days)
+
+### 📦 Inventory Management
+- Per-branch stock tracking with product-level granularity
+- Stock adjustments with immutable audit logging
+- Inter-branch stock transfers with approval workflow
+- Low-stock alerts and reorder level configuration
+- Negative inventory prevention at database level
+
+### 🛒 Order Processing
+- Multi-item order creation with automatic tax/subtotal calculation
+- Atomic stock deduction via database transactions
+- Pessimistic locking prevents race conditions
+- Unique order numbering with date-based format (ORD-YYYYMMDD-NNN)
+- Soft delete support for order management
+
+### 🏷️ Product Management
+- Centralized product catalog shared across branches
+- SKU tracking, cost price, sale price, tax percentage
+- Active/inactive status management
+- Soft delete support
+
+### 🏢 Branch Management
+- Independent branch creation with manager assignment
+- Branch-level data isolation
+- Admin views all branches; managers see only their assigned branch
+
+### 👤 User Management
+- User CRUD with role assignment
+- Branch manager assignment per branch
+- User activation/deactivation
+- Password hashing with bcrypt
+
+### 🤖 AI Chatbot (Multi-Agent System)
+- Natural language querying for inventory and order data
+- 7 specialized agents: Query Router, Data Analyst, Inventory Advisor, Order Analyst, Product Expert, Trend Analyzer, Report Generator
+- Context-aware responses with data visualization suggestions
+- Fallback to structured API queries when AI is uncertain
+
+---
+
+## 💻 System Requirements
+
+| Component | Minimum | Recommended |
+|-----------|---------|-------------|
+| **PHP** | 8.5.1 | 8.5.1+ |
+| **MySQL** | 8.0 | 8.0+ with InnoDB |
+| **Node.js** | 18.x | 20.x LTS |
+| **RAM** | 2 GB | 4 GB+ |
+| **Disk Space** | 500 MB | 1 GB+ |
+| **OS** | Windows 10+, macOS 12+, Linux | Any modern OS |
+
+---
+
+## 🚀 Quick Start
 
 ```bash
 # Terminal 1: Backend
 composer install
+cp env .env  # Update database credentials
 php spark migrate
-php spark db:seed RoleSeeder
-php spark db:seed UserSeeder
+php spark db:seed RoleSeeder && php spark db:seed UserSeeder
 php spark serve --port 8081
 
 # Terminal 2: Frontend
 cd frontend
 npm install
-npm run dev  # runs on http://localhost:5174
+npm run dev  # → http://localhost:5174
 ```
 
-**Then login with:**
-- Email: `admin@system.com`
-- Password: `Admin@12345`
+**Default Login:**
+- **Email:** `admin@system.com`
+- **Password:** `Admin@12345`
 
 ---
 
-## 📦 System Features
+## 📖 Installation & Setup
 
-✅ **Multi-Branch Architecture**
-- Separate inventory per branch
-- Branch manager assigned at creation
-- Admin views all branches
+### Prerequisites
 
-✅ **Authentication & Authorization**
-- JWT-based bearer token authentication
-- 3 roles: Admin, Branch Manager, Sales User
-- Automatic role-based permission checks
-- Token refresh mechanism
+Ensure the following are installed on your system:
 
-✅ **Inventory Management**
-- Add/adjust stock per branch
-- Transfer stock between branches
-- Never allow negative inventory
-- Comprehensive audit logs for all changes
+```bash
+php --version      # 8.5.1+
+composer --version # Latest
+mysql --version    # 8.0+
+node --version     # 18+
+npm --version      # Bundled with Node.js
+```
 
-✅ **Order Processing**
-- Create orders with multiple items
-- Automatic calculation: subtotal, tax, total
-- Safe stock deduction (prevents overselling)
-- Database transactions ensure atomicity
-- Pessimistic locking prevents race conditions
+### Step 1: Install Backend Dependencies
 
-✅ **Product Management**
-- Centralized product catalog
-- SKU (Stock Keeping Unit) tracking
-- Cost price, sale price, tax percentage
-- Active/inactive status
+```bash
+composer install
+```
 
-✅ **User Management**
-- User CRUD operations
-- Role assignment
-- Branch manager assignment
-- User activation/deactivation
+Installs: CodeIgniter 4, firebase/php-jwt, testing packages, and development dependencies.
 
-✅ **Real-Time Data**
-- Live inventory tracking
-- Order status updates
-- Branch isolation for data privacy
+### Step 2: Configure Environment
+
+```bash
+cp env .env
+```
+
+Edit `.env` and update the database and JWT sections:
+
+```env
+# Database
+database.default.hostname = localhost
+database.default.database = CodeIgniter
+database.default.username = root
+database.default.password = your_password
+database.default.port = 3306
+
+# JWT
+JWT_SECRET = your_super_secret_jwt_key_here_min_32_chars
+JWT_ALGORITHM = HS256
+JWT_EXPIRED_IN = 3600
+JWT_REFRESH_EXPIRED_IN = 604800
+
+# App
+CI_ENVIRONMENT = development
+app.baseURL = http://localhost:8081/
+```
+
+### Step 3: Create Database
+
+```sql
+CREATE DATABASE CodeIgniter CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+### Step 4: Run Migrations & Seeders
+
+```bash
+php spark migrate
+php spark db:seed RoleSeeder
+php spark db:seed UserSeeder
+```
+
+### Step 5: Start Backend Server
+
+```bash
+php spark serve --port 8081
+```
+
+Verify: Visit `http://localhost:8081/api/v1/test` — should return `{"message":"API is running"}`
+
+### Step 6: Setup Frontend
+
+```bash
+cd frontend
+npm install
+```
+
+Create `frontend/.env.local`:
+
+```env
+VITE_API_URL=http://localhost:8081/api/v1
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+### Step 7: Verify Installation
+
+Open `http://localhost:5174` and log in with the admin credentials. The dashboard should display products, inventory levels, and recent orders.
 
 ---
 
-## 🏗️ Architecture Overview
+## 🏗️ Architecture
 
 ### Technology Stack
 
 | Layer | Technology | Version |
 |-------|-----------|---------|
-| **Backend Framework** | CodeIgniter | 4.7.0 |
-| **Backend Language** | PHP | 8.5.1+ |
-| **Database** | MySQL | 8.0+ |
-| **Authentication** | JWT (firebase/php-jwt) | 6.11.1 |
-| **Frontend Framework** | Vue.js | 3.4.29 |
-| **Build Tool** | Vite | 5.4.21 |
-| **HTTP Client** | Axios | Latest |
-| **State Management** | Pinia | Latest |
-| **CSS Framework** | Tailwind CSS | 4.x |
+| Backend Framework | CodeIgniter | 4.7.0 |
+| Backend Language | PHP | 8.5.1+ |
+| Database | MySQL | 8.0+ |
+| Authentication | JWT (firebase/php-jwt) | 6.11.1 |
+| Frontend Framework | Vue.js | 3.4.29 |
+| Build Tool | Vite | 5.4.21 |
+| HTTP Client | Axios | Latest |
+| State Management | Pinia | Latest |
+| CSS Framework | Tailwind CSS | 4.x |
 
 ### System Architecture Diagram
 
@@ -119,6 +285,7 @@ npm run dev  # runs on http://localhost:5174
 │  │ - /inventory (stock levels, transfers)             │    │
 │  │ - /orders (create, update, list)                   │    │
 │  │ - /users (admin management)                        │    │
+│  │ - /chat (AI chatbot - multi-agent)                 │    │
 │  └────────────────────────────────────────────────────┘    │
 │  ┌────────────────────────────────────────────────────┐    │
 │  │ Middleware/Filters                                 │    │
@@ -127,31 +294,18 @@ npm run dev  # runs on http://localhost:5174
 │  │ - CorsFilter (CORS headers)                        │    │
 │  └────────────────────────────────────────────────────┘    │
 │  ┌────────────────────────────────────────────────────┐    │
-│  │ Controllers (thin layer)                           │    │
-│  │ - AuthController                                   │    │
-│  │ - ProductController                                │    │
-│  │ - BranchController                                 │    │
-│  │ - OrderController                                  │    │
-│  │ - InventoryController                              │    │
-│  │ - TransferController                               │    │
-│  │ - UserController                                   │    │
-│  └────────────────────────────────────────────────────┘    │
-│  ┌────────────────────────────────────────────────────┐    │
 │  │ Services (Business Logic)                          │    │
 │  │ - AuthService (JWT generation/validation)          │    │
 │  │ - OrderService (order creation with transactions)  │    │
 │  │ - InventoryService (stock management)              │    │
 │  │ - StockTransferService (branch transfers)          │    │
+│  │ - ChatbotService (multi-agent orchestration)       │    │
 │  └────────────────────────────────────────────────────┘    │
 │  ┌────────────────────────────────────────────────────┐    │
 │  │ Models (Database Abstraction)                      │    │
-│  │ - UserModel                                        │    │
-│  │ - BranchModel                                      │    │
-│  │ - ProductModel                                     │    │
-│  │ - InventoryModel                                   │    │
-│  │ - OrderModel                                       │    │
-│  │ - StockTransferModel                               │    │
-│  │ - InventoryLogModel                                │    │
+│  │ - UserModel, BranchModel, ProductModel             │    │
+│  │ - InventoryModel, OrderModel, OrderItemModel       │    │
+│  │ - StockTransferModel, InventoryLogModel            │    │
 │  └────────────────────────────────────────────────────┘    │
 └────────────────────────┬──────────────────────────────────┘
                          │
@@ -165,559 +319,172 @@ npm run dev  # runs on http://localhost:5174
         └─────────────────────────────────┘
 ```
 
-### Request Flow Example
+### Request Flow
 
 ```
 1. User opens browser → http://localhost:5174
 2. Vue.js loads and prompts for login
-3. User enters: admin@system.com / Admin@12345
+3. User enters credentials
 4. Frontend sends POST /api/v1/auth/login
-5. AuthController validates credentials
-6. AuthService generates JWT tokens
-7. Frontend stores access_token in memory
-8. Subsequent requests include Authorization: Bearer <token>
-9. AuthJWTFilter validates token on every request
-10. RoleFilter checks if user has permission
-11. Controller processes request, calls Service
-12. Service performs business logic (validation, calculations, transactions)
-13. Model accesses database
-14. Response JSON sent back to frontend
-15. Frontend updates UI with new data
+5. AuthController validates, AuthService generates JWT
+6. Frontend stores access_token in memory
+7. Subsequent requests include Authorization: Bearer <token>
+8. AuthJWTFilter validates token, RoleFilter checks permissions
+9. Controller processes request, calls Service layer
+10. Service performs business logic with database transactions
+11. Model accesses database via Query Builder
+12. JSON response returned to frontend
+13. Frontend updates UI reactively
 ```
 
 ### Folder Structure
 
 ```
 project-root/
-│
-├── README.md                                    ← You are here
-├── AI_SDLC.md                                  ← AI development workflow documentation
-├── composer.json                               ← PHP dependencies
-├── env                                         ← Environment template (copy to .env)
-├── spark                                       ← CodeIgniter CLI tool
-│
 ├── app/
-│   ├── Controllers/
-│   │   └── Api/V1/                            ← ALL RESTful endpoints
-│   │       ├── BaseApiController.php          ← Response wrapper, standardized JSON
-│   │       ├── AuthController.php             ← Login, refresh, logout, profile
-│   │       ├── ProductController.php          ← Products CRUD
-│   │       ├── BranchController.php           ← Branches CRUD
-│   │       ├── UserController.php             ← Users management
-│   │       ├── OrderController.php            ← Orders CRUD + creation
-│   │       ├── InventoryController.php        ← Stock levels and adjustments
-│   │       ├── TransferController.php         ← Inter-branch stock transfers
-│   │       └── TestController.php             ← Health check endpoint
-│   │
-│   ├── Filters/                               ← Middleware
-│   │   ├── AuthJWTFilter.php                 ← JWT validation
-│   │   ├── RoleFilter.php                    ← Permission checks
-│   │   └── CorsFilter.php                    ← CORS headers
-│   │
-│   ├── Models/                                ← Database abstraction
-│   │   ├── UserModel.php
-│   │   ├── BranchModel.php
-│   │   ├── ProductModel.php
-│   │   ├── InventoryModel.php
-│   │   ├── OrderModel.php
-│   │   ├── OrderItemModel.php
-│   │   ├── StockTransferModel.php
-│   │   └── InventoryLogModel.php
-│   │
-│   ├── Services/                              ← Business logic layer
-│   │   ├── AuthService.php                   ← JWT token generation/validation
-│   │   ├── OrderService.php                  ← Order creation with transactions
-│   │   ├── InventoryService.php              ← Stock management
-│   │   └── StockTransferService.php          ← Branch transfers
-│   │
-│   ├── Exceptions/
-│   │   └── InsufficientStockException.php    ← Custom exception
-│   │
-│   ├── Config/
-│   │   ├── Routes.php                        ← API routing & filter assignment
-│   │   ├── Filters.php                       ← Filter configuration
-│   │   ├── Database.php                      ← Database connection
-│   │   ├── Services.php                      ← Service registration
-│   │   └── [other config files]
-│   │
+│   ├── Controllers/Api/V1/       # REST endpoints
+│   ├── Filters/                  # JWT, Role, CORS middleware
+│   ├── Models/                   # Database abstraction layer
+│   ├── Services/                 # Business logic layer
+│   ├── Config/                   # Routes, Filters, Database config
 │   └── Database/
-│       ├── Migrations/                        ← Schema creation scripts
-│       │   ├── 2025-01-01-000001_CreateRolesTable.php
-│       │   ├── 2025-01-01-000002_CreateBranchesTable.php
-│       │   ├── 2025-01-01-000003_CreateUsersTable.php
-│       │   ├── 2025-01-01-000004_CreateProductsTable.php
-│       │   ├── 2025-01-01-000005_CreateInventoryTable.php
-│       │   ├── 2025-01-01-000006_CreateInventoryLogsTable.php
-│       │   ├── 2025-01-01-000007_CreateStockTransfersTable.php
-│       │   ├── 2025-01-01-000008_CreateOrdersTable.php
-│       │   └── [other migrations]
-│       │
-│       └── Seeds/                            ← Test data
-│           ├── RoleSeeder.php                ← Creates roles
-│           └── UserSeeder.php                ← Creates users, branches, products
-│
-├── frontend/                                  ← Vue.js 3 SPA
-│   ├── package.json
-│   ├── vite.config.js
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   ├── .env.local                           ← API endpoint config (create this)
-│   │
+│       ├── Migrations/           # Schema definitions
+│       └── Seeds/               # Test data seeders
+├── frontend/
 │   └── src/
-│       ├── main.js                          ← Entry point
-│       ├── App.vue                          ← Root component
-│       │
-│       ├── api/
-│       │   └── axios.js                     ← HTTP client with token injection
-│       │
-│       ├── components/                      ← Reusable UI components
-│       │   ├── dashboard/                   ← Dashboard widgets
-│       │   ├── ui/                          ← Buttons, forms, tables
-│       │   └── layout/                      ← Header, sidebar, footer
-│       │
-│       ├── views/                           ← Page components (routes)
-│       │   ├── LoginView.vue
-│       │   ├── DashboardView.vue
-│       │   ├── ProductsView.vue
-│       │   ├── BranchesView.vue
-│       │   ├── InventoryView.vue
-│       │   ├── OrdersView.vue
-│       │   ├── UsersView.vue
-│       │   └── [other views]
-│       │
-│       ├── store/                           ← Pinia state management
-│       │   └── auth.store.js                ← Auth state, user profile
-│       │
-│       ├── router/                          ← Vue Router configuration
-│       │   └── index.js                     ← Routes & guards
-│       │
-│       └── assets/                          ← Images, CSS, utilities
-│
-├── public/
-│   └── index.php                            ← Application entry point
-│
-├── writable/
-│   ├── cache/                               ← Cache files
-│   ├── logs/                                ← Application logs
-│   ├── session/                             ← Session files
-│   └── uploads/                             ← User uploads
-│
-└── vendor/                                  ← PHP dependencies (Composer)
-    └── [external libraries]
+│       ├── api/                  # Axios HTTP client
+│       ├── components/           # Reusable Vue components
+│       ├── views/                # Page-level components
+│       ├── store/                # Pinia state management
+│       └── router/               # Vue Router with guards
+├── public/                       # Application entry point
+├── writable/                     # Cache, logs, sessions, uploads
+└── vendor/                       # PHP dependencies
 ```
 
 ---
 
 ## 🗄️ Database Schema
 
-### Database Diagram
+### Core Tables
 
-```
-┌──────────────┐
-│   roles      │
-├──────────────┤
-│ id (PK)      │
-│ name         │  (1=admin, 2=branch_manager, 3=sales_user)
-└──────────────┘
-     ↑
-     │
-┌──────────────────────────────┐
-│users                         │
-├──────────────────────────────┤
-│ id (PK)                      │
-│ role_id (FK) ────────────────┼──→ roles.id
-│ name                         │
-│ email (UNIQUE)               │
-│ password (hashed)            │
-│ is_active                    │
-│ last_login                   │
-│ created_at, updated_at       │
-│ deleted_at (soft delete)     │
-└──────────────────────────────┘
-     ↑
-     │ (manager_id FK)
-┌──────────────────────────────┐
-│branches                      │
-├──────────────────────────────┤
-│ id (PK)                      │
-│ manager_id (FK) ─────────────┘ (nullable)
-│ name (UNIQUE)                │
-│ address                      │
-│ phone                        │
-│ is_active                    │
-│ created_at, updated_at       │
-│ deleted_at (soft delete)     │
-└──────────────────────────────┘
-     ↓
-     │ (branch_id FK)
-┌──────────────────────────────┐
-│inventory                     │
-├──────────────────────────────┤
-│ id (PK)                      │
-│ branch_id (FK)               │
-│ product_id (FK) ─┐           │
-│ quantity         │           │
-│ reorder_level    │           │
-│ UNIQUE(branch_id, product_id)│
-└──────────────────────────────┘
-                  │
-                  │ (product_id FK)
-┌──────────────────────────────┐
-│products                      │
-├──────────────────────────────┤
-│ id (PK)                      │
-│ sku (UNIQUE)                 │
-│ name                         │
-│ description                  │
-│ cost_price                   │
-│ sale_price                   │
-│ tax_percentage               │
-│ unit (PCS, KG, etc)          │
-│ status (active/inactive)     │
-│ created_at, updated_at       │
-│ deleted_at (soft delete)     │
-└──────────────────────────────┘
-     ↑
-     │ (product_id FK)
-┌──────────────────────────────┐
-│order_items                   │
-├──────────────────────────────┤
-│ id (PK)                      │
-│ order_id (FK) ────────┐      │
-│ product_id (FK)       │      │
-│ quantity              │      │
-│ unit_price            │      │
-│ line_total            │      │
-│ created_at            │      │
-└──────────────────────────────┘
-     ↑                │
-     │                │
-┌──────────────────────────────┐
-│orders                        │
-├──────────────────────────────┤
-│ id (PK)                      │
-│ branch_id (FK)               │
-│ user_id (FK)                 │
-│ order_number (UNIQUE)        │
-│ status (pending/complete)    │
-│ subtotal                     │
-│ tax_amount                   │
-│ grand_total                  │
-│ notes                        │
-│ created_at                   │
-│ deleted_at (soft delete)     │
-└──────────────────────────────┘
+| Table | Purpose | Key Relationships |
+|-------|---------|-------------------|
+| **roles** | System role definitions | ← users.role_id |
+| **users** | User accounts with authentication | → roles, → branches (manager) |
+| **branches** | Physical store locations | ← users.manager_id |
+| **products** | Centralized product catalog | ← inventory, ← order_items |
+| **inventory** | Per-branch stock levels | → branches, → products |
+| **orders** | Customer orders with totals | → branches, → users |
+| **order_items** | Line items within orders | → orders, → products |
+| **stock_transfers** | Inter-branch stock movements | → branches (from/to), → products |
+| **inventory_logs** | Immutable audit trail | → branches, → products, → users |
 
-┌──────────────────────────────┐
-│stock_transfers              │
-├──────────────────────────────┤
-│ id (PK)                      │
-│ from_branch_id (FK)          │
-│ to_branch_id (FK)            │
-│ product_id (FK)              │
-│ quantity                     │
-│ status (pending/approved)    │
-│ created_by (FK) → users      │
-│ approved_by (FK nullable)    │
-│ created_at, updated_at       │
-└──────────────────────────────┘
+### Key Design Decisions
 
-┌──────────────────────────────┐
-│inventory_logs (audit trail) │
-├──────────────────────────────┤
-│ id (PK)                      │
-│ branch_id (FK)               │
-│ product_id (FK)              │
-│ user_id (FK)                 │
-│ action (add/subtract/sale)   │
-│ quantity_change              │
-│ notes                        │
-│ created_at (immutable)       │
-└──────────────────────────────┘
-```
-
-### Table Descriptions
-
-| Table | Purpose |
-|-------|---------|
-| **roles** | System roles (admin, branch_manager, sales_user) |
-| **users** | User accounts with role assignment |
-| **branches** | Physical store branches with manager assignment |
-| **products** | Product catalog (shared across all branches) |
-| **inventory** | Stock levels per branch per product (single source of truth) |
-| **orders** | Customer orders with total calculations |
-| **order_items** | Line items within orders |
-| **stock_transfers** | Tracks stock movements between branches |
-| **inventory_logs** | Immutable audit trail of all inventory changes |
+- **Soft Deletes:** `deleted_at` column on users, branches, products, orders
+- **Unique Constraints:** SKU (products), email (users), branch+product (inventory), order_number (orders)
+- **Foreign Keys:** Enforced at database level for referential integrity
+- **Audit Immutability:** inventory_logs are append-only; no UPDATE or DELETE operations
 
 ---
 
-## 🔐 Test Credentials
+## 🔑 Authentication & Roles
 
-Use these credentials to test the system:
+### Role Matrix
 
-### Admin Account
-```
-Email:    admin@system.com
-Password: Admin@12345
-Role:     System Administrator (full system access)
-Access:   All branches, all features, user management
-```
+| Capability | Admin | Branch Manager | Sales User |
+|------------|-------|----------------|------------|
+| Manage Users | ✅ | ❌ | ❌ |
+| Manage Branches | ✅ | ❌ | ❌ |
+| Manage Products | ✅ | ❌ | ❌ |
+| View All Branches | ✅ | Own only | Own only |
+| Create Orders | ✅ | ✅ | ✅ |
+| Adjust Inventory | ✅ | ✅ | ❌ |
+| Transfer Stock | ✅ | ✅ | ❌ |
+| View Audit Logs | ✅ | ✅ | ❌ |
+| Approve Transfers | ✅ | ❌ | ❌ |
+| Access AI Chatbot | ✅ Full | ✅ Branch-scoped | ❌ |
 
-### Branch Manager Accounts
-```
-Email:    manager@branch1.com
-Password: Manager@12345
-Role:     Branch Manager (Branch 1)
-Access:   Branch 1 only - inventory, orders, reports
+### Token Lifecycle
 
-Email:    manager@branch2.com
-Password: Manager@12345
-Role:     Branch Manager (Branch 2)
-Access:   Branch 2 only - inventory, orders, reports
-```
-
-### Sales User Accounts
-```
-Email:    sales@branch1.com
-Password: Sales@12345
-Role:     Sales User (Branch 1)
-Access:   Create orders, view inventory for Branch 1
-
-Email:    sales@branch2.com
-Password: Sales@12345
-Role:     Sales User (Branch 2)
-Access:   Create orders, view inventory for Branch 2
-```
-
-### Test Branches
-```
-Branch 1: Main Branch
-  - Address: 123 Main Street, City
-  - Manager: manager@branch1.com
-  - Products: 100x Widget A, 50x Widget B, 25x Gadget Pro
-
-Branch 2: North Branch
-  - Address: 456 North Ave, City
-  - Manager: manager@branch2.com
-  - Products: 75x Widget A, 30x Widget B
-```
-
-### Test Products
-```
-1. Widget A
-   - SKU: PROD-001
-   - Cost: $10.00
-   - Sale Price: $25.00
-   - Tax: 17%
-
-2. Widget B
-   - SKU: PROD-002
-   - Cost: $20.00
-   - Sale Price: $50.00
-   - Tax: 17%
-
-3. Gadget Pro
-   - SKU: PROD-003
-   - Cost: $80.00
-   - Sale Price: $150.00
-   - Tax: 17%
-```
+1. **Login** → Receive access_token (1hr) + refresh_token (7 days)
+2. **Authenticated Requests** → Include `Authorization: Bearer <access_token>`
+3. **Token Expiry** → Use refresh_token to obtain new access_token
+4. **Logout** → Server invalidates refresh_token
 
 ---
 
-## 🚀 Installation & Setup
+## 📡 API Reference
 
-### Prerequisites
+**Base URL:** `http://localhost:8081/api/v1`
 
-Before you start, make sure you have installed:
+### Authentication Endpoints
 
-- **PHP 8.5.1+** — Check with: `php --version`
-- **Composer** — Check with: `composer --version`
-- **MySQL 8.0+** — Check with: `mysql --version`
-- **Node.js 18+** — Check with: `node --version`
-- **npm** — Comes with Node.js
-- **Git** — Optional, for version control
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| POST | `/auth/login` | Public | Authenticate and receive tokens |
+| POST | `/auth/refresh` | Refresh Token | Obtain new access_token |
+| POST | `/auth/logout` | Authenticated | Invalidate refresh_token |
+| GET | `/auth/me` | Authenticated | Get current user profile |
 
-### Step 1: Clone/Extract Project
+### Product Endpoints
 
-```bash
-# If cloning from Git
-git clone <repository-url>
-cd "CodeIgniter + AI-Driven Development"
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| GET | `/products` | Authenticated | List products (paginated, searchable) |
+| POST | `/products` | Admin | Create new product |
+| PUT | `/products/{id}` | Admin | Update product details |
+| DELETE | `/products/{id}` | Admin | Soft delete product |
 
-# OR if you have a ZIP file
-unzip project.zip
-cd "CodeIgniter + AI-Driven Development"
-```
+### Branch Endpoints
 
-### Step 2: Backend Setup
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| GET | `/branches` | Admin | List all branches |
+| POST | `/branches` | Admin | Create new branch |
+| PUT | `/branches/{id}` | Admin | Update branch details |
 
-#### 2.1 Install PHP Dependencies
+### Order Endpoints
 
-```bash
-composer install
-```
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| GET | `/orders` | Authenticated | List orders (branch-scoped) |
+| POST | `/orders` | Authenticated | Create order (atomic stock deduction) |
+| GET | `/orders/{id}` | Authenticated | Get order with line items |
 
-This installs:
-- CodeIgniter 4 framework
-- JWT authentication library
-- Testing packages
-- Development dependencies
+### Inventory Endpoints
 
-#### 2.2 Configure Environment Variables
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| GET | `/inventory` | Authenticated | List stock levels (branch-scoped) |
+| POST | `/inventory/adjust` | Admin, Manager | Adjust stock quantity |
+| GET | `/inventory/logs` | Admin, Manager | View audit log |
 
-```bash
-# Copy environment template
-cp env .env
+### Transfer Endpoints
 
-# On Windows (if copy doesn't work)
-# copy env .env
-```
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| POST | `/transfers` | Admin, Manager | Request stock transfer |
+| PATCH | `/transfers/{id}/approve` | Admin | Approve pending transfer |
 
-Edit `.env` and update the database section:
+### AI Chatbot Endpoints
 
-```env
-# Database Configuration
-database.default.hostname = localhost
-database.default.database = CodeIgniter
-database.default.username = root
-database.default.password = student123
-database.default.port = 3306
+| Method | Endpoint | Access | Description |
+|--------|----------|--------|-------------|
+| POST | `/chat` | Admin, Manager | Send natural language query |
+| GET | `/chat/history` | Admin, Manager | View chat history |
 
-# JWT Configuration
-JWT_SECRET = your_super_secret_jwt_key_here_min_32_chars
-JWT_ALGORITHM = HS256
-JWT_EXPIRED_IN = 3600
-JWT_REFRESH_EXPIRED_IN = 604800
+### Sample: Login Request/Response
 
-# App Configuration
-CI_ENVIRONMENT = development
-app.baseURL = http://localhost:8081/
-app.jsSecure = false
-```
-
-#### 2.3 Create Database
-
-```bash
-# Using MySQL CLI
-mysql -u root -p
-CREATE DATABASE CodeIgniter;
-exit;
-
-# OR use phpMyAdmin to create database manually
-```
-
-#### 2.4 Run Migrations
-
-```bash
-# These create all tables
-php spark migrate
-```
-
-Output should show:
-```
-Running all new migrations...
-✓ Created tables: roles, branches, users, products, inventory, etc.
-```
-
-#### 2.5 Seed Test Data
-
-```bash
-# Create roles (admin, manager, sales_user)
-php spark db:seed RoleSeeder
-
-# Create users, branches, products, and inventory
-php spark db:seed UserSeeder
-```
-
-Check in MySQL:
-```bash
-mysql -u root -p CodeIgniter
-SELECT COUNT(*) FROM users;
-SELECT COUNT(*) FROM products;
-SELECT COUNT(*) FROM inventory;
-exit;
-```
-
-#### 2.6 Start Backend Server
-
-```bash
-php spark serve --port 8081
-```
-
-Output:
-```
-CodeIgniter 4.7.0 Development Server
-System up and running!
-Serving CodeIgniter on port 8081
-```
-
-Visit: http://localhost:8081/api/v1/test
-
-Should see: `{"message":"API is running"}`
-
-### Step 3: Frontend Setup
-
-#### 3.1 Navigate to Frontend Directory
-
-```bash
-cd frontend
-```
-
-#### 3.2 Install JavaScript Dependencies
-
-```bash
-npm install
-```
-
-This installs:
-- Vue.js 3
-- Vite build tool
-- Axios HTTP client
-- Vue Router
-- Pinia state management
-- Tailwind CSS
-
-#### 3.3 Configure API Endpoint
-
-Create `.env.local` file in `frontend/` directory:
-
-```env
-VITE_API_URL=http://localhost:8081/api/v1
-```
-
-#### 3.4 Start Frontend Development Server
-
-```bash
-npm run dev
-```
-
-Output:
-```
-  VITE v5.4.21  ready in 234 ms
-
-  ➜  Local:   http://localhost:5174/
-  ➜  press h to show help
-```
-
-### Step 4: Verify Installation
-
-#### 4.1 Test Backend API
-
-Open terminal and test login endpoint:
-
-```bash
-curl -X POST http://localhost:8081/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email":"admin@system.com",
-    "password":"Admin@12345"
-  }'
-```
-
-Expected response:
 ```json
+// POST /auth/login
+{
+  "email": "admin@system.com",
+  "password": "Admin@12345"
+}
+
+// Response
 {
   "success": true,
   "message": "Login successful.",
@@ -735,421 +502,24 @@ Expected response:
 }
 ```
 
-#### 4.2 Test Frontend
+### Sample: Create Order
 
-Open browser: http://localhost:5174
-
-You should see:
-1. Login page
-2. Email/Password input fields
-3. "Login" button
-
-#### 4.3 Test Full Flow
-
-1. Enter credentials: `admin@system.com` / `Admin@12345`
-2. Click Login
-3. Should see Dashboard with:
-   - Navigation menu
-   - Branch selector
-   - Product list
-   - Inventory details
-   - Orders section
-
-#### Troubleshooting
-
-**Backend won't start:**
-```bash
-# Check PHP version
-php --version
-
-# Check if port 8081 is in use
-# Windows: netstat -ano | findstr :8081
-# Mac/Linux: lsof -i :8081
-```
-
-**Database connection failed:**
-```bash
-# Verify MySQL is running
-# Windows: Check Services
-# Mac: brew services list
-# Linux: systemctl status mysql
-
-# Test connection
-mysql -u root -p CodeIgniter
-
-# Check .env database settings
-cat .env
-```
-
-**Frontend won't start:**
-```bash
-# Check Node version
-node --version  # Should be 18+
-
-# Clear npm cache
-npm cache clean --force
-
-# Reinstall dependencies
-rm -rf node_modules package-lock.json
-npm install
-```
-
----
-
-## 📱 Using the Application
-
-### Dashboard
-
-The dashboard appears after login and shows:
-- **Overview Cards**: Total products, orders, branches
-- **Recent Orders**: Latest 10 orders
-- **Inventory Status**: Low stock alerts
-- **Branch Selector**: Switch between branches (if manager)
-
-### Inventory Management
-
-1. Navigate to **Inventory** in left sidebar
-2. View stock levels by branch and product
-3. **Add Stock**: 
-   - Click "Add Stock" button
-   - Select product
-   - Enter quantity
-   - Confirm
-4. **Adjust Stock**:
-   - Click product row
-   - Adjust quantity up/down
-   - Confirm
-5. **Transfer Stock**:
-   - Click "Transfer" button
-   - Select from branch, to branch
-   - Select product and quantity
-   - Confirm
-
-### Order Management
-
-1. Navigate to **Orders** in sidebar
-2. **Create Order**:
-   - Click "Create Order" button
-   - Select branch
-   - Add products and quantities
-   - System auto-calculates: subtotal, tax, total
-   - Confirm (creates order, deducts inventory atomically)
-3. **View Orders**:
-   - List shows all orders for your branch
-   - Click order to see detailed items
-   - Status: Pending or Completed
-
-### Product Management (Admin Only)
-
-1. Navigate to **Products** in sidebar
-2. **Add Product**:
-   - Click "Add Product"
-   - Fill: Name, SKU, Cost, Sale Price, Tax %
-   - Confirm
-3. **Edit Product**:
-   - Click product row
-   - Modify details
-   - Save
-4. **Delete Product**:
-   - Click product
-   - Click "Delete" (soft delete, can be restored)
-
-### Branch Management (Admin Only)
-
-1. Navigate to **Branches** in sidebar
-2. **Create Branch**:
-   - Click "Add Branch"
-   - Fill: Name, Address, Manager (select from manager users)
-   - Confirm
-3. **Edit Branch**:
-   - Click branch
-   - Modify details
-   - Save
-4. **Assign Manager**:
-   - Edit branch
-   - Select new manager from dropdown
-   - Save
-
-### User Management (Admin Only)
-
-1. Navigate to **Users** in sidebar
-2. **Create User**:
-   - Click "Add User"
-   - Fill: Name, Email, Role (admin/manager/sales user)
-   - System generates temporary password
-   - Confirm
-3. **Edit User**:
-   - Click user row
-   - Modify role or status
-   - Save
-4. **Activate/Deactivate**:
-   - Toggle "Active" checkbox
-   - Save
-
----
-
-## 📡 API Reference
-
-### Base URL
-```
-http://localhost:8081/api/v1
-```
-
-### Authentication
-
-#### Login
-```
-POST /auth/login
-Content-Type: application/json
-
-Request:
-{
-  "email": "admin@system.com",
-  "password": "Admin@12345"
-}
-
-Response:
-{
-  "success": true,
-  "message": "Login successful.",
-  "data": {
-    "access_token": "eyJ0eXAiOiJKV1QiLC...",
-    "refresh_token": "eyJ0eXAiOiJKV1QiLC...",
-    "user": {
-      "id": 1,
-      "name": "System Admin",
-      "email": "admin@system.com",
-      "role_id": 1
-    }
-  }
-}
-```
-
-#### Get Current User Profile
-```
-GET /auth/me
-Authorization: Bearer <access_token>
-
-Response:
-{
-  "success": true,
-  "data": {
-    "id": 1,
-    "name": "System Admin",
-    "email": "admin@system.com",
-    "role": "admin"
-  }
-}
-```
-
-#### Refresh Token
-```
-POST /auth/refresh
-Authorization: Bearer <refresh_token>
-
-Response:
-{
-  "success": true,
-  "data": {
-    "access_token": "eyJ0eXAiOiJKV1QiLC...",
-    "refresh_token": "eyJ0eXAiOiJKV1QiLC..."
-  }
-}
-```
-
-#### Logout
-```
-POST /auth/logout
-Authorization: Bearer <access_token>
-
-Response:
-{
-  "success": true,
-  "message": "Logged out successfully."
-}
-```
-
-### Products
-
-#### List Products
-```
-GET /products?page=1&per_page=20&search=widget
-Authorization: Bearer <token>
-
-Response:
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "sku": "PROD-001",
-      "name": "Widget A",
-      "cost_price": "10.0000",
-      "sale_price": "25.0000",
-      "tax_percentage": "17.00",
-      "status": "active"
-    }
-  ]
-}
-```
-
-#### Create Product
-```
-POST /products
-Authorization: Bearer <token>
-Content-Type: application/json
-
-Request:
-{
-  "sku": "PROD-004",
-  "name": "New Product",
-  "cost_price": "50.00",
-  "sale_price": "100.00",
-  "tax_percentage": "17.00"
-}
-
-Response:
-{
-  "success": true,
-  "message": "Product created successfully.",
-  "data": {
-    "id": 4,
-    "sku": "PROD-004",
-    "name": "New Product",
-    ...
-  }
-}
-```
-
-#### Update Product
-```
-PUT /products/{id}
-Authorization: Bearer <token>
-Content-Type: application/json
-
-Request: (same fields as create)
-
-Response: Updated product object
-```
-
-#### Delete Product
-```
-DELETE /products/{id}
-Authorization: Bearer <token>
-
-Response:
-{
-  "success": true,
-  "message": "Product deleted successfully."
-}
-```
-
-### Branches
-
-#### List Branches
-```
-GET /branches
-Authorization: Bearer <token>
-
-Response:
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "name": "Main Branch",
-      "address": "123 Main Street",
-      "manager_id": 2,
-      "manager": {
-        "id": 2,
-        "name": "Branch Manager One"
-      },
-      "is_active": true
-    }
-  ]
-}
-```
-
-#### Create Branch
-```
-POST /branches
-Authorization: Bearer <token>
-Content-Type: application/json
-
-Request:
-{
-  "name": "South Branch",
-  "address": "789 South Street",
-  "phone": "+1-000-0003",
-  "manager_id": 3
-}
-
-Response: Created branch object
-```
-
-### Orders
-
-#### List Orders
-```
-GET /orders?page=1&per_page=20&status=completed
-Authorization: Bearer <token>
-
-Response:
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "order_number": "ORD-20260329-001",
-      "branch_id": 1,
-      "user_id": 4,
-      "subtotal": "100.00",
-      "tax_amount": "17.00",
-      "grand_total": "117.00",
-      "status": "completed",
-      "items": [
-        {
-          "product_id": 1,
-          "product_name": "Widget A",
-          "quantity": 5,
-          "unit_price": "25.00",
-          "line_total": "125.00"
-        }
-      ]
-    }
-  ]
-}
-```
-
-#### Create Order (Main Endpoint)
-```
-POST /orders
-Authorization: Bearer <token>
-Content-Type: application/json
-
-Request:
+```json
+// POST /orders
 {
   "branch_id": 1,
   "items": [
-    {
-      "product_id": 1,
-      "quantity": 5
-    },
-    {
-      "product_id": 2,
-      "quantity": 3
-    }
+    { "product_id": 1, "quantity": 5 },
+    { "product_id": 2, "quantity": 3 }
   ]
 }
 
-Response:
+// Response
 {
   "success": true,
   "message": "Order created successfully.",
   "data": {
-    "id": 1,
-    "order_number": "ORD-20260329-001",
-    "branch_id": 1,
+    "order_number": "ORD-20260407-001",
     "subtotal": "200.00",
     "tax_amount": "34.00",
     "grand_total": "234.00",
@@ -1159,439 +529,179 @@ Response:
 }
 ```
 
-### Inventory
+---
 
-#### List Inventory
-```
-GET /inventory?branch_id=1
-Authorization: Bearer <token>
+## 🔒 Security
 
-Response:
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "branch_id": 1,
-      "product_id": 1,
-      "product_name": "Widget A",
-      "quantity": 95,
-      "reorder_level": 10
-    }
-  ]
-}
-```
-
-#### Get Audit Logs
-```
-GET /inventory/logs?branch_id=1&product_id=1
-Authorization: Bearer <token>
-
-Response:
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "action": "sale",
-      "quantity_change": -5,
-      "user": "Sales User One",
-      "notes": "Order ORD-20260329-001",
-      "created_at": "2026-03-29 10:30:45"
-    }
-  ]
-}
-```
-
-### Stock Transfers
-
-#### Create Transfer
-```
-POST /transfers
-Authorization: Bearer <token>
-Content-Type: application/json
-
-Request:
-{
-  "from_branch_id": 1,
-  "to_branch_id": 2,
-  "product_id": 1,
-  "quantity": 20
-}
-
-Response:
-{
-  "success": true,
-  "message": "Transfer request created successfully.",
-  "data": {
-    "id": 1,
-    "from_branch": "Main Branch",
-    "to_branch": "North Branch",
-    "product_name": "Widget A",
-    "quantity": 20,
-    "status": "pending",
-    "created_by": "System Admin"
-  }
-}
-```
-
-#### Approve Transfer (Admin Only)
-```
-PATCH /transfers/{id}/approve
-Authorization: Bearer <token>
-
-Response:
-{
-  "success": true,
-  "message": "Transfer approved. Stock updated.",
-  "data": {...}
-}
-```
+| Layer | Implementation |
+|-------|----------------|
+| **Authentication** | JWT with access/refresh token rotation, bcrypt password hashing |
+| **Authorization** | Role-based filters, branch scoping, endpoint-level permission checks |
+| **SQL Injection** | CodeIgniter Query Builder with prepared statements |
+| **CORS** | Configurable allowed origins, restricted to frontend domain |
+| **Race Conditions** | Pessimistic locking on inventory during order creation |
+| **Audit Trail** | Append-only inventory_logs with user, action, timestamp |
+| **Token Storage** | In-memory on frontend; httpOnly cookies recommended for production |
+| **Input Validation** | Server-side validation on all API endpoints |
 
 ---
 
-## 🔐 Security Features
+## 🔄 Development Workflow
 
-### Authentication
-- ✅ **JWT Tokens**: Stateless, secure bearer tokens
-- ✅ **Token Expiration**: Access (1 hour), Refresh (7 days)
-- ✅ **BCRYPT Hashing**: Passwords hashed, never stored plain text
-- ✅ **Bearer Token**: Sent in `Authorization` header
-
-### Authorization
-- ✅ **Role-Based Access Control**: Admin, Manager, Sales User
-- ✅ **Branch Isolation**: Users only see their branch's data
-- ✅ **Automatic Checks**: Every endpoint validates permissions
-- ✅ **Soft Deletes**: Audit trail maintained
-
-### Data Protection
-- ✅ **SQL Injection Prevention**: Prepared statements, Query Builder
-- ✅ **CORS Security**: Whitelist API origins
-- ✅ **Input Validation**: Server-side validation on all endpoints
-- ✅ **Database Transactions**: Atomicity for critical operations
-
-### Inventory Safety
-- ✅ **Pessimistic Locking**: Prevents race conditions
-- ✅ **Negative Check**: Inventory never goes below 0
-- ✅ **Audit Logs**: Every change tracked with timestamp and user
-- ✅ **Transaction Rollback**: Failed orders don't deduct inventory
+1. **Create Feature Branch** from `develop`
+2. **Implement Changes** following Architecture.agent.md guidelines
+3. **Write Tests** for new functionality
+4. **Run Linting & Type Checks** (`npm run lint`, `php spark analyze`)
+5. **Submit Pull Request** with description and test results
+6. **Code Review** by team member
+7. **Merge to Develop** after approval
+8. **Deploy to Staging** for integration testing
+9. **Release to Production** with version tag
 
 ---
 
-## 🔧 Configuration Files
+## ⚡ Performance Considerations
 
-### Environment Variables (.env)
-
-```env
-# App
-CI_ENVIRONMENT = development
-app.baseURL = http://localhost:8081/
-
-# Database
-database.default.hostname = localhost
-database.default.database = CodeIgniter
-database.default.username = root
-database.default.password = student123
-database.default.port = 3306
-
-# JWT
-JWT_SECRET = your_super_secret_key_min_32_chars
-JWT_ALGORITHM = HS256
-JWT_EXPIRED_IN = 3600
-JWT_REFRESH_EXPIRED_IN = 604800
-
-# Security
-app.sessionDriver = files
-app.sessionCookieName = PHPSESSID
-app.cookieSecure = false
-```
-
-### Routes Configuration (app/Config/Routes.php)
-
-```php
-// API v1 Routes (all require JWT token)
-$routes->group('api/v1', ['namespace' => 'App\Controllers\Api\V1'], function($routes) {
-    
-    // Auth (no auth required for login)
-    $routes->post('auth/login', 'AuthController::login');
-    $routes->post('auth/refresh', 'AuthController::refresh', ['filter' => 'authJwt']);
-    $routes->post('auth/logout', 'AuthController::logout', ['filter' => 'authJwt']);
-    $routes->get('auth/me', 'AuthController::me', ['filter' => 'authJwt']);
-    
-    // Protected endpoints
-    $routes->group('', ['filter' => 'authJwt'], function($routes) {
-        
-        // Products
-        $routes->get('products', 'ProductController::list');
-        $routes->post('products', 'ProductController::create');
-        $routes->put('products/(:num)', 'ProductController::update/$1');
-        $routes->delete('products/(:num)', 'ProductController::delete/$1');
-        
-        // Orders
-        $routes->get('orders', 'OrderController::list');
-        $routes->post('orders', 'OrderController::create');
-        $routes->get('orders/(:num)', 'OrderController::show/$1');
-        
-        // Inventory
-        $routes->get('inventory', 'InventoryController::list');
-        $routes->post('inventory/adjust', 'InventoryController::adjust');
-        $routes->get('inventory/logs', 'InventoryController::getLogs');
-        
-        // Stock Transfers
-        $routes->post('transfers', 'TransferController::create');
-        $routes->patch('transfers/(:num)/approve', 'TransferController::approve/$1');
-        
-        // Branches (admin only)
-        $routes->get('branches', 'BranchController::list', ['filter' => 'role:admin']);
-        $routes->post('branches', 'BranchController::create', ['filter' => 'role:admin']);
-        $routes->put('branches/(:num)', 'BranchController::update/$1', ['filter' => 'role:admin']);
-        
-        // Users (admin only)
-        $routes->get('users', 'UserController::list', ['filter' => 'role:admin']);
-        $routes->post('users', 'UserController::create', ['filter' => 'role:admin']);
-        $routes->put('users/(:num)', 'UserController::update/$1', ['filter' => 'role:admin']);
-    });
-});
-
-// API Health Check (no auth required)
-$routes->get('api/v1/test', 'Api\V1\TestController::index');
-```
+| Area | Strategy |
+|------|----------|
+| **Database Indexes** | Primary keys, foreign keys, unique constraints, frequently queried columns |
+| **Query Optimization** | Eager loading to prevent N+1 queries, selective field retrieval |
+| **Pagination** | All list endpoints support `page` and `per_page` parameters |
+| **Caching** | CodeIgniter cache for static data (roles, product catalog) |
+| **JWT Statelessness** | No session storage; tokens are self-contained and validated independently |
+| **Frontend Bundle** | Vite code splitting, lazy-loaded routes, tree-shaking |
 
 ---
 
-## 🧪 Testing the System
+## 🧪 Testing
+
+### Backend Testing
+
+```bash
+# Run PHPUnit tests
+php spark test
+
+# Run specific test suite
+vendor/bin/phpunit --filter OrderTest
+```
 
 ### Manual Testing Scenarios
 
-#### Scenario 1: Login as Admin
+1. **Login Flow** — Authenticate with each role and verify access levels
+2. **Order Creation** — Create order, verify inventory deduction and audit log
+3. **Stock Transfer** — Request transfer, approve, verify both branch inventories
+4. **Negative Stock Prevention** — Attempt to order more than available stock
+5. **Branch Isolation** — Login as manager, confirm only own branch visible
+
+### API Testing with cURL
 
 ```bash
-# 1. Login
+# Test login
 curl -X POST http://localhost:8081/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@system.com","password":"Admin@12345"}'
 
-# Note the access_token from response
-
-# 2. Get user profile
-curl http://localhost:8081/api/v1/auth/me \
-  -H "Authorization: Bearer <access_token>"
-
-# 3. List all products
+# Test authenticated endpoint
 curl http://localhost:8081/api/v1/products \
   -H "Authorization: Bearer <access_token>"
-
-# 4. List all branches
-curl http://localhost:8081/api/v1/branches \
-  -H "Authorization: Bearer <access_token>"
-```
-
-#### Scenario 2: Create an Order
-
-```bash
-# 1. Login as sales user
-curl -X POST http://localhost:8081/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"sales@branch1.com","password":"Sales@12345"}'
-
-# Save token
-
-# 2. Create order with 5x Widget A and 3x Widget B
-curl -X POST http://localhost:8081/api/v1/orders \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "branch_id": 1,
-    "items": [
-      {"product_id": 1, "quantity": 5},
-      {"product_id": 2, "quantity": 3}
-    ]
-  }'
-
-# 3. Check inventory was updated
-curl http://localhost:8081/api/v1/inventory?branch_id=1 \
-  -H "Authorization: Bearer <token>"
-
-# Verify stock for products 1 & 2 decreased
-```
-
-#### Scenario 3: Transfer Stock Between Branches
-
-```bash
-# 1. Login as admin
-curl -X POST http://localhost:8081/api/v1/auth/login \
-  -d '{"email":"admin@system.com","password":"Admin@12345"}'
-
-# 2. Create transfer: 20x Widget A from Branch 1 to Branch 2
-curl -X POST http://localhost:8081/api/v1/transfers \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "from_branch_id": 1,
-    "to_branch_id": 2,
-    "product_id": 1,
-    "quantity": 20
-  }'
-
-# 3. Approve transfer (admin only)
-curl -X PATCH http://localhost:8081/api/v1/transfers/1/approve \
-  -H "Authorization: Bearer <token>"
-
-# 4. Check inventory for both branches
-curl http://localhost:8081/api/v1/inventory?branch_id=1 \
-  -H "Authorization: Bearer <token>"
-curl http://localhost:8081/api/v1/inventory?branch_id=2 \
-  -H "Authorization: Bearer <token>"
 ```
 
 ---
 
-## 📚 Project Structure Summary
+## 📋 Deployment Checklist
 
-```
-┌─ Backend (PHP/CodeIgniter)
-│  ├─ API Endpoints: 50+ configured routes
-│  ├─ Authentication: JWT with refresh tokens
-│  ├─ Authorization: Role-based filters
-│  ├─ Business Logic: Service layer pattern
-│  ├─ Database: 9 tables with relationships
-│  └─ Validation: Input validation on all endpoints
-│
-├─ Frontend (Vue.js)
-│  ├─ SPA: Single-page application
-│  ├─ Components: Reusable Vue components
-│  ├─ State Management: Pinia store
-│  ├─ Routing: Vue Router with guards
-│  └─ HTTP: Axios with interceptors
-│
-└─ Database (MySQL)
-   ├─ Users & Roles
-   ├─ Branches (multi-tenancy)
-   ├─ Products & Inventory
-   ├─ Orders & Items
-   ├─ Stock Transfers
-   └─ Audit Logs
-```
-
----
-
-## 🎓 Key Features Explained
-
-### 1. **Multi-Branch Architecture**
-Each branch operates independently with:
-- Separate inventory per product
-- Branch manager assignment
-- Branch-specific users
-- Isolated order processing
-- Admin sees all branches, managers see only their branch
-
-### 2. **Safe Order Processing**
-Orders use database transactions to:
-1. Validate stock availability
-2. Calculate subtotal, tax, total
-3. Create order record
-4. Deduct inventory atomically
-5. Create audit log entry
-- If any step fails, entire transaction rolls back
-- Pessimistic locking prevents race conditions
-
-### 3. **Role-Based Access Control**
-- **Admin**: Full system access, manage users/branches/products
-- **Branch Manager**: Manage their branch, view reports
-- **Sales User**: Create orders, view inventory
-
-### 4. **Inventory Audit Trail**
-Every change tracked:
-- Who made the change
-- What action (add, subtract, sale, transfer)
-- Quantity change
-- Timestamp
-- Cannot be deleted (immutable log)
-
----
-
-## ❓ FAQ
-
-**Q: How do I reset the database?**
-```bash
-php spark migrate:refresh
-php spark db:seed RoleSeeder
-php spark db:seed UserSeeder
-```
-
-**Q: Can I use a different database name?**
-Yes, update both:
-- `.env` file: `database.default.database = YourDBName`
-- Then: `php spark migrate`
-
-**Q: How do I add a new role?**
-Edit database directly in `roles` table, then create new seeder users.
-
-**Q: How do I disable a user?**
-Use the Users API endpoint to set `is_active = 0`
-
-**Q: How do I backup the database?**
-```bash
-mysqldump -u root -p CodeIgniter > backup.sql
-```
-
-**Q: What if I forget a password?**
-Currently no password reset. Re-run seeders to reset test credentials.
-
----
-
-## 📞 Support & Troubleshooting
-
-### Common Issues
-
-| Issue | Solution |
-|-------|----------|
-| **CORS Error** | Update CORS_ALLOWED_ORIGINS in .env |
-| **JWT Token Expired** | Use refresh endpoint to get new token |
-| **Insufficient Stock** | Check inventory before creating order |
-| **Port Already in Use** | Use different port: `php spark serve --port 9000` |
-| **MySQL Connection Failed** | Verify database name, user, password in .env |
-| **VITE cannot find API** | Check VITE_API_URL in frontend/.env.local |
-
-### Logs & Debugging
-
-Backend logs: `writable/logs/`
-Frontend console: Browser DevTools (F12)
-Database logs: MySQL query log (if enabled)
-
----
-
-## 🚀 Deployment Checklist
-
-- [ ] Set `CI_ENVIRONMENT = production` in .env
-- [ ] Update `JWT_SECRET` with secure random key
-- [ ] Enable HTTPS (cookies secure = true)
+- [ ] Set `CI_ENVIRONMENT = production` in `.env`
+- [ ] Generate secure `JWT_SECRET` (minimum 32 characters)
+- [ ] Enable HTTPS (`app.cookieSecure = true`)
 - [ ] Configure CORS for production domain
-- [ ] Move writable/ directory outside web root
-- [ ] Enable database backups
-- [ ] Set up monitoring & logging
-- [ ] Test all API endpoints in production
-- [ ] Create admin account for production
-- [ ] Document API endpoints for team
+- [ ] Move `writable/` directory outside web root
+- [ ] Set up automated database backups
+- [ ] Configure production logging
+- [ ] Enable OPcache for PHP
+- [ ] Set up monitoring and alerting
+- [ ] Test all API endpoints in staging environment
+- [ ] Create production admin account
+- [ ] Document API endpoints for development team
+- [ ] Configure CI/CD pipeline for automated deployments
 
 ---
 
-## 📖 Additional Documentation
+## 🔧 Troubleshooting
 
-- Full API Documentation: See `docs/API.md`
-- Architecture Decisions: See `system_design.md`
-- AI Development Workflow: See `AI_SDLC.md`
-
----
-
-## ✨ Credits
-
-**Framework**: [CodeIgniter 4](https://codeigniter.com)
-**Frontend**: [Vue.js 3](https://vuejs.org)
-**Database**: [MySQL](https://www.mysql.com)
-**Auth**: [firebase/php-jwt](https://github.com/firebase/php-jwt)
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| **CORS Error** | Frontend origin not in allowed list | Add frontend URL to CORS config in `.env` |
+| **JWT Token Expired** | Access token expired (1 hour) | Use `/auth/refresh` with refresh_token |
+| **Insufficient Stock** | Order quantity exceeds available inventory | Check inventory before creating order |
+| **Port Already in Use** | Another process using port 8081 | Use different port: `php spark serve --port 9000` |
+| **MySQL Connection Failed** | Incorrect database credentials in `.env` | Verify database name, username, password |
+| **VITE Cannot Find API** | Missing or incorrect `VITE_API_URL` | Create `frontend/.env.local` with correct URL |
+| **Blank Frontend** | Build error or missing dependencies | Run `npm install` and check browser console |
 
 ---
 
-**Last Updated**: March 29, 2026
-**Version**: 1.0.0 (Phase 2 Complete - AI-Driven Development)
+## 🤝 Contributing
+
+1. **Fork the Repository**
+2. **Create Feature Branch** (`git checkout -b feature/amazing-feature`)
+3. **Commit Changes** (`git commit -m 'feat: add amazing feature'`)
+4. **Push to Branch** (`git push origin feature/amazing-feature`)
+5. **Open Pull Request** with detailed description
+
+### Commit Message Convention
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+- `feat:` — New feature
+- `fix:` — Bug fix
+- `docs:` — Documentation changes
+- `style:` — Formatting changes
+- `refactor:` — Code refactoring
+- `test:` — Test additions or changes
+- `chore:` — Build or tooling changes
+
+---
+
+## 🗺️ Roadmap
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| Barcode/QR Scanning | Planned | Mobile scanning for product lookup and stock adjustments |
+| Advanced Reporting | Planned | Sales reports, inventory valuation, trend analysis |
+| Multi-Currency Support | Planned | Support for international currencies and exchange rates |
+| Supplier Management | Planned | Vendor database, purchase orders, supplier performance tracking |
+| Mobile App | Planned | React Native app for field operations |
+| Email Notifications | Planned | Low-stock alerts, order confirmations, transfer approvals |
+| Advanced AI Chatbot | In Progress | Predictive analytics, automated insights, trend forecasting |
+| API Rate Limiting | Planned | Prevent abuse with configurable rate limits |
+
+---
+
+## 📚 Additional Documentation
+
+- **Architecture Decisions:** `Architecture.agent.md`
+- **AI Development Workflow:** `AI_SDLC.md`
+- **Multi-Agent Chatbot Architecture:** `docs/MULTI_AGENT_ARCHITECTURE.md`
+- **API Documentation:** `docs/API.md`
+- **Technical Assignment:** `Technical Assignment – CodeIgniter + AI-Driven Development.pdf`
+
+---
+
+## 📄 License
+
+This project is proprietary software. All rights reserved.
+
+---
+
+## 📞 Support
+
+For issues, questions, or contributions:
+
+- **Email:** admin@example.com
+- **Documentation:** See the `/docs` directory
+- **Issues:** Open an issue in the repository
+
+---
+
+**Last Updated:** April 7, 2026  
+**Version:** 1.0.0 (Phase 2 Complete — AI-Driven Development)
