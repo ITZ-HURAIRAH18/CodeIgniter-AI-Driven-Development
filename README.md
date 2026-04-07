@@ -697,7 +697,7 @@ This project is proprietary software. All rights reserved.
 
 For issues, questions, or contributions:
 
-- **Email:** admin@example.com
+- **Email:** muhammadabuhurairah22@example.com
 - **Documentation:** See the `/docs` directory
 - **Issues:** Open an issue in the repository
 
